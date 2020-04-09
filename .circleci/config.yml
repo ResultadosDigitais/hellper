@@ -1,0 +1,23 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:1.13
+        environment:
+          HELLPER_DSN: "postgres://hellper_test:@127.0.0.1:5432/hellper_test?sslmode=disable"
+          DATABASE: "hellper_test"
+      - image: postgres:9.4.15
+        environment:
+          POSTGRES_USER: hellper_test
+          POSTGRES_DB: hellper_test
+    working_directory: /go/src/github.com/ResultadosDigitais/hellper
+    steps:
+      - checkout
+      - run:
+          name: Database Setup
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y --allow-unauthenticated postgresql-client --no-install-recommends
+            psql $HELLPER_DSN -f "./internal/model/sql/postgres/schema/hellper.sql"
+      - run: go get -v -t -d ./...
+      - run: go test ./...

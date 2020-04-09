@@ -1,0 +1,10 @@
+.DS_Store
+*.swp
+*.env
+*.coverage*
+*.pprof
+*.test
+/hellperd
+/hellperc
+/tmp
+/vendor

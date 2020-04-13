@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://circleci.com/gh/ResultadosDigitais/hellper"><img alt="CircleCI" src="https://circleci.com/gh/ResultadosDigitais/hellper.svg?style=svg&circle-token=66f54e118b9316ddfb9357299268c42dc772df04"></a>
-  <a href="https://dependabot.com"><img alt="Dependabot Status" src="https://api.dependabot.com/badges/status?host=github&repo=ResultadosDigitais/hellper&identifier=160399958"></a>
+  <a href="https://dependabot.com"><img alt="Dependabot Status" src="https://api.dependabot.com/badges/status?host=github&repo=ResultadosDigitais/hellper&identifier=254472121"></a>
   <a href="#contributing"><img src="https://img.shields.io/badge/PRs-welcome-informational.svg" alt="PRs welcome!" /></a>
   <a href="#license"><img alt="License" src="https://img.shields.io/badge/license-MIT-informational"></a>
 </p>
@@ -36,7 +36,7 @@
 
 
 ## Getting Started
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment (#deployment) for notes on how to deploy the project on a live system.
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See [deployment](#deployment) for notes on how to deploy the project on a live system.
 
 ### Prerequisites
 1. [Docker Compose](https://github.com/docker/compose/releases)

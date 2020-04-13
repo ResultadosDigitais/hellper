@@ -59,22 +59,27 @@ git clone git@github.com:ResultadosDigitais/hellper.git
 ```
 cp development.env.example development.env
 ```
+
 #### Variables explanation
-| Variable | Explanation |
-| --- | --- |
-|**HELLPER_DATABASE** |Database provider (supported values: postgres)|
-|**HELLPER_DSN** |Your Data Source Name|
-|**HELLPER_ENVIRONMENT** |Current environment (supported values: production,staging)|
-|**HELLPER_GOOGLE_DRIVE_CREDENTIALS** |Google Drive Credentials | Use Google Developers Console client_credentials.json file to construct a config. client_credentials.json can be downloaded from [console developers](https://console.developers.google.com), under "Credentials". Download the Web application credentials in the JSON format and provide the contents of the file as jsonKey|
-|**HELLPER_GOOGLE_DRIVE_FILE_ID**|Google Drive FileId to your post-mortem template|
-|**HELLPER_GOOGLE_DRIVE_TOKEN**|Google Drive Token|
-|**HELLPER_MATRIX_HOST**|[Matrix](https://github.com/ResultadosDigitais/matrix) URL host|
-|**HELLPER_OAUTH_TOKEN**|Slack token to execute oauth actions [Your app menu > Features > OAuth & Permissions]|
-|**HELLPER_PRODUCT_CHANNEL_ID**|The Product channel id used to notify new incidents|
-|**HELLPER_REMINDER_STATUS_SECONDS**|Contains the time for the stat reminder to be triggered in open incidents, by default the time is 2 hours if there is no variable|
-|**HELLPER_SUPPORT_TEAM**|Support team identifier to notify|
-|**HELLPER_USER_TOKEN**|Slack token to exeucte bot user actions|
-|**HELLPER_VERIFICATION_TOKEN**|Slack token to verify external requests|
+| Variable | Explanation | Default value |
+| --- | --- | --- |
+|**HELLPER_LANGUAGE**|Hellper languague|`pt-br`|
+|**HELLPER_BIND_ADDRESS**|Hellper local bind address|`:8080`|
+|**HELLPER_DATABASE**|Database provider (supported values: postgres)| `postgres` |
+|**HELLPER_DSN**|Your Data Source Name| --- |
+|**HELLPER_ENVIRONMENT**|Current environment (supported values: production, staging)| --- |
+|**HELLPER_GOOGLE_DRIVE_CREDENTIALS**|[Google Drive Credentials](/docs/CONFIGURING-GOOGLE.md#Get-a-Client-ID-and-Client-Secret)| --- |
+|**HELLPER_GOOGLE_DRIVE_FILE_ID**|[Google Drive FileId](/docs/CONFIGURING-GOOGLE.md#Template-Post-mortem) to your post-mortem template| --- |
+|**HELLPER_GOOGLE_DRIVE_TOKEN**|[Google Drive Token](/docs/CONFIGURING-GOOGLE.md#Signing-in-to-the-application)| --- |
+|**HELLPER_MATRIX_HOST**|[Matrix](https://github.com/ResultadosDigitais/matrix) URL host| --- |
+|**HELLPER_PRODUCT_CHANNEL_ID**|The Product channel id used to notify new incidents| --- |
+|**HELLPER_SUPPORT_TEAM**|Support team identifier to notify| --- |
+|**HELLPER_REMINDER_STATUS_SECONDS**|Contains the time for the stat reminder to be triggered in open incidents, by default the time is 2 hours if there is no variable| `7200` |
+|**HELLPER_OAUTH_TOKEN**|[Slack token](/docs/CONFIGURING-SLACK.md#User-Token-Scopes) to exeucte bot user actions| --- |
+|**HELLPER_VERIFICATION_TOKEN**|[Slack token](/docs/CONFIGURING-SLACK.md#User-Token-Scopes) to verify external requests| --- |
+|**HELLPER_NOTIFY_ON_RESOLVE**|Notify the main channel when resolve the incident| `true` |
+|**HELLPER_NOTIFY_ON_CLOSE**|Notify the main channel when close the incident| `true` |
+|**FILE_STORAGE**|Hellper file storage for postmortem document| `google_drive` |
 
 ## Running the Tests
 1. `make test`
@@ -90,9 +95,9 @@ _Coming soon_
 
 ### Ngrok (To receive events from Slack)
 - Download Ngrok https://ngrok.com/ and create account
-
 - `sudo cp ngrok /usr/local/bin`
 - `ngrok http 8080`
+- Copy your public address. You'll need this to [Configure Slack API](/docs/CONFIGURING-SLACK.md)
 
 ### Golang
 - Install [golang](https://golang.org/doc/install)

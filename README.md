@@ -4,7 +4,12 @@
   Hellper - Your best friend in times of crisis<br>
 </h1>
 
-<div align="center">Hellper bot aims to orchestrate the process and resolution of incidents, reducing the time spent with manual tasks and ensuring that the necessary steps are fulfilled in the right order.</div>
+<div align="center">Hellper bot aims to orchestrate the process and resolution of incidents, reducing the time spent with manual tasks and ensuring that the necessary steps are fulfilled in the right order. Also, it facilitates the measurement of impact and response rate through [metrics](#metrics).
+
+  <p>A chance to help explore and develop a bot written in Go, integrated with multiple external platforms and tools.</p>
+  <p>Help us expand incident processes’ and understand the needs of other companies that may benefit from Hellper bot.</p>
+  <p>You’re just one PR away from joining the developing team of Hellper! [Contribute](#contributing)</p>
+</div>
 
 <p align="center">
   <a href="https://circleci.com/gh/ResultadosDigitais/hellper"><img alt="CircleCI" src="https://circleci.com/gh/ResultadosDigitais/hellper.svg?style=svg&circle-token=66f54e118b9316ddfb9357299268c42dc772df04"></a>

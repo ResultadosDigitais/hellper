@@ -4,11 +4,11 @@
   Hellper - Your best friend in times of crisis<br>
 </h1>
 
-<div align="center">The Hellper bot aims to orchestrate the resolution of incidents, reducing the time with manual tasks and ensuring that the necessary steps are fulfilled in the right order.</div>
+<div align="center">Hellper bot aims to orchestrate the process and resolution of incidents, reducing the time spent with manual tasks and ensuring that the necessary steps are fulfilled in the right order.</div>
 
 <p align="center">
   <a href="https://circleci.com/gh/ResultadosDigitais/hellper"><img alt="CircleCI" src="https://circleci.com/gh/ResultadosDigitais/hellper.svg?style=svg&circle-token=66f54e118b9316ddfb9357299268c42dc772df04"></a>
-  <a href="https://dependabot.com"><img alt="Dependabot Status" src="https://api.dependabot.com/badges/status?host=github&repo=ResultadosDigitais/hellper&identifier=160399958"></a>
+  <a href="https://dependabot.com"><img alt="Dependabot Status" src="https://api.dependabot.com/badges/status?host=github&repo=ResultadosDigitais/hellper&identifier=254472121"></a>
   <a href="#contributing"><img src="https://img.shields.io/badge/PRs-welcome-informational.svg" alt="PRs welcome!" /></a>
   <a href="#license"><img alt="License" src="https://img.shields.io/badge/license-MIT-informational"></a>
 </p>
@@ -21,21 +21,22 @@
    * [Installing](#installing)
 2. [Running the Tests](#running-the-tests)
 3. [Running the Application](#running-the-application)
-4. [Optional Setup](#optional-setup)
+4. [Deployment](#deployment)
+5. [Optional Setup](#optional-setup)
    * [Ngrok (To receive events from Slack)](#ngrok-to-receive-events-from-slack)
    * [Setup Golang](#setup-golang)
    * [Setup Database](#setup-database)
-5. [How to use](#how-to-use)
+6. [How to use](#how-to-use)
    * [Commands](#commands)
    * [Metrics](#metrics)
-6. [Contributing](#contributing)
-7. [Code of Conduct](#code-of-conduct)
-8. [Need help?](#need-help)
-9. [License](#license)
+7. [Contributing](#contributing)
+8. [Code of Conduct](#code-of-conduct)
+9. [Need help?](#need-help)
+10. [License](#license)
 
 
 ## Getting Started
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See [deployment](#deployment) for notes on how to deploy the project on a live system.
 
 ### Prerequisites
 1. [Docker Compose](https://github.com/docker/compose/releases)
@@ -78,6 +79,9 @@ cp development.env.example development.env
 2. `make run`
 ___
 
+## Deployment
+_Coming soon_
+
 ## Optional Setup
 
 ### Ngrok (To receive events from Slack)
@@ -103,7 +107,7 @@ psql $HELLPER_DSN -f "./internal/model/sql/postgres/schema/hellper.sql"
 ## How to use
 
 ### Commands
-_It's need to improve_
+_Needs improvement_
 
 
 ### Metrics

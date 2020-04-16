@@ -47,7 +47,7 @@
 - And click on the __Install App to Workspace__
 - Select a channel to Slack post to as an app and click on the __Allow__
 - Copy the __Bot User OAuth Access Token__
-- Paste de code into variables `HELLPER_OAUTH_TOKEN`
+- Paste de code into variable `HELLPER_OAUTH_TOKEN`
 - Restart your application
 
 
@@ -73,7 +73,7 @@ Your Response:
 ```
 _* in your console application will receive the same info too._
 
-- Copy the `token` and past into `hellper_verification_token`.
+- Copy the `token` and past into variable `HELLPER_VERIFICATION_TOKEN`.
 - Restar your application and try again
 
 
@@ -86,13 +86,13 @@ Subscribe to bot events
 
 | Command  | Request URL | Short Description |
 | - | - | - |
-|`/hellper_incident`|https://44744f1c.ngrok.io/open|_Start Incident_|
-|`/hellper_status`|https://44744f1c.ngrok.io/status|_Show all pinned messages_|
-|`/hellper_close`|https://44744f1c.ngrok.io/close|_Close Incident_|
-|`/hellper_resolve`|https://44744f1c.ngrok.io/resolve|_Resolve Incident_|
-|`/hellper_cancel`|https://44744f1c.ngrok.io/cancel|_Cancel Incident_|
-|`/hellper_update_dates`|https://44744f1c.ngrok.io/dates|_Update the dates for an incident_|
+|`/hellper_incident`|https://yourhost.publicaddress.com/open|_Start Incident_|
+|`/hellper_status`|https://yourhost.publicaddress.com/status|_Show all pinned messages_|
+|`/hellper_close`|https://yourhost.publicaddress.com/close|_Close Incident_|
+|`/hellper_resolve`|https://yourhost.publicaddress.com/resolve|_Resolve Incident_|
+|`/hellper_cancel`|https://yourhost.publicaddress.com/cancel|_Cancel Incident_|
+|`/hellper_update_dates`|https://yourhost.publicaddress.com/dates|_Update the dates for an incident_|
 
 - At last, click on the __Save Changes__
 
-- Now, in __Features__/__Interactivity & Shortcuts__ turn on the option __Interactivity__ and configure your address URL `http://44744f1c.ngrok.io/interactive`
+- Now, in __Features__/__Interactivity & Shortcuts__ turn on the option __Interactivity__ and configure your address URL `http://yourhost.publicaddress.com/interactive`

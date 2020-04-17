@@ -1,0 +1,78 @@
+{
+  "name": "Hellper",
+  "description": "Hellper bot aims to orchestrate the process and resolution of incidents, reducing the time spent with manual tasks and ensuring that the necessary steps are fulfilled in the right order. Also, it facilitates the measurement of impact and response rate through metrics.",
+  "repository": "https://github.com/ResultadosDigitais/hellper",
+  "keywords": ["incident"],
+  "stack": "container",
+  "env": {
+    "HELLPER_BIND_ADDRESS": {
+      "description": "Hellper local bind address",
+      "value": ":8080"
+    },
+    "HELLPER_DATABASE": {
+      "description": "Hellper database provider",
+      "value": "postgres"
+    },
+    "HELLPER_DSN": {
+      "description": "Hellper database URL",
+      "value": "postgres://your_address"
+    },
+    "HELLPER_ENVIRONMENT": {
+      "description": "Hellper current environment",
+      "value": "staging"
+    },
+    "HELLPER_GOOGLE_DRIVE_CREDENTIALS": {
+      "description": "Google Drive Credentials",
+      "value": "YOUR_GOOGLE_DRIVE_CREDENTIALS"
+    },
+    "HELLPER_GOOGLE_DRIVE_FILE_ID": {
+      "description": "Google Drive FileId",
+      "value": "YOUR_GOOGLE_DRIVE_FILE_ID"
+    },
+    "HELLPER_GOOGLE_DRIVE_TOKEN": {
+      "description": "Google Drive Token",
+      "value": "YOUR_GOOGLE_DRIVE_TOKEN"
+    },
+    "HELLPER_LANGUAGE": {
+      "description": "Hellper languague",
+      "value": "pt-br"
+    },
+    "HELLPER_MATRIX_HOST": {
+      "description": "Matrix host",
+      "value": "YOUR_MATRIX_HOST"
+    },
+    "HELLPER_NOTIFY_ON_CLOSE": {
+      "description": "Notify the main channel when close the incident",
+      "value": "true"
+    },
+    "HELLPER_NOTIFY_ON_RESOLVE": {
+      "description": "Notify the main channel when resolve the incident",
+      "value": "true"
+    },
+    "HELLPER_OAUTH_TOKEN": {
+      "description": "Slack Token to execute oauth actions",
+      "value": "YOUR_SLACK_OAUTH_TOKEN"
+    },
+    "HELLPER_PRODUCT_CHANNEL_ID": {
+      "description": "The Product channel id",
+      "value": "#incidents"
+    },
+    "HELLPER_REMINDER_STATUS_SECONDS": {
+      "description": "Contains the time for the stat reminder to be triggered",
+      "value": "1800"
+    },
+    "HELLPER_SUPPORT_TEAM": {
+      "description": "Support team identifier",
+      "value": "@team-incident"
+    },
+    "HELLPER_VERIFICATION_TOKEN": {
+      "description": "Slack Token to verify external requests",
+      "value": "YOUR_SLACK_VERIFICATION_TOKEN"
+    },
+    "ENFORCE_SSL": {
+      "description": "If you running in HTTPS this variable forces redirect to HTTPS when user access with HTTP",
+      "value": "true"
+    }
+  },
+  "addons": ["heroku-postgresql:hobby-dev"]
+}

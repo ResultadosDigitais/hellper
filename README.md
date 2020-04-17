@@ -86,10 +86,25 @@ cp development.env.example development.env
 
 ## Running the application
 2. `make run`
-___
 
 ## Deployment
-_Coming soon_
+[![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
+
+### Setup database
+
+* Run this command and copy the address:
+
+`heroku config:get DATABASE_URL`
+
+* Run this command and past it on the YOUR_DATABASE_URL:
+
+`heroku config:set HELLPER_DSN=YOUR_DATABASE_URL`
+
+* Import the scheema changing `YOUR_HEROKU_APP_NAME` by your application name:
+
+`heroku pg:psql --app YOUR_HEROKU_APP_NAME < internal/model/sql/postgres/schema/hellper.sql`
+
+* Configure yours [environment variables](#Variables-explanation)
 
 ## Optional Setup
 
@@ -130,7 +145,6 @@ After [Configuring Slack](/docs/CONFIGURING-SLACK.md) you can use the commands c
 The first command `/hellper_incident` can be use at any channel and/or conversation on Slack. It will open a pop-up for the user to set and start an Incident, creating the channel, meeting room link and post-mortem doc.
 
 The remaining commands must be used only on the Incident's channel since they act on the specific incident that is open.
-
 
 ### Metrics
 This metrics came from `metrics` view table, they are calculated by the following formulas:

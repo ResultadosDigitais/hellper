@@ -55,7 +55,7 @@
     },
     "HELLPER_PRODUCT_CHANNEL_ID": {
       "description": "The Product channel id",
-      "value": "#incidents"
+      "value": "#your-incident-channel"
     },
     "HELLPER_REMINDER_STATUS_SECONDS": {
       "description": "Contains the time for the stat reminder to be triggered",
@@ -63,7 +63,7 @@
     },
     "HELLPER_SUPPORT_TEAM": {
       "description": "Support team identifier",
-      "value": "@team-incident"
+      "value": "@your-incident-team"
     },
     "HELLPER_VERIFICATION_TOKEN": {
       "description": "Slack Token to verify external requests",

@@ -60,9 +60,10 @@ func NewHandlerRoute() func(http.ResponseWriter, *http.Request) {
 		case "events":
 			eventsHandler.ServeHTTP(w, r)
 		case "open":
-			if authenticateRequest(w, r) {
-				openHandler.ServeHTTP(w, r)
-			}
+			openHandler.ServeHTTP(w, r)
+			// if authenticateRequest(w, r) {
+			// 	openHandler.ServeHTTP(w, r)
+			// }
 		case "interactive":
 			if authenticateRequest(w, r) {
 				interactiveHandler.ServeHTTP(w, r)

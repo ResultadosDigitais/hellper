@@ -34,6 +34,7 @@ func (h *handlerOpen) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	)
 
 	r.ParseForm()
+	token1 := r.FormValue("token")
 
 	buf.ReadFrom(r.Body)
 	body := buf.String()
@@ -53,6 +54,14 @@ func (h *handlerOpen) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	)
 
 	triggerID := r.FormValue("trigger_id")
+	token2 := r.FormValue("token")
+
+	logger.Info(
+		ctx,
+		"tokens",
+		log.NewValue("token1", token1),
+		log.NewValue("token2", token2),
+	)
 
 	err := commands.OpenStartIncidentDialog(h.client, triggerID)
 	if err != nil {

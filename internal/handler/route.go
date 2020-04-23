@@ -34,11 +34,18 @@ func init() {
 	commands.StartAllReminderJobs(logger, client, repository)
 }
 
+func authenticateRequest(token string) bool {
+	if token != config.Env.VerificationToken {
+		return false
+	}
+
+	return true
+}
+
 // NewHandlerRoute handles the http requests received and calls the correct handler.
 func NewHandlerRoute() func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-
-		w.WriteHeader(http.StatusOK)
+		w.WriteHeader(http.StatusAccepted)
 
 		lastPath := path.Base(r.URL.Path)
 
@@ -60,7 +67,7 @@ func NewHandlerRoute() func(http.ResponseWriter, *http.Request) {
 		case "close":
 			closeHandler.ServeHTTP(w, r)
 		case "cancel":
-			cancelHandler.ServeHTTP(w, r)
+			w.WriteHeader(http.StatusNotImplemented)
 		case "resolve":
 			resolveHandler.ServeHTTP(w, r)
 		default:

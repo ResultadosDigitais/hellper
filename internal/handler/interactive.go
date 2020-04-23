@@ -67,6 +67,12 @@ func (h *handlerInteractive) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		log.NewValue("dialogSubmission", dialogSubmission),
 	)
 
+	tokenRequest := dialogSubmission.Token
+	if !authenticateRequest(tokenRequest) {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
 	callbackID := dialogSubmission.CallbackID
 	var err error
 

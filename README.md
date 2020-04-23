@@ -74,6 +74,7 @@ cp development.env.example development.env
 |**HELLPER_MATRIX_HOST**|[Matrix](https://github.com/ResultadosDigitais/matrix) URL host| --- |
 |**HELLPER_PRODUCT_CHANNEL_ID**|The Product channel id used to notify new incidents| --- |
 |**HELLPER_SUPPORT_TEAM**|Support team identifier to notify| --- |
+|**HELLPER_PRODUCT_LIST**|List of all products splitted by semicolon| `Product A;Product B;Product C;Product D` |
 |**HELLPER_REMINDER_STATUS_SECONDS**|Contains the time for the stat reminder to be triggered in open incidents, by default the time is 2 hours if there is no variable| `7200` |
 |**HELLPER_OAUTH_TOKEN**|[Slack token](/docs/CONFIGURING-SLACK.md#User-Token-Scopes) to exeucte bot user actions| --- |
 |**HELLPER_VERIFICATION_TOKEN**|[Slack token](/docs/CONFIGURING-SLACK.md#User-Token-Scopes) to verify external requests| --- |

@@ -63,7 +63,11 @@
     },
     "HELLPER_SUPPORT_TEAM": {
       "description": "Support team identifier",
-      "value": "@your-incident-team"
+      "value": "YOUR_SLACK_GROUP_ID"
+    },
+    "HELLPER_PRODUCT_LIST": {
+      "description": "List of all products splitted by semicolon",
+      "value": "Your Product X;Your Product Y;Your Product Z"
     },
     "HELLPER_VERIFICATION_TOKEN": {
       "description": "Slack Token to verify external requests",

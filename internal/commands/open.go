@@ -20,6 +20,15 @@ import (
 
 // OpenStartIncidentDialog opens a dialog on Slack, so the user can start an incident
 func OpenStartIncidentDialog(client bot.Client, triggerID string) error {
+	productList := []slack.DialogSelectOption{}
+
+	for _, product := range strings.Split(config.Env.ProductList, ";") {
+		productList = append(productList, slack.DialogSelectOption{
+			Label: product,
+			Value: product,
+		})
+	}
+
 	channelName := &slack.TextInputElement{
 		DialogInput: slack.DialogInput{
 			Label:       "Channel name",
@@ -77,24 +86,7 @@ func OpenStartIncidentDialog(client bot.Client, triggerID string) error {
 			Placeholder: "Set the product",
 			Optional:    false,
 		},
-		Options: []slack.DialogSelectOption{
-			{
-				Label: "CRM",
-				Value: "0",
-			},
-			{
-				Label: "RDSM",
-				Value: "1",
-			},
-			{
-				Label: "RMS",
-				Value: "2",
-			},
-			{
-				Label: "ALL",
-				Value: "3",
-			},
-		},
+		Options:      productList,
 		OptionGroups: []slack.DialogOptionGroup{},
 	}
 
@@ -186,7 +178,7 @@ func StartIncidentByDialog(
 		ChannelName:             channelName,
 		ChannelId:               channel.ID,
 		Title:                   channelName,
-		Product:                 getProductText(product),
+		Product:                 product,
 		DescriptionStarted:      description,
 		Status:                  model.StatusOpen,
 		IdentificationTimestamp: &now,
@@ -276,26 +268,11 @@ func createPostMortemAndUpdateTopic(ctx context.Context, logger log.Logger, clie
 	}
 }
 
-func getProductText(product string) string {
-	switch product {
-	case "0":
-		return "CRM"
-	case "1":
-		return "RDSM"
-	case "2":
-		return "RMS"
-	case "3":
-		return "ALL"
-	default:
-		return ""
-	}
-}
-
 func createOpenAttachment(incident model.Incident, incidentID int64, warRoomURL string, supportTeam string) slack.Attachment {
 	var messageText strings.Builder
 	messageText.WriteString("An Incident has been opened by <@" + incident.IncidentAuthor + ">\n\n")
 	messageText.WriteString("*Severity:* " + getSeverityLevelText(incident.SeverityLevel) + "\n\n")
-	messageText.WriteString("*Product:* " + getProductText(incident.Product) + "\n")
+	messageText.WriteString("*Product:* " + incident.Product + "\n")
 	messageText.WriteString("*Channel:* <#" + incident.ChannelId + ">\n")
 	messageText.WriteString("*Commander:* <@" + incident.Commander + ">\n\n")
 	messageText.WriteString("*Description:* `" + incident.DescriptionStarted + "`\n\n")
@@ -303,7 +280,7 @@ func createOpenAttachment(incident model.Incident, incidentID int64, warRoomURL 
 	messageText.WriteString("*cc:* <@" + supportTeam + ">\n")
 
 	return slack.Attachment{
-		Pretext:  "An Incident has been opened by <@" + incident.IncidentAuthor + "> *cc:* <@" + supportTeam + ">",
+		Pretext:  "An Incident has been opened by <@" + incident.IncidentAuthor + "> *cc:* <!subteam^" + supportTeam + ">",
 		Fallback: messageText.String(),
 		Text:     "",
 		Color:    "#FE4D4D",
@@ -314,7 +291,7 @@ func createOpenAttachment(incident model.Incident, incidentID int64, warRoomURL 
 			},
 			{
 				Title: "Product",
-				Value: getProductText(incident.Product),
+				Value: incident.Product,
 			},
 			{
 				Title: "Channel",

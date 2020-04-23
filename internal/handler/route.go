@@ -34,22 +34,19 @@ func init() {
 	commands.StartAllReminderJobs(logger, client, repository)
 }
 
-func authenticateRequest(w http.ResponseWriter, r *http.Request) bool {
-	r.ParseForm()
-	requestToken := r.FormValue("token")
-
-	if requestToken != config.Env.VerificationToken {
-		w.WriteHeader(http.StatusUnauthorized)
+func authenticateRequest(token string) bool {
+	if token != config.Env.VerificationToken {
 		return false
 	}
 
-	w.WriteHeader(http.StatusAccepted)
 	return true
 }
 
 // NewHandlerRoute handles the http requests received and calls the correct handler.
 func NewHandlerRoute() func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusAccepted)
+
 		lastPath := path.Base(r.URL.Path)
 
 		switch lastPath {
@@ -61,26 +58,14 @@ func NewHandlerRoute() func(http.ResponseWriter, *http.Request) {
 			eventsHandler.ServeHTTP(w, r)
 		case "open":
 			openHandler.ServeHTTP(w, r)
-			// if authenticateRequest(w, r) {
-			// 	openHandler.ServeHTTP(w, r)
-			// }
 		case "interactive":
 			interactiveHandler.ServeHTTP(w, r)
-			// if authenticateRequest(w, r) {
-			// 	interactiveHandler.ServeHTTP(w, r)
-			// }
 		case "status":
-			if authenticateRequest(w, r) {
-				statusHandler.ServeHTTP(w, r)
-			}
+			statusHandler.ServeHTTP(w, r)
 		case "dates":
-			if authenticateRequest(w, r) {
-				datesHandler.ServeHTTP(w, r)
-			}
+			datesHandler.ServeHTTP(w, r)
 		case "close":
-			if authenticateRequest(w, r) {
-				closeHandler.ServeHTTP(w, r)
-			}
+			closeHandler.ServeHTTP(w, r)
 		case "cancel":
 			w.WriteHeader(http.StatusNotImplemented)
 		case "resolve":

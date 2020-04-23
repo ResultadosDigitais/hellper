@@ -6,7 +6,6 @@ import (
 
 	"hellper/internal/bot"
 	"hellper/internal/commands"
-	"hellper/internal/config"
 	"hellper/internal/log"
 	"hellper/internal/model"
 )
@@ -35,6 +34,12 @@ func (h *handlerOpen) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	)
 
 	r.ParseForm()
+	tokenRequest := r.FormValue("token")
+
+	if !authenticateRequest(tokenRequest) {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
 
 	buf.ReadFrom(r.Body)
 	body := buf.String()
@@ -54,17 +59,6 @@ func (h *handlerOpen) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	)
 
 	triggerID := r.FormValue("trigger_id")
-
-	tokenRequest := r.FormValue("token")
-	tokenEnv := config.Env.VerificationToken
-
-	logger.Info(
-		ctx,
-		"tokens",
-		log.NewValue("request_token", tokenRequest),
-		log.NewValue("env_token", tokenEnv),
-		log.NewValue("equal?", tokenRequest == tokenEnv),
-	)
 
 	err := commands.OpenStartIncidentDialog(h.client, triggerID)
 	if err != nil {

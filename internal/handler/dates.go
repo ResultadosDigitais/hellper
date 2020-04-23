@@ -36,6 +36,12 @@ func (h *handlerDates) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	)
 
 	r.ParseForm()
+	tokenRequest := r.FormValue("token")
+
+	if !authenticateRequest(tokenRequest) {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
 
 	buf.ReadFrom(r.Body)
 	body := buf.String()

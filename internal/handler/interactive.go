@@ -7,7 +7,6 @@ import (
 
 	"hellper/internal/bot"
 	"hellper/internal/commands"
-	"hellper/internal/config"
 	filestorage "hellper/internal/file_storage"
 	"hellper/internal/log"
 	"hellper/internal/model"
@@ -68,19 +67,14 @@ func (h *handlerInteractive) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		log.NewValue("dialogSubmission", dialogSubmission),
 	)
 
+	tokenRequest := dialogSubmission.Token
+	if !authenticateRequest(tokenRequest) {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
 	callbackID := dialogSubmission.CallbackID
 	var err error
-
-	tokenRequest := r.FormValue("token")
-	tokenEnv := config.Env.VerificationToken
-
-	logger.Info(
-		ctx,
-		"tokens",
-		log.NewValue("request_token", tokenRequest),
-		log.NewValue("env_token", tokenEnv),
-		log.NewValue("equal?", tokenRequest == tokenEnv),
-	)
 
 	switch callbackID {
 	case "inc-close":

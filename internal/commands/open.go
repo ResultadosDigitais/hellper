@@ -22,10 +22,10 @@ import (
 func OpenStartIncidentDialog(client bot.Client, triggerID string) error {
 	productList := []slack.DialogSelectOption{}
 
-	for value, label := range strings.Split(config.Env.ProductList, ";") {
+	for _, product := range strings.Split(config.Env.ProductList, ";") {
 		productList = append(productList, slack.DialogSelectOption{
-			Label: label,
-			Value: strconv.Itoa(value),
+			Label: product,
+			Value: product,
 		})
 	}
 
@@ -178,7 +178,7 @@ func StartIncidentByDialog(
 		ChannelName:             channelName,
 		ChannelId:               channel.ID,
 		Title:                   channelName,
-		Product:                 getProductText(product),
+		Product:                 product,
 		DescriptionStarted:      description,
 		Status:                  model.StatusOpen,
 		IdentificationTimestamp: &now,

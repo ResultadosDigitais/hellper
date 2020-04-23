@@ -13,6 +13,7 @@ type environment struct {
 	OAuthToken             string
 	VerificationToken      string
 	ProductChannelID       string
+	ProductList            string
 	Language               string
 	MatrixHost             string
 	SupportTeam            string
@@ -52,6 +53,7 @@ func newEnvironment() environment {
 	vars.StringVar(&env.OAuthToken, "hellper_oauth_token", "", "Token to execute oauth actions")
 	vars.StringVar(&env.VerificationToken, "hellper_verification_token", "", "Token to verify external requests")
 	vars.StringVar(&env.ProductChannelID, "hellper_product_channel_id", "", "The Product channel id")
+	vars.StringVar(&env.ProductList, "hellper_product_list", "Product A;Product B;Product C;Product D", "The Product list")
 	vars.StringVar(&env.Database, "hellper_database", "postgres", "Hellper database provider")
 	vars.StringVar(&env.DSN, "hellper_dsn", "", "Hellper database provider")
 	vars.StringVar(&env.GoogleDriveCredentials, "hellper_google_drive_credentials", "", "Google Drive Credentials")

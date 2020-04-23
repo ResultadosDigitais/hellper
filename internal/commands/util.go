@@ -57,6 +57,20 @@ func getSeverityLevelText(severityLevel int64) string {
 	}
 }
 
+func getProductText(product string) string {
+	idProduct, err := getStringInt64(product)
+	if err != nil {
+		return ""
+	}
+
+	productName := strings.Split(config.Env.ProductList, ";")
+	if idProduct > (int64(len(productName))-1) || idProduct < 0 {
+		return ""
+	}
+
+	return productName[idProduct]
+}
+
 // PostErrorAttachment posts a error attachment on the given channel
 func PostErrorAttachment(ctx context.Context, client bot.Client, logger log.Logger, channelID string, userID string, text string) {
 	attach := slack.Attachment{

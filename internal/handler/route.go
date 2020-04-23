@@ -39,23 +39,17 @@ func authenticateRequest(w http.ResponseWriter, r *http.Request) bool {
 	requestToken := r.FormValue("token")
 
 	if requestToken != config.Env.VerificationToken {
+		w.WriteHeader(http.StatusUnauthorized)
 		return false
 	}
 
+	w.WriteHeader(http.StatusAccepted)
 	return true
 }
 
 // NewHandlerRoute handles the http requests received and calls the correct handler.
 func NewHandlerRoute() func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-
-		auth := authenticateRequest(w, r)
-		if !auth {
-			w.WriteHeader(http.StatusUnauthorized)
-		}
-
-		w.WriteHeader(http.StatusAccepted)
-
 		lastPath := path.Base(r.URL.Path)
 
 		switch lastPath {
@@ -66,17 +60,27 @@ func NewHandlerRoute() func(http.ResponseWriter, *http.Request) {
 		case "events":
 			eventsHandler.ServeHTTP(w, r)
 		case "open":
-			openHandler.ServeHTTP(w, r)
+			if authenticateRequest(w, r) {
+				openHandler.ServeHTTP(w, r)
+			}
 		case "interactive":
-			interactiveHandler.ServeHTTP(w, r)
+			if authenticateRequest(w, r) {
+				interactiveHandler.ServeHTTP(w, r)
+			}
 		case "status":
-			statusHandler.ServeHTTP(w, r)
+			if authenticateRequest(w, r) {
+				statusHandler.ServeHTTP(w, r)
+			}
 		case "dates":
-			datesHandler.ServeHTTP(w, r)
+			if authenticateRequest(w, r) {
+				datesHandler.ServeHTTP(w, r)
+			}
 		case "close":
-			closeHandler.ServeHTTP(w, r)
+			if authenticateRequest(w, r) {
+				closeHandler.ServeHTTP(w, r)
+			}
 		case "cancel":
-			cancelHandler.ServeHTTP(w, r)
+			w.WriteHeader(http.StatusNotImplemented)
 		case "resolve":
 			resolveHandler.ServeHTTP(w, r)
 		default:

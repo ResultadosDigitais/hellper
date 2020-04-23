@@ -34,11 +34,27 @@ func init() {
 	commands.StartAllReminderJobs(logger, client, repository)
 }
 
+func authenticateRequest(w http.ResponseWriter, r *http.Request) bool {
+	r.ParseForm()
+	requestToken := r.FormValue("token")
+
+	if requestToken != config.Env.VerificationToken {
+		return false
+	}
+
+	return true
+}
+
 // NewHandlerRoute handles the http requests received and calls the correct handler.
 func NewHandlerRoute() func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		w.WriteHeader(http.StatusOK)
+		auth := authenticateRequest(w, r)
+		if !auth {
+			w.WriteHeader(http.StatusUnauthorized)
+		}
+
+		w.WriteHeader(http.StatusAccepted)
 
 		lastPath := path.Base(r.URL.Path)
 

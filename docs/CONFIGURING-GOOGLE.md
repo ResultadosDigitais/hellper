@@ -15,6 +15,7 @@ This instructions guide will give your application permission to make a copy of 
 4. [Google Calendar API](#Google-Calendar-API)
    * [Authorizing requests to the Google Calendar API](#Authorizing-requests-to-the-Google-Calendar-API)
    * [Generate Google Calendar access token](#Generate-Google-Calendar-access-token)
+   * [Enabling Google Calendar API](#Enabling-Google-Calendar-API)
 5. [Setting environment variables](#Setting-environment-variables)
 
 
@@ -152,6 +153,8 @@ curl --data client_id="YOUR_CLIENT_ID" \
 }
 ```
 
+### Enabling Google Calendar API
+Access [API Library](https://console.developers.google.com/apis/library/calendar-json.googleapis.com), then click **Enable**.
 
 ## Setting environment variables
 Now you need to change these three variables:

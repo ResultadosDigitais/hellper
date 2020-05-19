@@ -33,7 +33,7 @@ The instructions here are a summary of the [official documentation](https://clou
 2. Under **Application type**, choose **Other** and give it a name, _ie. Hellper_. Then, click **Create**.
 3. On this next page, take note of the **Client ID** and **Client Secret**. You'll need these going forward. Then, click **Ok**.
 4. At last, click in the Download icon button to configure your credentials.
-5. Copy the content file and paste it in your environment variable called: `HELLPER_GOOGLE_DRIVE_CREDENTIALS`.
+5. Copy the content file and paste it in your environment variable called: `HELLPER_GOOGLE_CREDENTIALS`.
 
 
 ## Authorization code
@@ -105,6 +105,6 @@ Now you need to change these three variables:
 
 | Variable | Explanation |
 | --- | --- |
-|**HELLPER_GOOGLE_DRIVE_CREDENTIALS** |[Google Drive Credentials](/docs/CONFIGURING-GOOGLE.md#Get-a-Client-ID-and-Client-Secret)|
+|**HELLPER_GOOGLE_CREDENTIALS** |[Google Credentials](/docs/CONFIGURING-GOOGLE.md#Get-a-Client-ID-and-Client-Secret)|
 |**HELLPER_GOOGLE_DRIVE_FILE_ID**|[Google Drive FileId](/docs/CONFIGURING-GOOGLE.md#Template-Post-mortem) to your post-mortem template|
 |**HELLPER_GOOGLE_DRIVE_TOKEN**|[Google Drive Token](/docs/CONFIGURING-GOOGLE.md#Signing-in-to-the-application)|

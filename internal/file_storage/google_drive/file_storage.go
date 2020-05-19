@@ -1,15 +1,11 @@
 package googledrive
 
 import (
-	"encoding/json"
-	"net/http"
-
 	filestorage "hellper/internal/file_storage"
+	googleapi "hellper/internal/google_api"
 	"hellper/internal/log"
 
 	"golang.org/x/net/context"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
 	"google.golang.org/api/drive/v3"
 
 	"hellper/internal/config"
@@ -24,23 +20,6 @@ func NewFileStorage(logger log.Logger) filestorage.Driver {
 	return &storage{
 		logger: logger,
 	}
-}
-
-// Retrieve a token, saves the token, then returns the generated client.
-func (s *storage) getGClient(ctx context.Context, gConfig *oauth2.Config) *http.Client {
-	b := []byte(config.Env.GoogleDriveToken)
-
-	tok := &oauth2.Token{}
-	err := json.Unmarshal(b, tok)
-	if err != nil {
-		s.logger.Error(
-			ctx,
-			"googleDrive/google_drive.getGClient Unmarshal error",
-			log.NewValue("error", err),
-		)
-	}
-
-	return gConfig.Client(ctx, tok)
 }
 
 func (s *storage) copyFile(ctx context.Context, d *drive.Service, fileID string, title string) (*drive.File, error) {
@@ -67,21 +46,19 @@ func (s *storage) CreatePostMortemDocument(ctx context.Context, postMortemName s
 		log.NewValue("postMortemName", postMortemName),
 	)
 
-	driveCredentialBytes := []byte(config.Env.GoogleDriveCredentials)
+	driveTokenBytes := []byte(config.Env.GoogleDriveToken)
 
-	gConfig, err := google.ConfigFromJSON(driveCredentialBytes, drive.DriveScope)
+	gClient, err := googleapi.GetGClient(ctx, s.logger, driveTokenBytes, drive.DriveScope)
 	if err != nil {
 		s.logger.Error(
 			ctx,
-			"googleDrive/google_drive.CreatePostMortemDocument ConfigFromJSON error",
+			"googleDrive/google_drive.CreatePostMortemDocument GetGClient error",
 			log.NewValue("postMortemName", postMortemName),
 			log.NewValue("error", err),
 		)
 
 		return "", err
 	}
-
-	gClient := s.getGClient(ctx, gConfig)
 
 	driveService, err := drive.New(gClient)
 	if err != nil {

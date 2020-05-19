@@ -9,11 +9,12 @@ This instructions guide will give your application permission to make a copy of 
    * [Credentials](#Credentials)
 3. [Google Drive API](#Google-Drive-API)
    * [Authorizing requests to the Google Drive API](#Authorizing-requests-to-the-Google-Drive-API)
-   * [Signing into the application](#Signing-into-the-application)
+   * [Generate Google Drive access token](#Generate-Google-Drive-access-token)
    * [Enabling Google Drive API](#Enabling-Google-Drive-API)
    * [Template Post-mortem](#Template-Post-mortem)
 4. [Google Calendar API](#Google-Calendar-API)
    * [Authorizing requests to the Google Calendar API](#Authorizing-requests-to-the-Google-Calendar-API)
+   * [Generate Google Calendar access token](#Generate-Google-Calendar-access-token)
 5. [Setting environment variables](#Setting-environment-variables)
 
 
@@ -51,7 +52,7 @@ https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_CLIENT_ID_HERE&respo
 4. Allow the permissions to your application to be able to access yours files.
 5. On this next page, take note of the **Code**. You'll need this going forward.
 
-### Signing into the application
+### Generate Google Drive access token
 1. Now you need to copy the **Client ID**, **Client Secret** and **Code** of the last steps (_[Credentials](#credentials) and [Authorizing requests to the Google Drive API](#Authorizing-requests-to-the-Google-Drive-API)_), and replace them respectively in the follow command:
 
 ```shell
@@ -113,6 +114,44 @@ https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_CLIENT_ID_HERE&respo
 4. Allow the permissions to your application to be able to access yours files.
 5. On this next page, take note of the **Code**. You'll need this going forward.
 
+### Generate Google Calendar access token
+1. Now you need to copy the **Client ID**, **Client Secret** and **Code** of the last steps (_[Credentials](#credentials) and [Authorizing requests to the Google Calendar API](#Authorizing-requests-to-the-Google-Calendar-API))_), and replace them respectively in the follow command:
+
+```shell
+curl --data client_id="YOUR_CLIENT_ID_HERE" \
+  --data client_secret="YOUR_CLIENT_SECRET_HERE" \
+  --data code="YOUR_AUTH_CODE_HERE" \
+  --data redirect_uri=urn:ietf:wg:oauth:2.0:oob \
+  --data grant_type=authorization_code \
+  https://oauth2.googleapis.com/token
+```
+
+2. Run it in your terminal and copy the response.
+3. Past it in your environment variable called: `HELLPER_GOOGLE_CALENDAR_TOKEN`.
+
+
+#### Example
+**Run it in terminal**
+```shell
+curl --data client_id="YOUR_CLIENT_ID" \
+  --data client_secret="YOUR_CLIENT_SECRET" \
+  --data code="YOUR_AUTH_CODE" \
+  --data redirect_uri=urn:ietf:wg:oauth:2.0:oob \
+  --data grant_type=authorization_code \
+  https://oauth2.googleapis.com/token
+```
+
+**Response**
+```http
+{
+  "access_token": "xxxxxxxxxxxxxxxxxx",
+  "expires_in": 3599,
+  "refresh_token": "xxxxxxxxxxxxxxxxxx",
+  "scope": "https://www.googleapis.com/auth/calendar",
+  "token_type": "Bearer"
+}
+```
+
 
 ## Setting environment variables
 Now you need to change these three variables:
@@ -120,6 +159,6 @@ Now you need to change these three variables:
 | Variable | Explanation |
 | --- | --- |
 |**HELLPER_GOOGLE_CREDENTIALS** |[Google Credentials](/docs/CONFIGURING-GOOGLE.md#Get-a-Client-ID-and-Client-Secret)|
-|**HELLPER_GOOGLE_DRIVE_TOKEN**|[Google Drive Token](/docs/CONFIGURING-GOOGLE.md#Signing-into-the-application)|
+|**HELLPER_GOOGLE_DRIVE_TOKEN**|[Google Drive Token](/docs/CONFIGURING-GOOGLE.md#Generate-Google-Drive-access-tokenn)|
 |**HELLPER_GOOGLE_DRIVE_FILE_ID**|[Google Drive File Id](/docs/CONFIGURING-GOOGLE.md#Template-Post-mortem) to your post-mortem template|
 

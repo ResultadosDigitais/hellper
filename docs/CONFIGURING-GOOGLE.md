@@ -54,7 +54,7 @@ https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_CLIENT_ID_HERE&respo
 2. In the following URL, change `YOUR_CLIENT_ID_HERE` with the content from **Client ID**:
 
 ```
-https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_CLIENT_ID_HERE&response_type=code&scope=https://www.googleapis.com/auth/drive&access_type=offline&redirect_uri=urn:ietf:wg:oauth:2.0:oob
+https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_CLIENT_ID_HERE&response_type=code&scope=https://www.googleapis.com/auth/calendar&access_type=offline&redirect_uri=urn:ietf:wg:oauth:2.0:oob
 ```
 
 3. Access the new URL in your web browser.

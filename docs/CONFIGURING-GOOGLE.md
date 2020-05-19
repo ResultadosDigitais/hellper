@@ -36,7 +36,7 @@ The instructions here are a summary of the [official documentation](https://clou
 5. Copy the content file and paste it in your environment variable called: `HELLPER_GOOGLE_DRIVE_CREDENTIALS`.
 
 
-## Authorization requests to the Google Drive API
+## Authorizing requests to the Google Drive API
 1. Copy the **Client ID** you got in the last step (_[Credentials](#credentials)_).
 2. In the following URL, change `YOUR_CLIENT_ID_HERE` with the content from **Client ID**:
 

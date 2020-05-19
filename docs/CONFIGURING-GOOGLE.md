@@ -16,6 +16,7 @@ This instructions guide will give your application permission to make a copy of 
    * [Authorizing requests to the Google Calendar API](#Authorizing-requests-to-the-Google-Calendar-API)
    * [Generate Google Calendar access token](#Generate-Google-Calendar-access-token)
    * [Enabling Google Calendar API](#Enabling-Google-Calendar-API)
+   * [Obtain your Google Calendar's ID](#Obtain-your-Google-Calendar's-ID)
 5. [Setting environment variables](#Setting-environment-variables)
 
 
@@ -155,6 +156,20 @@ curl --data client_id="YOUR_CLIENT_ID" \
 
 ### Enabling Google Calendar API
 Access [API Library](https://console.developers.google.com/apis/library/calendar-json.googleapis.com), then click **Enable**.
+
+### Obtain your Google Calendar's ID
+If you don't need create a new google calendar go to step 6, otherwise follow the instructions bellow.
+
+1. On your computer, open [Google Calendar](https://calendar.google.com)
+2. At the left, next to **Other calendars** click **Add other calendars** 
+3. Click **Create new calendar**
+4. Add a name and description for your calendar
+5. Click **Create calendar**
+6. In the Google Calendar interface, locate the **My calendars** area on the left
+7. Hover over the calendar you need and click the downward arrow
+8. A menu will appear. Click **Calendar settings**
+9. In the **Calendar Address** section of the screen, you will see your **Calendar ID**. It will look something like: `abcd1234@group.calendar.google.com`
+10. Paste the ID in your environment variable called: `HELLPER_GOOGLE_CALENDAR_ID`
 
 ## Setting environment variables
 Now you need to change these three variables:

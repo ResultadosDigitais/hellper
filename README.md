@@ -69,8 +69,10 @@ cp development.env.example development.env
 |**HELLPER_DSN**|Your Data Source Name| --- |
 |**HELLPER_ENVIRONMENT**|Current environment (supported values: production, staging)| --- |
 |**HELLPER_GOOGLE_DRIVE_CREDENTIALS**|[Google Drive Credentials](/docs/CONFIGURING-GOOGLE.md#Get-a-Client-ID-and-Client-Secret)| --- |
+|**HELLPER_GOOGLE_DRIVE_TOKEN**|[Google Drive Token](/docs/CONFIGURING-GOOGLE.md#Generate-Google-Drive-access-token)|
 |**HELLPER_GOOGLE_DRIVE_FILE_ID**|[Google Drive FileId](/docs/CONFIGURING-GOOGLE.md#Template-Post-mortem) to your post-mortem template| --- |
-|**HELLPER_GOOGLE_DRIVE_TOKEN**|[Google Drive Token](/docs/CONFIGURING-GOOGLE.md#Signing-in-to-the-application)| --- |
+|**HELLPER_GOOGLE_CALENDAR_TOKEN**|[Google Calendar Token](/docs/CONFIGURING-GOOGLE.md#Generate-Google-Calendar-access-token)|
+|**HELLPER_GOOGLE_CALENDAR_ID**|[Google Calendar Id](/docs/CONFIGURING-GOOGLE.md#Obtain-your-Google-Calendar's-ID) to schedule your post-mortem |
 |**HELLPER_MATRIX_HOST**|[Matrix](https://github.com/ResultadosDigitais/matrix) URL host| --- |
 |**HELLPER_PRODUCT_CHANNEL_ID**|The Product channel id used to notify new incidents| --- |
 |**HELLPER_SUPPORT_TEAM**|Support team identifier to notify| --- |

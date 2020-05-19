@@ -49,6 +49,19 @@ https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_CLIENT_ID_HERE&respo
 5. On this next page, take note of the **Code**. You'll need this going forward.
 
 
+## Authorizing requests to the Google Calendar API
+1. Copy the **Client ID** you got in the last step (_[Credentials](#credentials)_).
+2. In the following URL, change `YOUR_CLIENT_ID_HERE` with the content from **Client ID**:
+
+```
+https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_CLIENT_ID_HERE&response_type=code&scope=https://www.googleapis.com/auth/drive&access_type=offline&redirect_uri=urn:ietf:wg:oauth:2.0:oob
+```
+
+3. Access the new URL in your web browser.
+4. Allow the permissions to your application to be able to access yours files.
+5. On this next page, take note of the **Code**. You'll need this going forward.
+
+
 ## Signing into the application
 1. Now you need to copy the **Client ID**, **Client Secret** and **Code** of the last steps (_[Credentials](#credentials) and [Authorization Code](#authorization-code)_), and replace them respectively in the follow command:
 

@@ -177,6 +177,9 @@ Now you need to change these three variables:
 | Variable | Explanation |
 | --- | --- |
 |**HELLPER_GOOGLE_CREDENTIALS** |[Google Credentials](/docs/CONFIGURING-GOOGLE.md#Get-a-Client-ID-and-Client-Secret)|
-|**HELLPER_GOOGLE_DRIVE_TOKEN**|[Google Drive Token](/docs/CONFIGURING-GOOGLE.md#Generate-Google-Drive-access-tokenn)|
+|**HELLPER_GOOGLE_DRIVE_TOKEN**|[Google Drive Token](/docs/CONFIGURING-GOOGLE.md#Generate-Google-Drive-access-token)|
 |**HELLPER_GOOGLE_DRIVE_FILE_ID**|[Google Drive File Id](/docs/CONFIGURING-GOOGLE.md#Template-Post-mortem) to your post-mortem template|
+|**HELLPER_GOOGLE_CALENDAR_TOKEN**|[Google Calendar Token](/docs/CONFIGURING-GOOGLE.md#Generate-Google-Calendar-access-token)|
+|**HELLPER_GOOGLE_CALENDAR_ID**|[Google Calendar Id](/docs/CONFIGURING-GOOGLE.md#Obtain-your-Google-Calendar's-ID) to schedule your post-mortem |
+
 

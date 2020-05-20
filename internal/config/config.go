@@ -10,26 +10,26 @@ import (
 var Env = newEnvironment()
 
 type environment struct {
-	OAuthToken             string
-	VerificationToken      string
-	ProductChannelID       string
-	ProductList            string
-	Language               string
-	MatrixHost             string
-	SupportTeam            string
-	Messages               messages
-	BindAddress            string
-	Database               string
-	DSN                    string
-	GoogleDriveCredentials string
-	GoogleDriveToken       string
-	GoogleDriveFileId      string
-	GoogleCalendarToken    string
-	ReminderStatusSeconds  int
-	Environment            string
-	FileStorage            string
-	NotifyOnResolve        bool
-	NotifyOnClose          bool
+	OAuthToken            string
+	VerificationToken     string
+	ProductChannelID      string
+	ProductList           string
+	Language              string
+	MatrixHost            string
+	SupportTeam           string
+	Messages              messages
+	BindAddress           string
+	Database              string
+	DSN                   string
+	GoogleCredentials     string
+	GoogleDriveToken      string
+	GoogleDriveFileId     string
+  GoogleCalendarToken   string
+	ReminderStatusSeconds int
+	Environment           string
+	FileStorage           string
+	NotifyOnResolve       bool
+	NotifyOnClose         bool
 }
 
 type messages struct {
@@ -57,7 +57,7 @@ func newEnvironment() environment {
 	vars.StringVar(&env.ProductList, "hellper_product_list", "Product A;Product B;Product C;Product D", "List of all products splitted by semicolon")
 	vars.StringVar(&env.Database, "hellper_database", "postgres", "Hellper database provider")
 	vars.StringVar(&env.DSN, "hellper_dsn", "", "Hellper database provider")
-	vars.StringVar(&env.GoogleDriveCredentials, "hellper_google_drive_credentials", "", "Google Drive Credentials")
+	vars.StringVar(&env.GoogleCredentials, "hellper_google_credentials", "", "Google Credentials")
 	vars.StringVar(&env.GoogleDriveToken, "hellper_google_drive_token", "", "Google Drive Token")
 	vars.StringVar(&env.GoogleDriveFileId, "hellper_google_drive_file_id", "", "Google Drive FileId")
 	vars.StringVar(&env.GoogleCalendarToken, "hellper_google_calendar_token", "", "Google Calendar Token")

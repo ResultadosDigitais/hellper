@@ -245,6 +245,7 @@ func GetIncidentByChannelID() string {
 		, CASE WHEN severity_level IS NULL THEN 0 ELSE severity_level END AS severity_level
 		, CASE WHEN channel_name IS NULL THEN '' ELSE channel_name END AS channel_name
 		, CASE WHEN channel_id IS NULL THEN '' ELSE channel_id END AS channel_id
+		, CASE WHEN commander IS NULL THEN '' ELSE commander END commander
 	FROM incident
 	WHERE channel_id = $1
 	LIMIT 1`

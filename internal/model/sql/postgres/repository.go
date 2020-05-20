@@ -574,6 +574,7 @@ func (r *repository) ListActiveIncidents(ctx context.Context) ([]model.Incident,
 			&inc.SeverityLevel,
 			&inc.ChannelName,
 			&inc.ChannelId,
+			&inc.Commander,
 		)
 		if err != nil {
 			r.logger.Error(

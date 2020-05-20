@@ -1,14 +1,14 @@
-package googleapi
+package googleauth
 
 import (
 	"context"
 	"encoding/json"
 	"hellper/internal/config"
+	googleapi "hellper/internal/google/google_api"
 	"hellper/internal/log"
 	"net/http"
 
 	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
 )
 
 type googleAuthStruct struct{}
@@ -25,7 +25,7 @@ var (
 func (gs *googleAuthStruct) GetGClient(ctx context.Context, logger log.Logger, token []byte, scope string) (*http.Client, error) {
 	driveCredentialBytes := []byte(config.Env.GoogleDriveCredentials)
 
-	gConfig, err := google.ConfigFromJSON(driveCredentialBytes, scope)
+	gConfig, err := googleapi.GoogleStruct.ConfigFromJSON(driveCredentialBytes, scope)
 	if err != nil {
 		logger.Error(
 			ctx,

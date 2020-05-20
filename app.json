@@ -21,9 +21,9 @@
       "description": "Hellper current environment",
       "value": "staging"
     },
-    "HELLPER_GOOGLE_DRIVE_CREDENTIALS": {
-      "description": "Google Drive Credentials",
-      "value": "YOUR_GOOGLE_DRIVE_CREDENTIALS"
+    "HELLPER_GOOGLE_CREDENTIALS": {
+      "description": "Google Credentials",
+      "value": "YOUR_GOOGLE_CREDENTIALS"
     },
     "HELLPER_GOOGLE_DRIVE_FILE_ID": {
       "description": "Google Drive FileId",
@@ -32,6 +32,10 @@
     "HELLPER_GOOGLE_DRIVE_TOKEN": {
       "description": "Google Drive Token",
       "value": "YOUR_GOOGLE_DRIVE_TOKEN"
+    },
+    "HELLPER_GOOGLE_CALENDAR_TOKEN": {
+      "description": "Google Calendar Token",
+      "value": "YOUR_GOOGLE_CALENDAR_TOKEN"
     },
     "HELLPER_LANGUAGE": {
       "description": "Hellper languague",

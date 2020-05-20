@@ -2,7 +2,7 @@ package googledrive
 
 import (
 	filestorage "hellper/internal/file_storage"
-	googleauth "hellper/internal/google/google_auth"
+	googleauth "hellper/internal/google_auth"
 	"hellper/internal/log"
 
 	"golang.org/x/net/context"
@@ -48,7 +48,7 @@ func (s *storage) CreatePostMortemDocument(ctx context.Context, postMortemName s
 
 	driveTokenBytes := []byte(config.Env.GoogleDriveToken)
 
-	gClient, err := googleauth.GoogleAuthStruct.GetGClient(ctx, s.logger, driveTokenBytes, drive.DriveScope)
+	gClient, err := googleauth.Struct.GetGClient(ctx, s.logger, driveTokenBytes, drive.DriveScope)
 	if err != nil {
 		s.logger.Error(
 			ctx,

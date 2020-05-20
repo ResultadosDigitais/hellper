@@ -4,28 +4,30 @@ import (
 	"context"
 	"encoding/json"
 	"hellper/internal/config"
-	googleapi "hellper/internal/google/google_api"
 	"hellper/internal/log"
 	"net/http"
 
 	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
 )
 
 type googleAuthStruct struct{}
 
-type GoogleAuthInterface interface {
+// Interface interfaces the public methods from package
+type Interface interface {
 	GetGClient(context.Context, log.Logger, []byte, string) (*http.Client, error)
 }
 
 var (
-	GoogleAuthStruct GoogleAuthInterface = &googleAuthStruct{}
+	//Struct creates the interface for the usage of googleauth package
+	Struct Interface = &googleAuthStruct{}
 )
 
 // GetGClient generates a google Client, given a token and a scope
 func (gs *googleAuthStruct) GetGClient(ctx context.Context, logger log.Logger, token []byte, scope string) (*http.Client, error) {
 	googleCredentialBytes := []byte(config.Env.GoogleCredentials)
 
-	gConfig, err := googleapi.GoogleStruct.ConfigFromJSON(googleCredentialBytes, scope)
+	gConfig, err := google.ConfigFromJSON(googleCredentialBytes, scope)
 	if err != nil {
 		logger.Error(
 			ctx,

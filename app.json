@@ -33,6 +33,10 @@
       "description": "Google Drive Token",
       "value": "YOUR_GOOGLE_DRIVE_TOKEN"
     },
+    "HELLPER_GOOGLE_CALENDAR_TOKEN": {
+      "description": "Google Calendar Token",
+      "value": "YOUR_GOOGLE_CALENDAR_TOKEN"
+    },
     "HELLPER_LANGUAGE": {
       "description": "Hellper languague",
       "value": "pt-br"

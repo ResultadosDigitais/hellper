@@ -48,7 +48,7 @@ func (s *storage) CreatePostMortemDocument(ctx context.Context, postMortemName s
 
 	driveTokenBytes := []byte(config.Env.GoogleDriveToken)
 
-	gClient, err := googleapi.GetGClient(ctx, s.logger, driveTokenBytes, drive.DriveScope)
+	gClient, err := googleapi.GoogleAuthStruct.GetGClient(ctx, s.logger, driveTokenBytes, drive.DriveScope)
 	if err != nil {
 		s.logger.Error(
 			ctx,

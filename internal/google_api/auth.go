@@ -11,8 +11,18 @@ import (
 	"golang.org/x/oauth2/google"
 )
 
+type googleAuthStruct struct{}
+
+type GoogleAuthInterface interface {
+	GetGClient(context.Context, log.Logger, []byte, string) (*http.Client, error)
+}
+
+var (
+	GoogleAuthStruct GoogleAuthInterface = &googleAuthStruct{}
+)
+
 // GetGClient generates a google Client, given a token and a scope
-func GetGClient(ctx context.Context, logger log.Logger, token []byte, scope string) (*http.Client, error) {
+func (gs *googleAuthStruct) GetGClient(ctx context.Context, logger log.Logger, token []byte, scope string) (*http.Client, error) {
 	driveCredentialBytes := []byte(config.Env.GoogleDriveCredentials)
 
 	gConfig, err := google.ConfigFromJSON(driveCredentialBytes, scope)

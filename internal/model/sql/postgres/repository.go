@@ -45,6 +45,7 @@ func incidentLogValues(inc *model.Incident) []log.Value {
 		log.NewValue("severityLevel", inc.SeverityLevel),
 		log.NewValue("channelName", inc.ChannelName),
 		log.NewValue("channelID", inc.ChannelId),
+		log.NewValue("commander", inc.Commander),
 	}
 }
 

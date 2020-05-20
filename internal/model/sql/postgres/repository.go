@@ -74,8 +74,9 @@ func (r *repository) InsertIncident(ctx context.Context, inc *model.Incident) (i
 		, product
 		, severity_level
 		, channel_name
-		, channel_id)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
+		, channel_id
+		, commander)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
 	RETURNING id`
 
 	id := int64(0)
@@ -99,7 +100,8 @@ func (r *repository) InsertIncident(ctx context.Context, inc *model.Incident) (i
 		inc.Product,
 		inc.SeverityLevel,
 		inc.ChannelName,
-		inc.ChannelId)
+		inc.ChannelId,
+		inc.Commander)
 
 	switch err := idResult.Scan(&id); err {
 	case nil:

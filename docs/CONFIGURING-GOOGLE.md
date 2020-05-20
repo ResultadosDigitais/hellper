@@ -158,7 +158,7 @@ curl --data client_id="YOUR_CLIENT_ID" \
 Access [API Library](https://console.developers.google.com/apis/library/calendar-json.googleapis.com), then click **Enable**.
 
 ### Obtain your Google Calendar's ID
-If you don't need create a new google calendar go to step 6, otherwise follow the instructions bellow.
+If you don't need to create a new google calendar go to step 6, otherwise follow the instructions below.
 
 1. On your computer, open [Google Calendar](https://calendar.google.com)
 2. At the left, next to **Other calendars** click **Add other calendars** 

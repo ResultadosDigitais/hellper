@@ -23,9 +23,9 @@ var (
 
 // GetGClient generates a google Client, given a token and a scope
 func (gs *googleAuthStruct) GetGClient(ctx context.Context, logger log.Logger, token []byte, scope string) (*http.Client, error) {
-	driveCredentialBytes := []byte(config.Env.GoogleDriveCredentials)
+	googleCredentialBytes := []byte(config.Env.GoogleCredentials)
 
-	gConfig, err := googleapi.GoogleStruct.ConfigFromJSON(driveCredentialBytes, scope)
+	gConfig, err := googleapi.GoogleStruct.ConfigFromJSON(googleCredentialBytes, scope)
 	if err != nil {
 		logger.Error(
 			ctx,

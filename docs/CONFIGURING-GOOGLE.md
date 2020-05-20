@@ -113,7 +113,7 @@ https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_CLIENT_ID_HERE&respo
 ```
 
 3. Access the new URL in your web browser.
-4. Allow the permissions to your application to be able to access yours files.
+4. Allow the permissions to your application to be able to access your files.
 5. On this next page, take note of the **Code**. You'll need this going forward.
 
 ### Generate Google Calendar access token
@@ -181,4 +181,3 @@ Now you need to change these three variables:
 |**HELLPER_GOOGLE_DRIVE_FILE_ID**|[Google Drive File Id](/docs/CONFIGURING-GOOGLE.md#Template-Post-mortem) to your post-mortem template|
 |**HELLPER_GOOGLE_CALENDAR_TOKEN**|[Google Calendar Token](/docs/CONFIGURING-GOOGLE.md#Generate-Google-Calendar-access-token)|
 |**HELLPER_GOOGLE_CALENDAR_ID**|[Google Calendar Id](/docs/CONFIGURING-GOOGLE.md#Obtain-your-Google-Calendar's-ID) to schedule your post-mortem |
-

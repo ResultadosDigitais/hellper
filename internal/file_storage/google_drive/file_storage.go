@@ -67,7 +67,7 @@ func (s *storage) CreatePostMortemDocument(ctx context.Context, postMortemName s
 		log.NewValue("postMortemName", postMortemName),
 	)
 
-	driveCredentialBytes := []byte(config.Env.GoogleDriveCredentials)
+	driveCredentialBytes := []byte(config.Env.GoogleCredentials)
 
 	gConfig, err := google.ConfigFromJSON(driveCredentialBytes, drive.DriveScope)
 	if err != nil {

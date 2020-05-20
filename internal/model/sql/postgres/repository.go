@@ -214,6 +214,7 @@ func (r *repository) GetIncident(ctx context.Context, channelID string) (inc mod
 		&inc.SeverityLevel,
 		&inc.ChannelName,
 		&inc.ChannelId,
+		&inc.Commander,
 	)
 
 	r.logger.Info(

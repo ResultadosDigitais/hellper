@@ -37,6 +37,10 @@
       "description": "Google Calendar Token",
       "value": "YOUR_GOOGLE_CALENDAR_TOKEN"
     },
+    "HELLPER_POSTMORTEM_GAP_DAYS": {
+      "description": "Gap in days between resolve and postmortem event",
+      "value": "5"
+    },
     "HELLPER_LANGUAGE": {
       "description": "Hellper languague",
       "value": "pt-br"

@@ -10,6 +10,6 @@ func NewCalendar() calendar.Calendar {
 }
 
 //CreateCalendarEvent creates a event in Google Calendar
-func (*googleCalendar) CreateCalendarEvent() {
-
+func (*googleCalendar) CreateCalendarEvent() error {
+	return nil
 }

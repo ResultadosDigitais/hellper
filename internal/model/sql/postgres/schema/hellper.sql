@@ -23,6 +23,7 @@ CREATE TABLE public.incident (
 	description_cancelled text NULL,
 	description_resolved text NULL,
 	channel_id varchar(50) NULL,
+  commander text NULL,
 	CONSTRAINT firstkey PRIMARY KEY (id)
 );
 
@@ -47,6 +48,7 @@ CREATE OR REPLACE VIEW public.metrics
     incident.description_cancelled,
     incident.description_resolved,
     incident.end_ts::date AS date,
+    incident.commander,
     to_char(incident.start_ts, 'YYYY-MM-DD HH24:MI:SS'::text) AS start_ts,
     to_char(incident.end_ts, 'YYYY-MM-DD HH24:MI:SS'::text) AS end_ts,
     to_char(incident.identification_ts, 'YYYY-MM-DD HH24:MI:SS'::text) AS identification_ts,

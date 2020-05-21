@@ -73,6 +73,7 @@ cp development.env.example development.env
 |**HELLPER_GOOGLE_DRIVE_FILE_ID**|[Google Drive FileId](/docs/CONFIGURING-GOOGLE.md#Template-Post-mortem) to your post-mortem template| --- |
 |**HELLPER_GOOGLE_CALENDAR_TOKEN**|[Google Calendar Token](/docs/CONFIGURING-GOOGLE.md#Generate-Google-Calendar-access-token)|
 |**HELLPER_GOOGLE_CALENDAR_ID**|[Google Calendar Id](/docs/CONFIGURING-GOOGLE.md#Obtain-your-Google-Calendar's-ID) to schedule your post-mortem |
+|**HELLPER_POSTMORTEM_GAP_DAYS**|Gap in days between resolve and postmortem event, by dafault the gap is 5 days if there is no variable| `5` |
 |**HELLPER_MATRIX_HOST**|[Matrix](https://github.com/ResultadosDigitais/matrix) URL host| --- |
 |**HELLPER_PRODUCT_CHANNEL_ID**|The Product channel id used to notify new incidents| --- |
 |**HELLPER_SUPPORT_TEAM**|Support team identifier to notify| --- |

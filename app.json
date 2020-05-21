@@ -37,6 +37,10 @@
       "description": "Google Calendar Token",
       "value": "YOUR_GOOGLE_CALENDAR_TOKEN"
     },
+    "HELLPER_GOOGLE_CALENDAR_ID": {
+      "description": "Google Calendar ID",
+      "value": "YOUR_GOOGLE_CALENDAR_ID"
+    },
     "HELLPER_LANGUAGE": {
       "description": "Hellper languague",
       "value": "pt-br"

@@ -45,6 +45,7 @@ func incidentLogValues(inc *model.Incident) []log.Value {
 		log.NewValue("severityLevel", inc.SeverityLevel),
 		log.NewValue("channelName", inc.ChannelName),
 		log.NewValue("channelID", inc.ChannelId),
+		log.NewValue("commander", inc.Commander),
 	}
 }
 
@@ -73,8 +74,9 @@ func (r *repository) InsertIncident(ctx context.Context, inc *model.Incident) (i
 		, product
 		, severity_level
 		, channel_name
-		, channel_id)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
+		, channel_id
+		, commander)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
 	RETURNING id`
 
 	id := int64(0)
@@ -98,7 +100,8 @@ func (r *repository) InsertIncident(ctx context.Context, inc *model.Incident) (i
 		inc.Product,
 		inc.SeverityLevel,
 		inc.ChannelName,
-		inc.ChannelId)
+		inc.ChannelId,
+		inc.Commander)
 
 	switch err := idResult.Scan(&id); err {
 	case nil:
@@ -211,6 +214,7 @@ func (r *repository) GetIncident(ctx context.Context, channelID string) (inc mod
 		&inc.SeverityLevel,
 		&inc.ChannelName,
 		&inc.ChannelId,
+		&inc.Commander,
 	)
 
 	r.logger.Info(
@@ -242,6 +246,7 @@ func GetIncidentByChannelID() string {
 		, CASE WHEN severity_level IS NULL THEN 0 ELSE severity_level END AS severity_level
 		, CASE WHEN channel_name IS NULL THEN '' ELSE channel_name END AS channel_name
 		, CASE WHEN channel_id IS NULL THEN '' ELSE channel_id END AS channel_id
+		, CASE WHEN commander IS NULL THEN '' ELSE commander END commander
 	FROM incident
 	WHERE channel_id = $1
 	LIMIT 1`
@@ -569,6 +574,7 @@ func (r *repository) ListActiveIncidents(ctx context.Context) ([]model.Incident,
 			&inc.SeverityLevel,
 			&inc.ChannelName,
 			&inc.ChannelId,
+			&inc.Commander,
 		)
 		if err != nil {
 			r.logger.Error(
@@ -613,6 +619,7 @@ func GetIncidentStatusFilterQuery() string {
 		, CASE WHEN severity_level IS NULL THEN 0 ELSE severity_level END AS severity_level
 		, CASE WHEN channel_name IS NULL THEN '' ELSE channel_name END AS channel_name
 		, CASE WHEN channel_id IS NULL THEN '' ELSE channel_id END AS channel_id
+		, CASE WHEN commander IS NULL THEN '' ELSE commander END commander
 	FROM incident
 	WHERE status IN ($1)
 	LIMIT 10`

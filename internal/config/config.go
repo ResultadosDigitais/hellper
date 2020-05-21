@@ -24,7 +24,8 @@ type environment struct {
 	GoogleCredentials     string
 	GoogleDriveToken      string
 	GoogleDriveFileId     string
-  GoogleCalendarToken   string
+	GoogleCalendarToken   string
+	GoogleCalendarID      string
 	ReminderStatusSeconds int
 	Environment           string
 	FileStorage           string
@@ -61,6 +62,7 @@ func newEnvironment() environment {
 	vars.StringVar(&env.GoogleDriveToken, "hellper_google_drive_token", "", "Google Drive Token")
 	vars.StringVar(&env.GoogleDriveFileId, "hellper_google_drive_file_id", "", "Google Drive FileId")
 	vars.StringVar(&env.GoogleCalendarToken, "hellper_google_calendar_token", "", "Google Calendar Token")
+	vars.StringVar(&env.GoogleCalendarID, "hellper_google_calendar_id", "", "Calendar ID to create a event")
 	vars.IntVar(&env.ReminderStatusSeconds, "hellper_reminder_status_seconds", 7200, "Contains the time for the stat reminder to be triggered, by default the time is 2 hours if there is no variable")
 	vars.StringVar(&env.Environment, "hellper_environment", "", "Hellper current environment")
 	vars.StringVar(&env.FileStorage, "file_storage", "google_drive", "Hellper file storage for postmortem document")

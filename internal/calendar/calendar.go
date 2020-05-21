@@ -1,5 +1,5 @@
 package calendar
 
 type Calendar interface {
-	SchedulePostmortemMeeting()
+	CreateCalendarEvent()
 }

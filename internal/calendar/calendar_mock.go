@@ -10,6 +10,6 @@ func NewCalendarMock() *CalendarMock {
 	return new(CalendarMock)
 }
 
-func (*CalendarMock) SchedulePostmortemMeeting() {
+func (*CalendarMock) CreateCalendarEvent() {
 
 }

@@ -1,5 +1,5 @@
 package commands
- 
+
 import (
 	"context"
 
@@ -8,19 +8,18 @@ import (
 	"hellper/internal/model"
 )
 
-
 func getSlackUserInfo(
 	ctx context.Context,
 	client bot.Client,
 	logger log.Logger,
 	userID string,
-)(*model.User, error) {
+) (*model.User, error) {
 
-	slackUser, err := client.GetUserInfo(userID)
+	slackUser, err := client.GetUserInfoContext(ctx, userID)
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/user.getUserInfo error",
+			"command/user.getSlackUserInfo error",
 			log.NewValue("userID", userID),
 			log.NewValue("error", err),
 		)
@@ -28,10 +27,10 @@ func getSlackUserInfo(
 		return nil, err
 	}
 
-	user := model.User {
-		SlackId:	slackUser.ID,
-		Name:		slackUser.Profile.RealName,
-		Email:		slackUser.Profile.Email,	
+	user := model.User{
+		SlackId: slackUser.ID,
+		Name:    slackUser.Profile.RealName,
+		Email:   slackUser.Profile.Email,
 	}
 
 	return &user, err

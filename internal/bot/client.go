@@ -12,7 +12,7 @@ type Client interface {
 	CreateChannel(string) (*slack.Channel, error)
 	InviteUserToChannel(string, string) (*slack.Channel, error)
 	ListPins(string) ([]slack.Item, *slack.Paging, error)
-	GetUserInfo(string) (*slack.User, error)
+	GetUserInfoContext(context.Context, string) (*slack.User, error)
 	SetChannelTopic(string, string) (string, error)
 	OpenDialog(string, slack.Dialog) error
 	AddPin(string, slack.ItemRef) error

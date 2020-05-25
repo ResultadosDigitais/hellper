@@ -184,7 +184,7 @@ func StartIncidentByDialog(
 		IdentificationTimestamp: &now,
 		SeverityLevel:           severityLevelInt64,
 		IncidentAuthor:          incidentAuthor,
-		Commander:               commander,
+		CommanderId:             commander,
 	}
 
 	incidentID, err := repository.InsertIncident(ctx, &incident)
@@ -274,7 +274,7 @@ func createOpenAttachment(incident model.Incident, incidentID int64, warRoomURL 
 	messageText.WriteString("*Severity:* " + getSeverityLevelText(incident.SeverityLevel) + "\n\n")
 	messageText.WriteString("*Product:* " + incident.Product + "\n")
 	messageText.WriteString("*Channel:* <#" + incident.ChannelId + ">\n")
-	messageText.WriteString("*Commander:* <@" + incident.Commander + ">\n\n")
+	messageText.WriteString("*Commander:* <@" + incident.CommanderId + ">\n\n")
 	messageText.WriteString("*Description:* `" + incident.DescriptionStarted + "`\n\n")
 	messageText.WriteString("*War Room:* " + warRoomURL + "\n")
 	messageText.WriteString("*cc:* <@" + supportTeam + ">\n")
@@ -299,7 +299,7 @@ func createOpenAttachment(incident model.Incident, incidentID int64, warRoomURL 
 			},
 			{
 				Title: "Commander",
-				Value: "<@" + incident.Commander + ">",
+				Value: "<@" + incident.CommanderId + ">",
 			},
 			{
 				Title: "Description",

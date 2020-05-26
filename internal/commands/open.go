@@ -147,16 +147,15 @@ func StartIncidentByDialog(
 	)
 
 	var (
-		now            = time.Now().UTC()
-		incidentAuthor = incidentDetails.User.ID
-		submission     = incidentDetails.Submission
-		channelName    = submission.ChannelName
-		warRoomURL     = submission.WarRoomURL
-		severityLevel  = submission.SeverityLevel
-		product        = submission.Product
-		commander      = submission.IncidentCommander
-		description    = submission.IncidentDescription
-		
+		now              = time.Now().UTC()
+		incidentAuthor   = incidentDetails.User.ID
+		submission       = incidentDetails.Submission
+		channelName      = submission.ChannelName
+		warRoomURL       = submission.WarRoomURL
+		severityLevel    = submission.SeverityLevel
+		product          = submission.Product
+		commander        = submission.IncidentCommander
+		description      = submission.IncidentDescription
 		environment      = config.Env.Environment
 		matrixURL        = config.Env.MatrixHost
 		supportTeam      = config.Env.SupportTeam
@@ -164,7 +163,7 @@ func StartIncidentByDialog(
 		stagingRoom      = "dc82e346-639c-44ee-a470-63f7545ae8e4"
 	)
 
-	user, err := getSlackUserInfo(ctx,client,logger,commander)
+	user, err := getSlackUserInfo(ctx, client, logger, commander)
 	if err != nil {
 		return fmt.Errorf("commands.StartIncidentByDialog.get_slack_user_info: incident=%v commanderId=%v error=%v", channelName, commander, err)
 	}
@@ -189,8 +188,8 @@ func StartIncidentByDialog(
 		IdentificationTimestamp: &now,
 		SeverityLevel:           severityLevelInt64,
 		IncidentAuthor:          incidentAuthor,
-		CommanderId:             user.SlackId,
-		CommanderEmail:			 user.Email,
+		CommanderId:             user.SlackID,
+		CommanderEmail:          user.Email,
 	}
 
 	incidentID, err := repository.InsertIncident(ctx, &incident)

@@ -28,7 +28,7 @@ func getSlackUserInfo(
 	}
 
 	user := model.User{
-		SlackId: slackUser.ID,
+		SlackID: slackUser.ID,
 		Name:    slackUser.Profile.RealName,
 		Email:   slackUser.Profile.Email,
 	}

@@ -91,7 +91,7 @@ func buildUserMock() *model.User {
 
 	return &model.User{
 		Id:      0,
-		SlackId: "U013NAYQ1PG",
+		SlackID: "U013NAYQ1PG",
 		Name:    "Natalia Favareto",
 		Email:   "natalia.favareto@resultadosdigitais.com.br",
 	}

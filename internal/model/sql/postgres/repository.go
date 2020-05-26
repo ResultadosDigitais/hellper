@@ -45,7 +45,8 @@ func incidentLogValues(inc *model.Incident) []log.Value {
 		log.NewValue("severityLevel", inc.SeverityLevel),
 		log.NewValue("channelName", inc.ChannelName),
 		log.NewValue("channelID", inc.ChannelId),
-		log.NewValue("commander", inc.Commander),
+		log.NewValue("commanderID", inc.CommanderId),
+		log.NewValue("commanderEmail", inc.CommanderEmail),
 	}
 }
 
@@ -75,8 +76,9 @@ func (r *repository) InsertIncident(ctx context.Context, inc *model.Incident) (i
 		, severity_level
 		, channel_name
 		, channel_id
-		, commander)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+		, commander_id
+		, commander_email)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
 	RETURNING id`
 
 	id := int64(0)
@@ -101,7 +103,8 @@ func (r *repository) InsertIncident(ctx context.Context, inc *model.Incident) (i
 		inc.SeverityLevel,
 		inc.ChannelName,
 		inc.ChannelId,
-		inc.Commander)
+		inc.CommanderId,
+		inc.CommanderEmail)
 
 	switch err := idResult.Scan(&id); err {
 	case nil:
@@ -214,7 +217,8 @@ func (r *repository) GetIncident(ctx context.Context, channelID string) (inc mod
 		&inc.SeverityLevel,
 		&inc.ChannelName,
 		&inc.ChannelId,
-		&inc.Commander,
+		&inc.CommanderId,
+		&inc.CommanderEmail,
 	)
 
 	r.logger.Info(
@@ -246,7 +250,8 @@ func GetIncidentByChannelID() string {
 		, CASE WHEN severity_level IS NULL THEN 0 ELSE severity_level END AS severity_level
 		, CASE WHEN channel_name IS NULL THEN '' ELSE channel_name END AS channel_name
 		, CASE WHEN channel_id IS NULL THEN '' ELSE channel_id END AS channel_id
-		, CASE WHEN commander IS NULL THEN '' ELSE commander END commander
+		, CASE WHEN commander_id IS NULL THEN '' ELSE commander_id END commander_id
+		, CASE WHEN commander_email IS NULL THEN '' ELSE commander_email END commander_email
 	FROM incident
 	WHERE channel_id = $1
 	LIMIT 1`
@@ -574,7 +579,8 @@ func (r *repository) ListActiveIncidents(ctx context.Context) ([]model.Incident,
 			&inc.SeverityLevel,
 			&inc.ChannelName,
 			&inc.ChannelId,
-			&inc.Commander,
+			&inc.CommanderId,
+			&inc.CommanderEmail,
 		)
 		if err != nil {
 			r.logger.Error(
@@ -619,7 +625,8 @@ func GetIncidentStatusFilterQuery() string {
 		, CASE WHEN severity_level IS NULL THEN 0 ELSE severity_level END AS severity_level
 		, CASE WHEN channel_name IS NULL THEN '' ELSE channel_name END AS channel_name
 		, CASE WHEN channel_id IS NULL THEN '' ELSE channel_id END AS channel_id
-		, CASE WHEN commander IS NULL THEN '' ELSE commander END commander
+		, CASE WHEN commander_id IS NULL THEN '' ELSE commander_id END commander_id
+		, CASE WHEN commander_email IS NULL THEN '' ELSE commander_email END commander_email
 	FROM incident
 	WHERE status IN ($1)
 	LIMIT 10`

@@ -32,5 +32,6 @@ type Incident struct {
 	DescriptionResolved     string     `db:"description_resolved,omitempty"`
 	ChannelId               string     `db:"channel_id,omitempty"`
 	IncidentAuthor          string     `db:"incident_author_id,omitempty"`
-	Commander               string     `db:"commander,omitempty"`
+	CommanderId             string     `db:"commander_id,omitempty"`
+	CommanderEmail          string     `db:"commander_email,omitempty"`
 }

@@ -3,7 +3,6 @@ package googlecalendar
 import (
 	"context"
 	"hellper/internal/calendar"
-	"hellper/internal/config"
 	googleauth "hellper/internal/google_auth"
 	"hellper/internal/log"
 
@@ -16,8 +15,8 @@ type googleCalendar struct {
 }
 
 //NewCalendar initialize the file storage service
-func NewCalendar(ctx context.Context, logger log.Logger) calendar.Calendar {
-	calendarTokenBytes := []byte(config.Env.GoogleCalendarToken)
+func NewCalendar(ctx context.Context, logger log.Logger, calendarToken string) (calendar.Calendar, error) {
+	calendarTokenBytes := []byte(calendarToken)
 
 	gClient, err := googleauth.Struct.GetGClient(ctx, logger, calendarTokenBytes, gCalendar.CalendarScope)
 	if err != nil {
@@ -27,7 +26,7 @@ func NewCalendar(ctx context.Context, logger log.Logger) calendar.Calendar {
 			log.NewValue("error", err),
 		)
 
-		return nil
+		return nil, err
 	}
 
 	calendarService, err := gCalendar.New(gClient)
@@ -38,13 +37,15 @@ func NewCalendar(ctx context.Context, logger log.Logger) calendar.Calendar {
 			log.NewValue("error", err),
 		)
 
-		return nil
+		return nil, err
 	}
 
-	return &googleCalendar{
+	calendar := googleCalendar{
 		logger:          logger,
 		calendarService: calendarService,
 	}
+
+	return &calendar, nil
 }
 
 //CreateCalendarEvent creates a event in Google Calendar

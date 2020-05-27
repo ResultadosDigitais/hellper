@@ -1,10 +1,13 @@
 package internal
 
 import (
+	"context"
 	"fmt"
 
 	"hellper/internal/bot"
 	"hellper/internal/bot/slack"
+	"hellper/internal/calendar"
+	googlecalendar "hellper/internal/calendar/google_calendar"
 	"hellper/internal/config"
 	filestorage "hellper/internal/file_storage"
 	googledrive "hellper/internal/file_storage/google_drive"
@@ -15,9 +18,10 @@ import (
 	"hellper/internal/model/sql/postgres"
 )
 
-func New() (log.Logger, bot.Client, model.Repository, filestorage.Driver) {
+func New() (log.Logger, bot.Client, model.Repository, filestorage.Driver, calendar.Calendar) {
+	ctx := context.Background()
 	logger := NewLogger()
-	return logger, NewClient(logger), NewRepository(logger), NewFileStorage(logger)
+	return logger, NewClient(logger), NewRepository(logger), NewFileStorage(logger), NewCalendar(ctx, logger)
 }
 
 func NewLogger() log.Logger {
@@ -54,4 +58,20 @@ func NewFileStorage(logger log.Logger) filestorage.Driver {
 			fileStorage,
 		))
 	}
+}
+
+// NewCalendar creates a new connection with the calendar service
+func NewCalendar(ctx context.Context, logger log.Logger) calendar.Calendar {
+	calendar, err := googlecalendar.NewCalendar(ctx, logger, config.Env.GoogleCalendarToken)
+	if err != nil {
+		logger.Error(
+			ctx,
+			"internal.NewCalendar ERROR",
+			log.NewValue("error", err),
+		)
+
+		return nil
+	}
+
+	return calendar
 }

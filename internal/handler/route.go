@@ -22,7 +22,7 @@ var (
 )
 
 func init() {
-	logger, client, repository, fileStorage := internal.New()
+	logger, client, repository, fileStorage, _ := internal.New()
 	openHandler = newHandlerOpen(logger, client, repository)
 	eventsHandler = newHandlerEvents(logger, client, repository)
 	interactiveHandler = newHandlerInteractive(logger, client, repository, fileStorage)

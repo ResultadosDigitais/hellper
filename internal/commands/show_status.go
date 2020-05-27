@@ -116,11 +116,11 @@ func createStatusAttachment(ctx context.Context, client bot.Client, logger log.L
 			}
 
 			if item.Message.User != "" {
-				user, err := client.GetUserInfo(item.Message.User)
+				user, err := client.GetUserInfoContext(ctx, item.Message.User)
 				if err != nil {
 					logger.Error(
 						ctx,
-						"command/show_status.createStatusAttachment GetUserInfo error",
+						"command/show_status.createStatusAttachment GetUserInfoContext error",
 						log.NewValue("channelID", channelID),
 						log.NewValue("error", err),
 					)

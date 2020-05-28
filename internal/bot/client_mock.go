@@ -61,9 +61,9 @@ func (mock *ClientMock) ListPins(channelID string) ([]slack.Item, *slack.Paging,
 	return items, paging, args.Error(2)
 }
 
-func (mock *ClientMock) GetUserInfo(userID string) (*slack.User, error) {
+func (mock *ClientMock) GetUserInfoContext(ctx context.Context, userID string) (*slack.User, error) {
 	var (
-		args   = mock.Called(userID)
+		args   = mock.Called(ctx, userID)
 		result = args.Get(0)
 	)
 	if result == nil {

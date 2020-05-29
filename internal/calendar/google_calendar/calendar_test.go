@@ -1,10 +1,14 @@
 package googlecalendar
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
+	"hellper/internal/log"
+
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	gCalendar "google.golang.org/api/calendar/v3"
 )
 
@@ -15,6 +19,8 @@ type googleCalendarFixture struct {
 
 	calendarService googleCalendar
 
+	ctx           context.Context
+	mockLogger    log.Logger
 	startDateTime string
 	endDateTime   string
 	emails        []string
@@ -24,7 +30,11 @@ type googleCalendarFixture struct {
 }
 
 func (f *googleCalendarFixture) setup(t *testing.T) {
+	f.ctx = context.Background()
 
+	loggerMock := log.NewLoggerMock()
+	loggerMock.On("Error", f.ctx, mock.AnythingOfType("string"), mock.AnythingOfType("[]log.Value")).Return()
+	f.mockLogger = loggerMock
 }
 
 func TestEvent(t *testing.T) {

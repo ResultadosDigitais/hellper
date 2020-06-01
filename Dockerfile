@@ -1,6 +1,4 @@
 FROM golang:1.14-buster AS builder
-RUN apt update && apt upgrade && apt install curl -y
-
 WORKDIR /app
 
 COPY go.mod .
@@ -13,7 +11,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -o /app/hellper /app/cmd/http
 
 FROM debian:buster
-RUN apt update && apt upgrade && apt install curl -y
+RUN apt update && apt upgrade && apt install ca-certificates -y
 COPY --from=builder /app/hellper /app/hellper
 EXPOSE 8080
 

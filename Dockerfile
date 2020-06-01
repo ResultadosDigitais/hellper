@@ -1,4 +1,4 @@
-FROM golang:1.14-alpine3.11 AS builder
+FROM golang:1.14-buster AS builder
 
 WORKDIR /app
 
@@ -11,7 +11,7 @@ COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o /app/hellper /app/cmd/http
 
-FROM alpine:latest
+FROM buster:latest
 COPY --from=builder /app/hellper /app/hellper
 EXPOSE 8080
 

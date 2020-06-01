@@ -11,7 +11,7 @@ COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o /app/hellper /app/cmd/http
 
-FROM buster:latest
+FROM debian:buster
 COPY --from=builder /app/hellper /app/hellper
 EXPOSE 8080
 

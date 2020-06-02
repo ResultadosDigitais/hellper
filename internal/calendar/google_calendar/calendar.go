@@ -3,6 +3,7 @@ package googlecalendar
 import (
 	"context"
 	"hellper/internal/calendar"
+	"hellper/internal/config"
 	googleauth "hellper/internal/google_auth"
 	"hellper/internal/log"
 
@@ -79,6 +80,16 @@ func event(start, end, summary string, emails []string, commander string) *gCale
 		End:       eventEnd,
 		Summary:   summary,
 	}
+}
+
+func calendarID() string {
+	return config.Env.GoogleCalendarID
+}
+
+func (gc *googleCalendar) insertEnvent(event *gCalendar.Event) *gCalendar.EventsInsertCall {
+	eventsService := gCalendar.NewEventsService(gc.calendarService)
+
+	return eventsService.Insert(calendarID(), event)
 }
 
 //CreateCalendarEvent creates a event in Google Calendar

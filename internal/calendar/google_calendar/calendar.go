@@ -13,9 +13,10 @@ import (
 type googleCalendar struct {
 	logger          log.Logger
 	calendarService *gCalendar.Service
+	eventsService   *gCalendar.EventsService
 }
 
-//NewCalendar initialize the file storage service
+//NewCalendar initialize the calendar service
 func NewCalendar(ctx context.Context, logger log.Logger, calendarToken string) (calendar.Calendar, error) {
 	calendarTokenBytes := []byte(calendarToken)
 
@@ -41,9 +42,12 @@ func NewCalendar(ctx context.Context, logger log.Logger, calendarToken string) (
 		return nil, err
 	}
 
+	eventsService := gCalendar.NewEventsService(calendarService)
+
 	calendar := googleCalendar{
 		logger:          logger,
 		calendarService: calendarService,
+		eventsService:   eventsService,
 	}
 
 	return &calendar, nil
@@ -87,9 +91,7 @@ func calendarID() string {
 }
 
 func (gc *googleCalendar) insertEnvent(event *gCalendar.Event) *gCalendar.EventsInsertCall {
-	eventsService := gCalendar.NewEventsService(gc.calendarService)
-
-	return eventsService.Insert(calendarID(), event)
+	return gc.eventsService.Insert(calendarID(), event)
 }
 
 //CreateCalendarEvent creates a event in Google Calendar

@@ -4,6 +4,7 @@ import (
 	"context"
 	"hellper/internal/calendar"
 	"hellper/internal/config"
+	"hellper/internal/google"
 	googleauth "hellper/internal/google_auth"
 	"hellper/internal/log"
 
@@ -12,8 +13,8 @@ import (
 
 type googleCalendar struct {
 	logger          log.Logger
-	calendarService *gCalendar.Service
-	eventsService   *gCalendar.EventsService
+	calendarService google.CalendarService
+	eventsService   google.CalendarEventsService
 }
 
 //NewCalendar initialize the calendar service
@@ -31,7 +32,7 @@ func NewCalendar(ctx context.Context, logger log.Logger, calendarToken string) (
 		return nil, err
 	}
 
-	calendarService, err := gCalendar.New(gClient)
+	calendarService, err := google.NewCalendarService(gClient)
 	if err != nil {
 		logger.Error(
 			ctx,
@@ -42,7 +43,8 @@ func NewCalendar(ctx context.Context, logger log.Logger, calendarToken string) (
 		return nil, err
 	}
 
-	eventsService := gCalendar.NewEventsService(calendarService)
+	s := calendarService.(gCalendar.Service)
+	eventsService := google.NewCalendarEventsService(&s)
 
 	calendar := googleCalendar{
 		logger:          logger,

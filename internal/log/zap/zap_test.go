@@ -345,3 +345,8 @@ func TestZapLoggerDefault(test *testing.T) {
 	logger := NewZapLoggerDefault()
 	assert.NotNil(test, logger, "loggerDefault instance")
 }
+
+func TestNewDefault(test *testing.T) {
+	logger := NewDefault()
+	assert.NotNil(test, logger, "NewDefault instance")
+}

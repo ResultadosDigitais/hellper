@@ -48,8 +48,8 @@ func NewCalendar(
 		return nil, err
 	}
 
-	s := calendarService.(gCalendar.Service)
-	eventsService := google.NewCalendarEventsService(&s)
+	s := calendarService.(*gCalendar.Service)
+	eventsService := google.NewCalendarEventsService(s)
 
 	calendar := googleCalendar{
 		logger:          logger,

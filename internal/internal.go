@@ -62,7 +62,11 @@ func NewFileStorage(logger log.Logger) filestorage.Driver {
 
 // NewCalendar creates a new connection with the calendar service
 func NewCalendar(ctx context.Context, logger log.Logger) calendar.Calendar {
-	calendar, err := googlecalendar.NewCalendar(ctx, logger, config.Env.GoogleCalendarToken)
+	var (
+		calendarToken = config.Env.GoogleCalendarToken
+		calendarID    = config.Env.GoogleCalendarID
+	)
+	calendar, err := googlecalendar.NewCalendar(ctx, logger, calendarToken, calendarID)
 	if err != nil {
 		logger.Error(
 			ctx,

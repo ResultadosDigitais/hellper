@@ -80,7 +80,7 @@ func ResolveIncidentDialog(client bot.Client, triggerID string) error {
 }
 
 // ResolveIncidentByDialog resolves an incident after receiving data from a Slack dialog
-func ResolveIncidentByDialog(ctx context.Context, client bot.Client, logger log.Logger, repository model.Repository, incidentDetails bot.DialogSubmission) error {
+func ResolveIncidentByDialog(ctx context.Context, client bot.Client, logger log.Logger, repository model.Repository, incidentDetails bot.DialogSubmission, calendar calendar.Calendar) error {
 	logger.Info(
 		ctx,
 		"command/resolve.ResolveIncidentByDialog",
@@ -88,15 +88,17 @@ func ResolveIncidentByDialog(ctx context.Context, client bot.Client, logger log.
 	)
 
 	var (
-		now              = time.Now().UTC()
-		channelID        = incidentDetails.Channel.ID
-		userID           = incidentDetails.User.ID
-		userName         = incidentDetails.User.Name
-		submissions      = incidentDetails.Submission
-		description      = submissions.IncidentDescription
-		statusPageURL    = submissions.StatusIO
-		notifyOnResolve  = config.Env.NotifyOnResolve
-		productChannelID = config.Env.ProductChannelID
+		now                  = time.Now().UTC()
+		channelID            = incidentDetails.Channel.ID
+		userID               = incidentDetails.User.ID
+		userName             = incidentDetails.User.Name
+		submissions          = incidentDetails.Submission
+		description          = submissions.IncidentDescription
+		statusPageURL        = submissions.StatusIO
+		postMortemMeeting    = submissions.PostMortemMeeting
+		postMortemMeetingURL = ""
+		notifyOnResolve      = config.Env.NotifyOnResolve
+		productChannelID     = config.Env.ProductChannelID
 	)
 
 	incident := model.Incident{
@@ -109,6 +111,17 @@ func ResolveIncidentByDialog(ctx context.Context, client bot.Client, logger log.
 	err := repository.ResolveIncident(ctx, &incident)
 	if err != nil {
 		return err
+	}
+
+	isPostMortemMeeting, err := strconv.ParseBool(postMortemMeeting)
+	if err != nil {
+		return err
+	}
+
+	if isPostMortemMeeting {
+		//postMortemMeetingURL = calendar.CreateCalendarEvent() [locked - card do feijo ]aqui vai ser o tratamento de erros.
+		calendar.CreateCalendarEvent()
+		postMortemMeetingURL = "link ficticio"
 	}
 
 	channelAttachment := createResolveChannelAttachment(incident, userName)

@@ -11,7 +11,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -o /app/hellper /app/cmd/http
 
 FROM debian:buster
-RUN apt update && apt upgrade && apt install ca-certificates -y
+RUN apt update -y && apt upgrade -y && apt install ca-certificates -y
 COPY --from=builder /app/hellper /app/hellper
 EXPOSE 8080
 

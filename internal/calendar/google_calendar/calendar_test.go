@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"hellper/internal/google"
 	"hellper/internal/log"
 
 	"github.com/stretchr/testify/assert"
@@ -17,16 +18,21 @@ type googleCalendarFixture struct {
 	expectError  bool
 	errorMessage string
 
-	calendarService googleCalendar
+	calendarService *googleCalendar
 
-	ctx           context.Context
-	mockLogger    log.Logger
-	startDateTime string
-	endDateTime   string
-	emails        []string
-	commander     string
-	summary       string
-	mockEvent     *gCalendar.Event
+	mockLogger                log.Logger
+	mockCalendarService       google.CalendarService
+	mockCalendarEventsService google.CalendarEventsService
+
+	ctx                 context.Context
+	startDateTime       string
+	endDateTime         string
+	emails              []string
+	commander           string
+	summary             string
+	mockEvent           *gCalendar.Event
+	mockEventInsertCall *gCalendar.EventsInsertCall
+	calendarID          string
 }
 
 func (f *googleCalendarFixture) setup(t *testing.T) {
@@ -35,6 +41,28 @@ func (f *googleCalendarFixture) setup(t *testing.T) {
 	loggerMock := log.NewLoggerMock()
 	loggerMock.On("Error", f.ctx, mock.AnythingOfType("string"), mock.AnythingOfType("[]log.Value")).Return()
 	f.mockLogger = loggerMock
+
+	f.mockCalendarService = google.NewCalendarServiceMock()
+
+	calendarEventsServiceMock := google.NewCalendarEventsServiceMock()
+	calendarEventsServiceMock.On("Insert", f.calendarID, f.mockEvent).Return(new(gCalendar.EventsInsertCall))
+	f.mockCalendarEventsService = calendarEventsServiceMock
+
+	f.calendarService = calendarServiceMock(f.mockLogger, f.mockCalendarService, f.mockCalendarEventsService, f.calendarID)
+}
+
+func TestInsertEvent(t *testing.T) {
+	f := googleCalendarFixture{
+		testName:   "The InsertCall is created without problem",
+		mockEvent:  newEventMock(),
+		calendarID: "guilherme.fonseca@resultadosdigitais.com.br",
+	}
+
+	t.Run("Create event struct", func(t *testing.T) {
+		f.setup(t)
+		insertCall := f.calendarService.insertEnvent(f.mockEvent)
+		assert.IsType(t, new(gCalendar.EventsInsertCall), insertCall)
+	})
 }
 
 func TestEvent(t *testing.T) {
@@ -95,5 +123,20 @@ func newEventMock() *gCalendar.Event {
 			DateTime: `2020-05-27T17:00:00-07:00`,
 		},
 		Summary: `Test postmortem event`,
+	}
+}
+
+func calendarServiceMock(
+	logger log.Logger,
+	service google.CalendarService,
+	eventsService google.CalendarEventsService,
+	calendarID string,
+) *googleCalendar {
+
+	return &googleCalendar{
+		logger:          logger,
+		calendarService: service,
+		eventsService:   eventsService,
+		calendarID:      calendarID,
 	}
 }

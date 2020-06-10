@@ -3,11 +3,13 @@ package commands
 import (
 	"context"
 	"hellper/internal/concurrence"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 
 	"hellper/internal/bot"
+	calendar "hellper/internal/calendar"
 	"hellper/internal/config"
 	"hellper/internal/log"
 	"hellper/internal/model"
@@ -40,6 +42,28 @@ func ResolveIncidentDialog(client bot.Client, triggerID string) error {
 		Subtype: slack.InputSubtypeURL,
 	}
 
+	postMortemMeeting := &slack.DialogInputSelect{
+		DialogInput: slack.DialogInput{
+			Label:       "Can i schedule a meeting of Post Mortem?",
+			Name:        "post_mortem_meeting",
+			Type:        "select",
+			Placeholder: "Post Mortem Meeting",
+			Optional:    false,
+		},
+		Value: "false",
+		Options: []slack.DialogSelectOption{
+			{
+				Label: "Yes",
+				Value: "true",
+			},
+			{
+				Label: "No",
+				Value: "false",
+			},
+		},
+		OptionGroups: []slack.DialogOptionGroup{},
+	}
+
 	dialog := slack.Dialog{
 		CallbackID:     "inc-resolve",
 		Title:          "Resolve an Incident",
@@ -48,6 +72,7 @@ func ResolveIncidentDialog(client bot.Client, triggerID string) error {
 		Elements: []slack.DialogElement{
 			statusIO,
 			description,
+			postMortemMeeting,
 		},
 	}
 

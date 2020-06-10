@@ -100,9 +100,9 @@ func (gc *googleCalendar) insertEvent(ctx context.Context, logger log.Logger, ev
 	return gcEvent
 }
 
-func (gc *googleCalendar) handleInsertEvent(ctx context.Context, logger log.Logger, insertCall *gCalendar.EventsInsertCall) (*gCalendar.Event, error) {
-	ctxEvent := insertCall.Context(ctx)
-	gcEvent, err := ctxEvent.Do()
+func (gc *googleCalendar) handleInsertEvent(ctx context.Context, logger log.Logger, insertCall google.CalendarEventsInsertCall) (*gCalendar.Event, error) {
+	// insertCall := insertCall.Context(ctx)
+	gcEvent, err := insertCall.Do()
 	if err != nil {
 		logger.Error(
 			ctx,

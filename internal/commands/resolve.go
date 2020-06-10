@@ -124,8 +124,8 @@ func ResolveIncidentByDialog(ctx context.Context, client bot.Client, logger log.
 		postMortemMeetingURL = "link ficticio"
 	}
 
-	channelAttachment := createResolveChannelAttachment(incident, userName)
-	privateAttachment := createResolvePrivateAttachment(incident)
+	channelAttachment := createResolveChannelAttachment(incident, userName, postMortemMeetingURL)
+	privateAttachment := createResolvePrivateAttachment(incident, postMortemMeetingURL)
 
 	var waitgroup sync.WaitGroup
 	defer waitgroup.Wait()
@@ -143,14 +143,20 @@ func ResolveIncidentByDialog(ctx context.Context, client bot.Client, logger log.
 	return nil
 }
 
-func createResolveChannelAttachment(inc model.Incident, userName string) slack.Attachment {
+func createResolveChannelAttachment(inc model.Incident, userName string, postMortemMeetingURL string) slack.Attachment {
 	endDateText := inc.EndTimestamp.Format(time.RFC3339)
 
 	var messageText strings.Builder
 	messageText.WriteString("The Incident <#" + inc.ChannelId + "> has been resolved by <@" + userName + ">\n\n")
 	messageText.WriteString("*End date:* <#" + endDateText + ">\n")
 	messageText.WriteString("*Status.io link:* `" + inc.StatusPageUrl + "`\n")
-	messageText.WriteString("*Description:* `" + inc.DescriptionResolved + "`\n\n")
+	messageText.WriteString("*Description:* `" + inc.DescriptionResolved + "`\n")
+	if postMortemMeetingURL != "" {
+		messageText.WriteString("*Post Mortem Meeting Link:* `" + postMortemMeetingURL + "`\n")
+	} else {
+		messageText.WriteString("\n\n")
+		postMortemMeetingURL = "The Meeting is not scheduled."
+	}
 
 	return slack.Attachment{
 		Pretext:  "The Incident <#" + inc.ChannelId + "> has been resolved by <@" + userName + ">",
@@ -174,15 +180,26 @@ func createResolveChannelAttachment(inc model.Incident, userName string) slack.A
 				Title: "Description",
 				Value: inc.DescriptionResolved,
 			},
+			{
+				Title: "Post Mortem meeting link",
+				Value: postMortemMeetingURL,
+			},
 		},
 	}
 }
 
-func createResolvePrivateAttachment(inc model.Incident) slack.Attachment {
+func createResolvePrivateAttachment(inc model.Incident, postMortemMeetingURL string) slack.Attachment {
 	var privateText strings.Builder
 	privateText.WriteString("The Incident <#" + inc.ChannelId + "> has been resolved by you\n\n")
 	privateText.WriteString("*Status.io:* Be sure to update the incident status on" + inc.StatusPageUrl + "\n")
-	privateText.WriteString("*Post Mortem:* Don't forget to bookmark Post Mortem for the incident <#" + inc.ChannelId + ">\n\n")
+	privateText.WriteString("*Post Mortem:* Don't forget to bookmark Post Mortem for the incident <#" + inc.ChannelId + ">\n")
+	if postMortemMeetingURL != "" {
+		privateText.WriteString("*Post Mortem Meeting Link:* Don't forget you are scheduled the Post Mortem Meeting <`" + postMortemMeetingURL + "`>\n\n")
+		postMortemMeetingURL = "Don't forget you are scheduled the Post Mortem Meeting<`" + postMortemMeetingURL + "`>"
+	} else {
+		privateText.WriteString("\n\n")
+		postMortemMeetingURL = "The Meeting is not scheduled."
+	}
 
 	return slack.Attachment{
 		Pretext:  "The Incident <#" + inc.ChannelId + "> has been resolved by you",
@@ -197,6 +214,10 @@ func createResolvePrivateAttachment(inc model.Incident) slack.Attachment {
 			{
 				Title: "Post Mortem",
 				Value: "Don't forget to bookmark Post Mortem for the incident <#" + inc.ChannelId + ">",
+			},
+			{
+				Title: "Post Mortem Meeting Link",
+				Value: postMortemMeetingURL,
 			},
 		},
 	}

@@ -72,6 +72,7 @@ func newEnvironment() environment {
 	vars.IntVar(&env.ReminderResolvedStatusSeconds, "hellper_reminder_resolved_status_seconds", 86400, "Contains the time for the stat reminder to be triggered when status is resolved, by default the time is 24 hours if there is no variable")
 	vars.StringVar(&env.ReminderOpenNotifyMsg, "hellper_reminder_open_notify_msg", "Incident Status: Open - Update the status of this incident, just pin a message with status on the channel.", "Notify message when status is open")
 	vars.StringVar(&env.ReminderResolvedNotifyMsg, "hellper_reminder_resolved_notify_msg", "Incident Status: Resolved - Update the status of this incident, just pin a message with status on the channel.", "Notify message when status is resolved")
+	vars.StringVar(&env.Environment, "hellper_environment", "", "Hellper current environment")
 	vars.StringVar(&env.FileStorage, "file_storage", "google_drive", "Hellper file storage for postmortem document")
 	vars.BoolVar(&env.NotifyOnResolve, "hellper_notify_on_resolve", true, "Notify the main channel when resolve the incident")
 	vars.BoolVar(&env.NotifyOnClose, "hellper_notify_on_close", true, "Notify the main channel when close the incident")

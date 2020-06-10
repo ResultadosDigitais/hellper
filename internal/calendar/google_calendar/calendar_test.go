@@ -59,8 +59,20 @@ func TestInsertEvent(t *testing.T) {
 	}
 	t.Run("Create event struct", func(t *testing.T) {
 		f.setup(t)
-		insertCall, _ := f.calendarService.insertEvent(f.ctx, f.mockLogger, f.mockEvent)
+		insertCall := f.calendarService.insertEvent(f.mockEvent)
 		assert.IsType(t, new(gCalendar.EventsInsertCall), insertCall)
+	})
+}
+
+func TestHandleInsertEvent(t *testing.T) {
+	f := googleCalendarFixture{
+		testName:            "The InsertCall is created without problem",
+		mockEventInsertCall: newEventInsertCallMock(),
+	}
+	t.Run("Handle Insert Event request", func(t *testing.T) {
+		f.setup(t)
+		gcEvent, _ := f.calendarService.handleInsertEvent(f.ctx, f.mockLogger, f.mockEventInsertCall)
+		assert.IsType(t, new(gCalendar.Event), gcEvent)
 	})
 }
 func TestEvent(t *testing.T) {
@@ -122,6 +134,11 @@ func newEventMock() *gCalendar.Event {
 		},
 		Summary: `Test postmortem event`,
 	}
+}
+
+func newEventInsertCallMock() *gCalendar.EventsInsertCall {
+	// pendent
+	return nil
 }
 
 func calendarServiceMock(

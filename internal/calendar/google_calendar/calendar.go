@@ -94,9 +94,14 @@ func event(start, end, summary string, emails []string, commander string) *gCale
 	}
 }
 
-func (gc *googleCalendar) insertEvent(ctx context.Context, logger log.Logger, event *gCalendar.Event) (*gCalendar.Event, error) {
-	callEvent := gc.eventsService.Insert(gc.calendarID, event)
-	ctxEvent := callEvent.Context(ctx)
+func (gc *googleCalendar) insertEvent(ctx context.Context, logger log.Logger, event *gCalendar.Event) *gCalendar.Event {
+	call := gc.eventsService.Insert(gc.calendarID, event)
+	gcEvent, _ := gc.handleInsertEvent(ctx, logger, call)
+	return gcEvent
+}
+
+func (gc *googleCalendar) handleInsertEvent(ctx context.Context, logger log.Logger, insertCall *gCalendar.EventsInsertCall) (*gCalendar.Event, error) {
+	ctxEvent := insertCall.Context(ctx)
 	gcEvent, err := ctxEvent.Do()
 	if err != nil {
 		logger.Error(

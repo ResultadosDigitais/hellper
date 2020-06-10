@@ -30,7 +30,7 @@ type Channel struct {
 
 type Submission struct {
 	ChannelName         string `json:"channel_name"`
-  WarRoomURL          string `json:"war_room_url"`
+	WarRoomURL          string `json:"war_room_url"`
 	SeverityLevel       string `json:"severity_level"`
 	Responsibility      string `json:"responsibility"`
 	Product             string `json:"product"`
@@ -45,4 +45,5 @@ type Submission struct {
 	RootCause           string `json:"root_cause"`
 	Impact              string `json:"impact"`
 	StatusIO            string `json:"status_io"`
+	PostMortemMeeting   string `json:"post_mortem_meeting"`
 }

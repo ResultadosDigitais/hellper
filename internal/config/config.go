@@ -10,28 +10,31 @@ import (
 var Env = newEnvironment()
 
 type environment struct {
-	OAuthToken            string
-	VerificationToken     string
-	ProductChannelID      string
-	ProductList           string
-	Language              string
-	MatrixHost            string
-	SupportTeam           string
-	Messages              messages
-	BindAddress           string
-	Database              string
-	DSN                   string
-	GoogleCredentials     string
-	GoogleDriveToken      string
-	GoogleDriveFileId     string
-	GoogleCalendarToken   string
-	GoogleCalendarID      string
-	PostmortemGapDays     int
-	ReminderStatusSeconds int
-	Environment           string
-	FileStorage           string
-	NotifyOnResolve       bool
-	NotifyOnClose         bool
+	OAuthToken                    string
+	VerificationToken             string
+	ProductChannelID              string
+	ProductList                   string
+	Language                      string
+	MatrixHost                    string
+	SupportTeam                   string
+	Messages                      messages
+	BindAddress                   string
+	Database                      string
+	DSN                           string
+	GoogleCredentials             string
+	GoogleDriveToken              string
+	GoogleDriveFileId             string
+	GoogleCalendarToken           string
+	GoogleCalendarID              string
+	PostmortemGapDays             int
+	ReminderOpenStatusSeconds     int
+	ReminderResolvedStatusSeconds int
+	ReminderOpenNotifyMsg         string
+	ReminderResolvedNotifyMsg     string
+	Environment                   string
+	FileStorage                   string
+	NotifyOnResolve               bool
+	NotifyOnClose                 bool
 }
 
 type messages struct {
@@ -65,8 +68,10 @@ func newEnvironment() environment {
 	vars.StringVar(&env.GoogleCalendarToken, "hellper_google_calendar_token", "", "Google Calendar Token")
 	vars.StringVar(&env.GoogleCalendarID, "hellper_google_calendar_id", "", "Calendar ID to create a event")
 	vars.IntVar(&env.PostmortemGapDays, "hellper_postmortem_gap_days", 2, "Gap in days between resolve and postmortem event")
-	vars.IntVar(&env.ReminderStatusSeconds, "hellper_reminder_status_seconds", 7200, "Contains the time for the stat reminder to be triggered, by default the time is 2 hours if there is no variable")
-	vars.StringVar(&env.Environment, "hellper_environment", "", "Hellper current environment")
+	vars.IntVar(&env.ReminderOpenStatusSeconds, "hellper_reminder_open_status_seconds", 30, "Contains the time for the stat reminder to be triggered when status is open, by default the time is 2 hours if there is no variable")
+	vars.IntVar(&env.ReminderResolvedStatusSeconds, "hellper_reminder_resolved_status_seconds", 120, "Contains the time for the stat reminder to be triggered when status is resolved, by default the time is 2 hours if there is no variable")
+	vars.StringVar(&env.ReminderOpenNotifyMsg, "hellper_reminder_open_notify_msg", "Status is open", "Notify message when status is open")
+	vars.StringVar(&env.ReminderResolvedNotifyMsg, "hellper_reminder_resolved_notify_msg", "Status is resolved", "Notify message when status is resolved")
 	vars.StringVar(&env.FileStorage, "file_storage", "google_drive", "Hellper file storage for postmortem document")
 	vars.BoolVar(&env.NotifyOnResolve, "hellper_notify_on_resolve", true, "Notify the main channel when resolve the incident")
 	vars.BoolVar(&env.NotifyOnClose, "hellper_notify_on_close", true, "Notify the main channel when close the incident")

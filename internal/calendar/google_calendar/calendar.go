@@ -94,9 +94,19 @@ func event(start, end, summary string, emails []string, commander string) *gCale
 	}
 }
 
-func (gc *googleCalendar) insertEnvent(event *gCalendar.Event) *gCalendar.EventsInsertCall {
-	return gc.eventsService.Insert(gc.calendarID, event)
-	//This function will also have all the calls related with the EventsInsertCall
+func (gc *googleCalendar) insertEvent(ctx context.Context, logger log.Logger, event *gCalendar.Event) (*gCalendar.Event, error) {
+	callEvent := gc.eventsService.Insert(gc.calendarID, event)
+	ctxEvent := callEvent.Context(ctx)
+	gcEvent, err := ctxEvent.Do()
+	if err != nil {
+		logger.Error(
+			ctx,
+			"googlecalendar/calendar.insertEvent ERROR",
+			log.NewValue("error", err),
+		)
+		return nil, err
+	}
+	return gcEvent, nil
 }
 
 //CreateCalendarEvent creates a event in Google Calendar

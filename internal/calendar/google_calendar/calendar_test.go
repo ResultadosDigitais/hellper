@@ -55,16 +55,14 @@ func TestInsertEvent(t *testing.T) {
 	f := googleCalendarFixture{
 		testName:   "The InsertCall is created without problem",
 		mockEvent:  newEventMock(),
-		calendarID: "guilherme.fonseca@resultadosdigitais.com.br",
+		calendarID: "lucas.feijo@resultaosdigitais.com.br",
 	}
-
 	t.Run("Create event struct", func(t *testing.T) {
 		f.setup(t)
-		insertCall := f.calendarService.insertEnvent(f.mockEvent)
+		insertCall, _ := f.calendarService.insertEvent(f.ctx, f.mockLogger, f.mockEvent)
 		assert.IsType(t, new(gCalendar.EventsInsertCall), insertCall)
 	})
 }
-
 func TestEvent(t *testing.T) {
 	f := googleCalendarFixture{
 		startDateTime: `2020-05-27T16:00:00-07:00`,

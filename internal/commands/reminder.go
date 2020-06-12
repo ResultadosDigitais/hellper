@@ -72,6 +72,11 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 			return
 		}
 
+		if incident.Status == model.StatusResolved {
+			sendNotification(ctx, logger, client, incident)
+			return
+		}
+
 		timeMessage, err := convertTimestamp(pin.Message.Msg.Timestamp)
 		if err != nil {
 			logger.Error(
@@ -84,16 +89,8 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 		}
 
 		if timeMessage.Before(time.Now().Add(-setRecurrence(incident))) {
-			err := postMessage(client, incident.ChannelId, statusNotify(incident))
-
-			if err != nil {
-				logger.Error(
-					ctx,
-					"command/reminder.requestStatus postMessage error",
-					log.NewValue("channelID", incident.ChannelId),
-					log.NewValue("error", err),
-				)
-			}
+			sendNotification(ctx, logger, client, incident)
+			return
 		} else {
 			logger.Info(
 				ctx,
@@ -161,4 +158,17 @@ func setRecurrence(incident model.Incident) time.Duration {
 		return time.Duration(config.Env.ReminderResolvedStatusSeconds) * time.Second
 	}
 	return 0
+}
+
+func sendNotification(ctx context.Context, logger log.Logger, client bot.Client, incident model.Incident) {
+	err := postMessage(client, incident.ChannelId, statusNotify(incident))
+
+	if err != nil {
+		logger.Error(
+			ctx,
+			"command/reminder.requestStatus postMessage error",
+			log.NewValue("channelID", incident.ChannelId),
+			log.NewValue("error", err),
+		)
+	}
 }

@@ -69,9 +69,24 @@
       "description": "The Product channel id",
       "value": "#your-incident-channel"
     },
-    "HELLPER_REMINDER_STATUS_SECONDS": {
-      "description": "Contains the time for the stat reminder to be triggered",
-      "value": "1800"
+    "HELLPER_REMINDER_OPEN_NOTIFY_MSG": {
+      "description": "Notify message when status is open",
+      "value": "Incident Status: Open - Update the status of this incident, just pin a message with status on the channel."
+    },
+
+    "HELLPER_REMINDER_RESOLVED_NOTIFY_MSG": {
+      "description": "Notify message when status is resolved",
+      "value": "Incident Status: Resolved - Update the status of this incident, just pin a message with status on the channel."
+    },
+
+    "HELLPER_REMINDER_OPEN_STATUS_SECONDS": {
+      "description": "Contains the time for the stat reminder to be triggered when status is open, by default the time is 2 hours if there is no variable",
+      "value": "7200"
+    },
+
+    "HELLPER_REMINDER_RESOLVED_STATUS_SECONDS": {
+      "description": "Contains the time for the stat reminder to be triggered when status is resolved, by default the time is 24 hours if there is no variable",
+      "value": "86400"
     },
     "HELLPER_SUPPORT_TEAM": {
       "description": "Support team identifier",

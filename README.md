@@ -78,7 +78,10 @@ cp development.env.example development.env
 |**HELLPER_PRODUCT_CHANNEL_ID**|The Product channel id used to notify new incidents| --- |
 |**HELLPER_SUPPORT_TEAM**|Support team identifier to notify| --- |
 |**HELLPER_PRODUCT_LIST**|List of all products splitted by semicolon| `Product A;Product B;Product C;Product D` |
-|**HELLPER_REMINDER_STATUS_SECONDS**|Contains the time for the stat reminder to be triggered in open incidents, by default the time is 2 hours if there is no variable| `7200` |
+|**HELLPER_REMINDER_OPEN_STATUS_SECONDS**|Contains the time for the stat reminder to be triggered in open incidents, by default the time is 2 hours if there is no variable| `7200` |
+|**HELLPER_REMINDER_RESOLVED_STATUS_SECONDS**|Contains the time for the stat reminder to be triggered in resolved incidents, by default the time is 24 hours if there is no variable| `86400` |
+|**HELLPER_REMINDER_OPEN_NOTIFY_MSG**|Notify message when status is open| `Incident Status: Open - Update the status of this incident, just pin a message with status on the channel.` |
+|**HELLPER_REMINDER_RESOLVED_NOTIFY_MSG**|Notify message when status is resolved| `Incident Status: Resolved - Update the status of this incident, just pin a message with status on the channel.` |
 |**HELLPER_OAUTH_TOKEN**|[Slack token](/docs/CONFIGURING-SLACK.md#User-Token-Scopes) to exeucte bot user actions| --- |
 |**HELLPER_VERIFICATION_TOKEN**|[Slack token](/docs/CONFIGURING-SLACK.md#User-Token-Scopes) to verify external requests| --- |
 |**HELLPER_NOTIFY_ON_RESOLVE**|Notify the main channel when resolve the incident| `true` |

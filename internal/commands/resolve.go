@@ -159,8 +159,7 @@ func ResolveIncidentByDialog(ctx context.Context, client bot.Client, logger log.
 }
 
 func setMeetingDate(d *time.Time, postMortemGapDays int) (string, string) {
-	p := d.AddDate(0, 0, postMortemGapDays)
-	previewPostMortemDate := time.Date(p.Year(), p.Month(), p.Day(), 15, 0, 0, 0, d.Location())
+	previewPostMortemDate := d.AddDate(0, 0, postMortemGapDays)
 
 	switch previewPostMortemDate.Weekday() {
 	case time.Saturday:
@@ -171,7 +170,9 @@ func setMeetingDate(d *time.Time, postMortemGapDays int) (string, string) {
 		break
 	}
 
-	startMeeting := d.AddDate(0, 0, postMortemGapDays)
+	setMeetingHour := time.Date(d.Year(), d.Month(), d.Day(), 15, 0, 0, 0, d.Location())
+
+	startMeeting := setMeetingHour.AddDate(0, 0, postMortemGapDays)
 	endMeeting := startMeeting.Add(time.Hour).Format(time.RFC3339)
 
 	return startMeeting.Format(time.RFC3339), endMeeting

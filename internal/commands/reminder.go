@@ -11,24 +11,20 @@ import (
 	"hellper/internal/model"
 )
 
-var recurrence = time.Duration(config.Env.ReminderStatusSeconds) * time.Second
-
 var jobs []job.Job
 
 func canStopReminder(incident model.Incident) bool {
-	return incident.Status == model.StatusResolved ||
-		incident.Status == model.StatusClosed ||
-		incident.Status == model.StatusCancel
+	return incident.Status == model.StatusClosed || incident.Status == model.StatusCancel
 }
 
-func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, repository model.Repository, channelID string) func(j job.Job) {
+func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, repository model.Repository, jobIncident model.Incident) func(j job.Job) {
 	return func(j job.Job) {
-		incident, err := repository.GetIncident(ctx, channelID)
+		incident, err := repository.GetIncident(ctx, jobIncident.ChannelId)
 		if err != nil {
 			logger.Error(
 				ctx,
 				"command/reminder.requestStatus GetIncident error",
-				log.NewValue("channelID", channelID),
+				log.NewValue("channelID", incident.ChannelId),
 				log.NewValue("error", err),
 			)
 			return
@@ -38,7 +34,7 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 			logger.Info(
 				ctx,
 				"command/reminder.requestStatus stop",
-				log.NewValue("channelID", channelID),
+				log.NewValue("channelID", incident.ChannelId),
 				log.NewValue("job", j),
 			)
 
@@ -46,20 +42,38 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 			return
 		}
 
+		if incident.Status != jobIncident.Status {
+			logger.Info(
+				ctx,
+				"command/reminder.requestStatus statusChanged updating job",
+				log.NewValue("channelID", incident.ChannelId),
+				log.NewValue("incident.Status", incident.Status),
+				log.NewValue("jobIncident.Status", jobIncident.Status),
+			)
+			startReminderStatusJob(ctx, logger, client, repository, incident)
+			job.Stop(&j)
+			return
+		}
+
 		logger.Info(
 			ctx,
 			"command/reminder.requestStatus running",
-			log.NewValue("channelID", channelID),
+			log.NewValue("channelID", incident.ChannelId),
 			log.NewValue("job", j),
 		)
-		pin, err := bot.LastPin(client, channelID)
+		pin, err := bot.LastPin(client, incident.ChannelId)
 		if err != nil {
 			logger.Error(
 				ctx,
 				"command/reminder.requestStatus LastPin error",
-				log.NewValue("channelID", channelID),
+				log.NewValue("channelID", incident.ChannelId),
 				log.NewValue("error", err),
 			)
+			return
+		}
+
+		if incident.Status == model.StatusResolved {
+			sendNotification(ctx, logger, client, incident)
 			return
 		}
 
@@ -68,41 +82,36 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 			logger.Error(
 				ctx,
 				"command/reminder.requestStatus convertTimestamp error",
-				log.NewValue("channelID", channelID),
+				log.NewValue("channelID", incident.ChannelId),
 				log.NewValue("error", err),
 			)
 			return
 		}
 
-		if timeMessage.Before(time.Now().Add(-recurrence)) {
-			err := postMessage(client, channelID, "Update the status of this incident, just pin a message with status on the channel.")
-			if err != nil {
-				logger.Error(
-					ctx,
-					"command/reminder.requestStatus postMessage error",
-					log.NewValue("channelID", channelID),
-					log.NewValue("error", err),
-				)
-			}
+		if timeMessage.Before(time.Now().Add(-setRecurrence(incident))) {
+			sendNotification(ctx, logger, client, incident)
+			return
 		} else {
 			logger.Info(
 				ctx,
 				"command/reminder.requestStatus OK",
-				log.NewValue("channelID", channelID),
+				log.NewValue("channelID", incident.ChannelId),
 			)
 		}
 	}
 }
 
-func startReminderStatusJob(ctx context.Context, logger log.Logger, client bot.Client, repository model.Repository, channelID string) {
+func startReminderStatusJob(ctx context.Context, logger log.Logger, client bot.Client, repository model.Repository, incident model.Incident) {
 	logger.Info(
 		ctx,
 		"command/reminder.startReminderStatusJob",
-		log.NewValue("channelID", channelID),
-		log.NewValue("recurrence", recurrence.Seconds()),
+		log.NewValue("ChannelId", incident.ChannelId),
+		log.NewValue("ChannelName", incident.ChannelName),
+		log.NewValue("Status", incident.Status),
+		log.NewValue("recurrence", setRecurrence(incident).Seconds()),
 	)
 
-	j := job.New(recurrence, requestStatus(ctx, client, logger, repository, channelID))
+	j := job.New(setRecurrence(incident), requestStatus(ctx, client, logger, repository, incident))
 	jobs = append(jobs, j)
 }
 
@@ -114,7 +123,6 @@ func StartAllReminderJobs(logger log.Logger, client bot.Client, repository model
 	logger.Info(
 		ctx,
 		"command/reminder.StartAllReminderJobs",
-		log.NewValue("recurrence", recurrence.Seconds()),
 	)
 
 	incidents, err := repository.ListActiveIncidents(ctx)
@@ -127,6 +135,40 @@ func StartAllReminderJobs(logger log.Logger, client bot.Client, repository model
 	}
 
 	for _, incident := range incidents {
-		startReminderStatusJob(ctx, logger, client, repository, incident.ChannelId)
+		startReminderStatusJob(ctx, logger, client, repository, incident)
+	}
+
+}
+
+func statusNotify(incident model.Incident) string {
+	switch incident.Status {
+	case model.StatusOpen:
+		return config.Env.ReminderOpenNotifyMsg
+	case model.StatusResolved:
+		return config.Env.ReminderResolvedNotifyMsg
+	}
+	return ""
+}
+
+func setRecurrence(incident model.Incident) time.Duration {
+	switch incident.Status {
+	case model.StatusOpen:
+		return time.Duration(config.Env.ReminderOpenStatusSeconds) * time.Second
+	case model.StatusResolved:
+		return time.Duration(config.Env.ReminderResolvedStatusSeconds) * time.Second
+	}
+	return 0
+}
+
+func sendNotification(ctx context.Context, logger log.Logger, client bot.Client, incident model.Incident) {
+	err := postMessage(client, incident.ChannelId, statusNotify(incident))
+
+	if err != nil {
+		logger.Error(
+			ctx,
+			"command/reminder.requestStatus postMessage error",
+			log.NewValue("channelID", incident.ChannelId),
+			log.NewValue("error", err),
+		)
 	}
 }

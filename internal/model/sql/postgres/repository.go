@@ -543,6 +543,7 @@ func (r *repository) ListActiveIncidents(ctx context.Context) ([]model.Incident,
 	rows, err := r.db.Query(
 		GetIncidentStatusFilterQuery(),
 		model.StatusOpen,
+		model.StatusResolved,
 	)
 	if err != nil {
 		r.logger.Error(
@@ -628,6 +629,6 @@ func GetIncidentStatusFilterQuery() string {
 		, CASE WHEN commander_id IS NULL THEN '' ELSE commander_id END commander_id
 		, CASE WHEN commander_email IS NULL THEN '' ELSE commander_email END commander_email
 	FROM incident
-	WHERE status IN ($1)
+	WHERE status IN ($1, $2)
 	LIMIT 10`
 }

@@ -97,6 +97,7 @@ func ResolveIncidentByDialog(ctx context.Context, client bot.Client, logger log.
 		statusPageURL        = submissions.StatusIO
 		postMortemMeeting    = submissions.PostMortemMeeting
 		postMortemMeetingURL = ""
+		postMortemGapDays    = config.Env.PostmortemGapDays
 		notifyOnResolve      = config.Env.NotifyOnResolve
 		productChannelID     = config.Env.ProductChannelID
 	)
@@ -119,9 +120,35 @@ func ResolveIncidentByDialog(ctx context.Context, client bot.Client, logger log.
 	}
 
 	if isPostMortemMeeting {
-		//postMortemMeetingURL = calendar.CreateCalendarEvent() [locked - card do feijo ]aqui vai ser o tratamento de erros.
-		calendar.CreateCalendarEvent()
-		postMortemMeetingURL = "link ficticio"
+		date := incident.EndTimestamp
+		previewPostMortemDate := date.AddDate(0, 0, postMortemGapDays).Weekday()
+		switch previewPostMortemDate {
+		case time.Saturday:
+			postMortemGapDays += 2
+		case time.Sunday:
+			postMortemGapDays++ 
+		default:
+			break
+		}
+
+
+
+		startMeeting := date.AddDate(0, 0, postMortemGapDays).Format(time.RFC3339)
+		endMeeting := date.AddDate(0, 0, postMortemGapDays).Add(time.Hour).Format(time.RFC3339)
+
+		summary := "Titulo Teste "
+		emails := []string{}
+
+		user, err := getSlackUserInfo(ctx, client, logger, userID)
+		if err != nil {
+			return fmt.Errorf("commands.ResolveIncidentByDialog.get_slack_user_info: incident=%v commanderId=%v error=%v", channelID, userID, err)
+		}
+
+		calendarEvent, err := calendar.CreateCalendarEvent(ctx, startMeeting, endMeeting, summary, user.Email, emails)
+		if err != nil {
+			return err
+		}
+		postMortemMeetingURL = calendarEvent.EventURL
 	}
 
 	channelAttachment := createResolveChannelAttachment(incident, userName, postMortemMeetingURL)

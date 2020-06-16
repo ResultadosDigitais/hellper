@@ -3,19 +3,28 @@ package googlecalendar
 import (
 	"context"
 	"hellper/internal/calendar"
+	"hellper/internal/google"
 	googleauth "hellper/internal/google_auth"
 	"hellper/internal/log"
+	"hellper/internal/model"
 
 	gCalendar "google.golang.org/api/calendar/v3"
 )
 
 type googleCalendar struct {
 	logger          log.Logger
-	calendarService *gCalendar.Service
+	calendarService google.CalendarService
+	eventsService   google.CalendarEventsService
+	calendarID      string
 }
 
-//NewCalendar initialize the file storage service
-func NewCalendar(ctx context.Context, logger log.Logger, calendarToken string) (calendar.Calendar, error) {
+//NewCalendar initialize the calendar service
+func NewCalendar(
+	ctx context.Context,
+	logger log.Logger,
+	calendarToken string,
+	calendarID string,
+) (calendar.Calendar, error) {
 	calendarTokenBytes := []byte(calendarToken)
 
 	gClient, err := googleauth.Struct.GetGClient(ctx, logger, calendarTokenBytes, gCalendar.CalendarScope)
@@ -29,7 +38,7 @@ func NewCalendar(ctx context.Context, logger log.Logger, calendarToken string) (
 		return nil, err
 	}
 
-	calendarService, err := gCalendar.New(gClient)
+	calendarService, err := google.NewCalendarService(gClient)
 	if err != nil {
 		logger.Error(
 			ctx,
@@ -40,9 +49,14 @@ func NewCalendar(ctx context.Context, logger log.Logger, calendarToken string) (
 		return nil, err
 	}
 
+	s := calendarService.(*gCalendar.Service)
+	eventsService := google.NewCalendarEventsService(s)
+
 	calendar := googleCalendar{
 		logger:          logger,
 		calendarService: calendarService,
+		eventsService:   eventsService,
+		calendarID:      calendarID,
 	}
 
 	return &calendar, nil
@@ -63,7 +77,7 @@ func eventDateTime(datetime string) *gCalendar.EventDateTime {
 	}
 }
 
-func event(start, end, summary string, emails []string, commander string) *gCalendar.Event {
+func event(start, end, summary, commander string, emails []string) *gCalendar.Event {
 	var attendees []*gCalendar.EventAttendee
 	for _, email := range emails {
 		attendees = append(attendees, eventAttendee(email, false))
@@ -81,7 +95,54 @@ func event(start, end, summary string, emails []string, commander string) *gCale
 	}
 }
 
+func (gc *googleCalendar) insertEvent(ctx context.Context, event *gCalendar.Event) (*gCalendar.Event, error) {
+	call := gc.eventsService.Insert(gc.calendarID, event)
+	gcEvent, err := gc.handleInsertEvent(ctx, call)
+	if err != nil {
+		gc.logger.Error(
+			ctx,
+			"googlecalendar/calendar.insertEvent ERROR",
+			log.NewValue("error", err),
+		)
+		return nil, err
+	}
+
+	return gcEvent, nil
+}
+
+func (gc *googleCalendar) handleInsertEvent(ctx context.Context, insertCall google.CalendarEventsInsertCall) (*gCalendar.Event, error) {
+	// insertCall := insertCall.Context(ctx)
+	gcEvent, err := insertCall.Do()
+	if err != nil {
+		gc.logger.Error(
+			ctx,
+			"googlecalendar/calendar.handleInsertEvent ERROR",
+			log.NewValue("error", err),
+		)
+		return nil, err
+	}
+	return gcEvent, nil
+}
+
 //CreateCalendarEvent creates a event in Google Calendar
-func (*googleCalendar) CreateCalendarEvent() error {
-	return nil
+func (gc *googleCalendar) CreateCalendarEvent(ctx context.Context, start, end, summary, commander string, emails []string) (*model.Event, error) {
+	e := event(start, end, summary, commander, emails)
+	googleEvent, err := gc.insertEvent(ctx, e)
+	if err != nil {
+		gc.logger.Error(
+			ctx,
+			"googlecalendar/calendar.CreateCalendarEvent ERROR",
+			log.NewValue("error", err),
+		)
+		return nil, err
+	}
+
+	modelEvent := &model.Event{
+		EventURL: googleEvent.HtmlLink,
+		Start:    googleEvent.Start.DateTime,
+		End:      googleEvent.End.DateTime,
+		Summary:  googleEvent.Summary,
+	}
+
+	return modelEvent, nil
 }

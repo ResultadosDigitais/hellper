@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"fmt"
 	"hellper/internal/concurrence"
 	"strconv"
 	"strings"
@@ -120,21 +121,8 @@ func ResolveIncidentByDialog(ctx context.Context, client bot.Client, logger log.
 	}
 
 	if isPostMortemMeeting {
-		date := incident.EndTimestamp
-		previewPostMortemDate := date.AddDate(0, 0, postMortemGapDays).Weekday()
-		switch previewPostMortemDate {
-		case time.Saturday:
-			postMortemGapDays += 2
-		case time.Sunday:
-			postMortemGapDays++ 
-		default:
-			break
-		}
-
-
-
-		startMeeting := date.AddDate(0, 0, postMortemGapDays).Format(time.RFC3339)
-		endMeeting := date.AddDate(0, 0, postMortemGapDays).Add(time.Hour).Format(time.RFC3339)
+		finishDate := incident.EndTimestamp
+		startMeeting, endMeeting := setMeetingDate(finishDate, postMortemGapDays)
 
 		summary := "Titulo Teste "
 		emails := []string{}
@@ -170,6 +158,24 @@ func ResolveIncidentByDialog(ctx context.Context, client bot.Client, logger log.
 	return nil
 }
 
+func setMeetingDate(d *time.Time, postMortemGapDays int) (string, string) {
+	p := d.AddDate(0, 0, postMortemGapDays)
+	previewPostMortemDate := time.Date(p.Year(), p.Month(), p.Day(), 15, 0, 0, 0, nil)
+
+	switch previewPostMortemDate.Weekday() {
+	case time.Saturday:
+		postMortemGapDays += 2
+	case time.Sunday:
+		postMortemGapDays++
+	default:
+		break
+	}
+
+	startMeeting := d.AddDate(0, 0, postMortemGapDays)
+	endMeeting := startMeeting.Add(time.Hour).Format(time.RFC3339)
+
+	return startMeeting.Format(time.RFC3339), endMeeting
+}
 func createResolveChannelAttachment(inc model.Incident, userName string, postMortemMeetingURL string) slack.Attachment {
 	endDateText := inc.EndTimestamp.Format(time.RFC3339)
 

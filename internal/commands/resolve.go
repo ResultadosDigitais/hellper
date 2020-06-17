@@ -18,40 +18,85 @@ import (
 var patternStringDate = "2013-04-01 22:43"
 
 // ResolveIncidentDialog opens a dialog on Slack, so the user can resolve an incident
-func ResolveIncidentDialog(client bot.Client, triggerID string) error {
-	description := &slack.TextInputElement{
-		DialogInput: slack.DialogInput{
-			Label:       "Description",
-			Name:        "incident_description",
-			Type:        "textarea",
-			Placeholder: "Description eg. The incident was resolved after #PR fix",
-			Optional:    false,
-		},
-		MaxLength: 500,
-	}
-	statusIO := &slack.TextInputElement{
-		DialogInput: slack.DialogInput{
-			Label:       "Status.io link",
-			Name:        "status_io",
-			Type:        "text",
-			Placeholder: "status.io/xxxx",
-			Optional:    false,
-		},
-		Subtype: slack.InputSubtypeURL,
+func ResolveIncidentDialog(client bot.Client, triggerID string) (*slack.ViewResponse, error) {
+
+	description := slack.PlainTextInputBlockElement{
+		Type:         "plain_text_input",
+		ActionID:     "incident_description",
+		Placeholder:  slack.NewTextBlockObject("plain_text", "Description", false, false),
+		InitialValue: "Description eg. The incident was resolved after #PR fix",
+		Multiline:    true,
+		MaxLength:    500,
 	}
 
-	dialog := slack.Dialog{
-		CallbackID:     "inc-resolve",
-		Title:          "Resolve an Incident",
-		SubmitLabel:    "Resolve",
-		NotifyOnCancel: false,
-		Elements: []slack.DialogElement{
-			statusIO,
-			description,
+	statusIO := slack.PlainTextInputBlockElement{
+		Type:     "plain_text_input",
+		ActionID: "status_io",
+		Placeholder: &slack.TextBlockObject{
+			Type: "plain_text",
+			Text: "Status.io link",
+		},
+		InitialValue: "status.io/xxxx",
+	}
+
+	// postMortemMeeting := &slack.RadioButtonsBlockElement{
+	// 	Type:     "radio_buttons",
+	// 	ActionID: "post_mortem_meeting",
+	// 	Options: []*slack.OptionBlockObject{
+	// 		{
+	// 			Text: &slack.TextBlockObject{
+	// 				Type: "plain_text",
+	// 				Text: "Yes",
+	// 			},
+	// 			Value: "true",
+	// 		},
+	// 		{
+	// 			Text: &slack.TextBlockObject{
+	// 				Type: "plain_text",
+	// 				Text: "No",
+	// 			},
+	// 			Value: "false",
+	// 		},
+	// 	},
+	// 	InitialOption: &slack.OptionBlockObject{
+	// 		Text: &slack.TextBlockObject{
+	// 			Type: "plain_text",
+	// 			Text: "No",
+	// 		},
+	// 		Value: "false",
+	// 	},
+	// }
+
+	summaryMeeting := &slack.PlainTextInputBlockElement{
+		Type:     "plain_text_input",
+		ActionID: "summary_meeting",
+		Placeholder: &slack.TextBlockObject{
+			Type: "plain_text",
+			Text: "Summary",
+		},
+		InitialValue: "Post Mortem - inc-xxxx",
+	}
+
+	blocks := slack.Blocks{
+		BlockSet: []slack.Block{
+			slack.NewDividerBlock(),
+			slack.NewInputBlock(description.ActionID, description.Placeholder, description),
+			slack.NewInputBlock(statusIO.ActionID, statusIO.Placeholder, statusIO),
+			// slack.NewActionBlock(postMortemMeeting.ActionID, postMortemMeeting),
+			slack.NewInputBlock(summaryMeeting.ActionID, summaryMeeting.Placeholder, summaryMeeting),
 		},
 	}
 
-	return client.OpenDialog(triggerID, dialog)
+	mod := slack.ModalViewRequest{
+		Type:          slack.VTModal,
+		CallbackID:    "inc-resolve",
+		Title:         slack.NewTextBlockObject("plain_text", "Resolve an Incidente", false, false),
+		Submit:        slack.NewTextBlockObject("plain_text", "Resolve", false, false),
+		NotifyOnClose: false,
+		Blocks:        blocks,
+	}
+
+	return client.OpenView(triggerID, mod)
 }
 
 // ResolveIncidentByDialog resolves an incident after receiving data from a Slack dialog

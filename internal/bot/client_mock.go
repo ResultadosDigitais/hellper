@@ -81,6 +81,10 @@ func (mock *ClientMock) OpenDialog(string, slack.Dialog) error {
 	return nil
 }
 
+func (mock *ClientMock) OpenView(string, slack.ModalViewRequest) (*slack.ViewResponse, error) {
+	return nil, nil
+}
+
 func (mock *ClientMock) AddPin(string, slack.ItemRef) error {
 	return nil
 }

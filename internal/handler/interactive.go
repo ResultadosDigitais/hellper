@@ -3,6 +3,7 @@ package handler
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"hellper/internal/bot"
@@ -72,6 +73,8 @@ func (h *handlerInteractive) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
+
+	fmt.Printf("DIALOG SUBMISSION 2------------------------------->%+v", &dialogSubmission)
 
 	callbackID := dialogSubmission.CallbackID
 	var err error

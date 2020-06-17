@@ -15,6 +15,7 @@ type Client interface {
 	GetUserInfoContext(context.Context, string) (*slack.User, error)
 	SetChannelTopic(string, string) (string, error)
 	OpenDialog(string, slack.Dialog) error
+	OpenView(string, slack.ModalViewRequest) (*slack.ViewResponse, error)
 	AddPin(string, slack.ItemRef) error
 	ArchiveChannel(channelID string) error
 	JoinConversation(string) (*slack.Channel, string, []string, error)

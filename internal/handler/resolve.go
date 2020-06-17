@@ -60,7 +60,7 @@ func (h *handlerResolve) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	triggerID := r.FormValue("trigger_id")
 
-	err := commands.ResolveIncidentDialog(h.client, triggerID)
+	_, err := commands.ResolveIncidentDialog(h.client, triggerID)
 	if err != nil {
 		logger.Error(
 			ctx,

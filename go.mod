@@ -5,11 +5,10 @@ go 1.13
 require (
 	github.com/DATA-DOG/go-sqlmock v1.4.1
 	github.com/google/uuid v1.1.1
-	github.com/gorilla/websocket v1.4.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/lib/pq v1.5.2
 	github.com/paked/configure v0.0.0-20190218140148-28f9c3f21a44
-	github.com/slack-go/slack v0.6.4
+	github.com/slack-go/slack v0.6.5
 	github.com/stretchr/objx v0.1.1 // indirect
 	github.com/stretchr/testify v1.6.1
 	go.uber.org/zap v1.15.0

@@ -159,8 +159,7 @@ func ResolveIncidentByDialog(ctx context.Context, client bot.Client, logger log.
 }
 
 func setMeetingDate(d *time.Time, postMortemGapDays int) (string, string) {
-	p := d.AddDate(0, 0, postMortemGapDays)
-	previewPostMortemDate := time.Date(p.Year(), p.Month(), p.Day(), 15, 0, 0, 0, nil)
+	previewPostMortemDate := d.AddDate(0, 0, postMortemGapDays)
 
 	switch previewPostMortemDate.Weekday() {
 	case time.Saturday:
@@ -171,11 +170,16 @@ func setMeetingDate(d *time.Time, postMortemGapDays int) (string, string) {
 		break
 	}
 
-	startMeeting := d.AddDate(0, 0, postMortemGapDays)
+	timezone := "America/Sao_Paulo"
+	utc, _ := time.LoadLocation(timezone)
+	setMeetingHour := time.Date(d.Year(), d.Month(), d.Day(), 15, 0, 0, 0, utc)
+
+	startMeeting := setMeetingHour.AddDate(0, 0, postMortemGapDays)
 	endMeeting := startMeeting.Add(time.Hour).Format(time.RFC3339)
 
 	return startMeeting.Format(time.RFC3339), endMeeting
 }
+
 func createResolveChannelAttachment(inc model.Incident, userName string, postMortemMeetingURL string) slack.Attachment {
 	endDateText := inc.EndTimestamp.Format(time.RFC3339)
 

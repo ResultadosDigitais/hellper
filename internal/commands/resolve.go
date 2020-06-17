@@ -45,7 +45,7 @@ func ResolveIncidentDialog(client bot.Client, triggerID string) error {
 
 	postMortemMeeting := &slack.DialogInputSelect{
 		DialogInput: slack.DialogInput{
-			Label:       "Can i schedule a meeting of Post Mortem?",
+			Label:       "Can I schedule a Post Mortem meeting?",
 			Name:        "post_mortem_meeting",
 			Type:        "select",
 			Placeholder: "Post Mortem Meeting",
@@ -91,6 +91,7 @@ func ResolveIncidentByDialog(ctx context.Context, client bot.Client, logger log.
 	var (
 		now                  = time.Now().UTC()
 		channelID            = incidentDetails.Channel.ID
+		channelName          = incidentDetails.Channel.Name
 		userID               = incidentDetails.User.ID
 		userName             = incidentDetails.User.Name
 		submissions          = incidentDetails.Submission
@@ -101,6 +102,7 @@ func ResolveIncidentByDialog(ctx context.Context, client bot.Client, logger log.
 		postMortemGapDays    = config.Env.PostmortemGapDays
 		notifyOnResolve      = config.Env.NotifyOnResolve
 		productChannelID     = config.Env.ProductChannelID
+		timezone             = config.Env.Timezone
 	)
 
 	incident := model.Incident{
@@ -122,9 +124,8 @@ func ResolveIncidentByDialog(ctx context.Context, client bot.Client, logger log.
 
 	if isPostMortemMeeting {
 		finishDate := incident.EndTimestamp
-		startMeeting, endMeeting := setMeetingDate(finishDate, postMortemGapDays)
-
-		summary := "Titulo Teste "
+		startMeeting, endMeeting := setMeetingDate(finishDate, postMortemGapDays, timezone)
+		summary := "[Post Mortem] " + channelName
 		emails := []string{}
 
 		user, err := getSlackUserInfo(ctx, client, logger, userID)
@@ -158,7 +159,7 @@ func ResolveIncidentByDialog(ctx context.Context, client bot.Client, logger log.
 	return nil
 }
 
-func setMeetingDate(d *time.Time, postMortemGapDays int) (string, string) {
+func setMeetingDate(d *time.Time, postMortemGapDays int, timezone string) (string, string) {
 	previewPostMortemDate := d.AddDate(0, 0, postMortemGapDays)
 
 	switch previewPostMortemDate.Weekday() {
@@ -170,7 +171,6 @@ func setMeetingDate(d *time.Time, postMortemGapDays int) (string, string) {
 		break
 	}
 
-	timezone := "America/Sao_Paulo"
 	utc, _ := time.LoadLocation(timezone)
 	setMeetingHour := time.Date(d.Year(), d.Month(), d.Day(), 15, 0, 0, 0, utc)
 

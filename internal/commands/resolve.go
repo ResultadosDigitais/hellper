@@ -170,7 +170,9 @@ func setMeetingDate(d *time.Time, postMortemGapDays int) (string, string) {
 		break
 	}
 
-	setMeetingHour := time.Date(d.Year(), d.Month(), d.Day(), 15, 0, 0, 0, d.Location())
+	timezone := "America/Sao_Paulo"
+	utc, _ := time.LoadLocation(timezone)
+	setMeetingHour := time.Date(d.Year(), d.Month(), d.Day(), 15, 0, 0, 0, utc)
 
 	startMeeting := setMeetingHour.AddDate(0, 0, postMortemGapDays)
 	endMeeting := startMeeting.Add(time.Hour).Format(time.RFC3339)

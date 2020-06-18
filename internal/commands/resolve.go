@@ -291,7 +291,7 @@ func createResolvePrivateAttachment(inc model.Incident, event *model.Event) slac
 	if (&model.Event{}) == event {
 		privateText.WriteString("\n\n")
 		privateText.WriteString("*Post Mortem:* Don't forget to bookmark Post Mortem for the incident <#" + inc.ChannelId + ">\n")
-		postMortemMessage = "A Post Mortem Meeting was not schedule, be sure to fill up the Post Mortem document in the next 7 days."
+		postMortemMessage = "A Post Mortem Meeting was not schedule, be sure to fill up the Post Mortem document."
 	} else {
 		privateText.WriteString("*Post Mortem Meeting Link:* `" + event.EventURL + "`\n\n")
 		postMortemMessage = "I have scheduled a Post Mortem Meeting for you!\nIt will be on `" + event.Start.Format("02/01/2006 15:04:05 MST") + "`.\nHere is the link: `" + event.EventURL + "`\n"

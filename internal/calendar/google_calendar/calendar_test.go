@@ -58,6 +58,16 @@ func (f *googleCalendarFixture) setup(t *testing.T) {
 	f.calendarService = calendarServiceMock(f.mockLogger, f.mockCalendarService, f.mockCalendarEventsService, f.calendarID)
 }
 
+func TestGoogleMeetKey(t *testing.T) {
+	f := googleCalendarFixture{
+		testName: "ConferenceSolutionKey created",
+	}
+	t.Run(f.testName, func(t *testing.T) {
+		key := googleMeetKey()
+		assert.IsType(t, new(gCalendar.ConferenceSolutionKey), key)
+	})
+}
+
 // func TestInsertEvent(t *testing.T) {
 // 	f := googleCalendarFixture{
 // 		testName:   "The InsertCall is created without problem",

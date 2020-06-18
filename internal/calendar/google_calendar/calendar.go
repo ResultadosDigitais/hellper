@@ -124,6 +124,12 @@ func (gc *googleCalendar) handleInsertEvent(ctx context.Context, insertCall goog
 	return gcEvent, nil
 }
 
+func googleMeetKey() *gCalendar.ConferenceSolutionKey {
+	return &gCalendar.ConferenceSolutionKey{
+		Type: "hangoutsMeet",
+	}
+}
+
 //CreateCalendarEvent creates a event in Google Calendar
 func (gc *googleCalendar) CreateCalendarEvent(ctx context.Context, start, end, summary, commander string, emails []string) (*model.Event, error) {
 	e := event(start, end, summary, commander, emails)

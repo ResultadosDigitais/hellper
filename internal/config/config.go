@@ -77,7 +77,7 @@ func newEnvironment() environment {
 	vars.StringVar(&env.FileStorage, "file_storage", "google_drive", "Hellper file storage for postmortem document")
 	vars.BoolVar(&env.NotifyOnResolve, "hellper_notify_on_resolve", true, "Notify the main channel when resolve the incident")
 	vars.BoolVar(&env.NotifyOnClose, "hellper_notify_on_close", true, "Notify the main channel when close the incident")
-	vars.StringVar(&env.Timezone, "timezone", "", "The local time of a region or a country used to create a event.")
+	vars.StringVar(&env.Timezone, "timezone", "America/Sao_Paulo", "The local time of a region or a country used to create a event.")
 
 	vars.Parse()
 	env.Messages = newMessages(env.Language)

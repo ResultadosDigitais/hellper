@@ -37,16 +37,49 @@ func (f *resolveCommandFixture) setup(t *testing.T) {
 
 	f.ctx = context.Background()
 
-	loggerMock.On("Info", f.ctx, mock.AnythingOfType("string"), mock.AnythingOfType("[]log.Value")).Return()
-	loggerMock.On("Error", f.ctx, mock.AnythingOfType("string"), mock.AnythingOfType("[]log.Value")).Return()
+	//Logger Mock
+	loggerMock.On(
+		"Info",
+		f.ctx,                              //ctx
+		mock.AnythingOfType("string"),      //msg
+		mock.AnythingOfType("[]log.Value"), //values
+	).Return()
+	loggerMock.On(
+		"Error",
+		f.ctx,                              //ctx
+		mock.AnythingOfType("string"),      //msg
+		mock.AnythingOfType("[]log.Value"), //values
+	).Return()
 
-	clientMock.On("OpenDialog", mock.AnythingOfType("string"), mock.AnythingOfType("slack.Dialog")).Return(nil)
-	clientMock.On("AddPin", mock.AnythingOfType("string"), mock.AnythingOfType("slack.ItemRef")).Return(nil)
-	clientMock.On("PostMessage", f.channelID, mock.AnythingOfType("[]slack.MsgOption")).Return("", "", nil)
+	//Client Mock
+	clientMock.On(
+		"OpenDialog",
+		mock.AnythingOfType("string"),       //triggerID
+		mock.AnythingOfType("slack.Dialog"), //dialog
+	).Return(nil)
+	clientMock.On(
+		"AddPin",
+		mock.AnythingOfType("string"),        //channel
+		mock.AnythingOfType("slack.ItemRef"), //item
+	).Return(nil)
+	clientMock.On(
+		"PostMessage",
+		f.channelID,                              //channel
+		mock.AnythingOfType("[]slack.MsgOption"), //options
+	).Return("", "", nil)
 
-	repositoryMock.On("ResolveIncident", f.ctx, mock.AnythingOfType("*model.Incident")).Return(nil)
-	repositoryMock.On("GetIncident", f.channelID).Return(f.mockIncident, nil)
+	//Repository Mock
+	repositoryMock.On(
+		"ResolveIncident",
+		f.ctx,                                  //ctx
+		mock.AnythingOfType("*model.Incident"), //inc
+	).Return(nil)
+	repositoryMock.On(
+		"GetIncident",
+		f.channelID, //channelID
+	).Return(f.mockIncident, nil)
 
+	//Calendar Mock
 	calendarMock.On(
 		"CreateCalendarEvent",
 		f.ctx,

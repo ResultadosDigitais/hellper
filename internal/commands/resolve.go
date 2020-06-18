@@ -238,8 +238,8 @@ func getCalendarEvent(
 
 func createResolveChannelAttachment(inc model.Incident, userName string, event *model.Event) slack.Attachment {
 	var (
-		endDateText          = inc.EndTimestamp.Format(time.RFC822)
-		meetingStartDateText = event.Start.Format(time.RFC822)
+		endDateText          = inc.EndTimestamp.Format(time.RFC1123)
+		meetingStartDateText = event.Start.Format(time.RFC1123)
 		postMortemMessage    string
 		messageText          strings.Builder
 	)
@@ -288,7 +288,7 @@ func createResolveChannelAttachment(inc model.Incident, userName string, event *
 
 func createResolvePrivateAttachment(inc model.Incident, event *model.Event) slack.Attachment {
 	var (
-		meetingStartDateText = event.Start.Format(time.RFC822)
+		meetingStartDateText = event.Start.Format(time.RFC1123)
 		postMortemMessage    string
 		privateText          strings.Builder
 	)

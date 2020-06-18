@@ -3,6 +3,7 @@ package commands
 import (
 	"context"
 	"sort"
+	"time"
 
 	"hellper/internal/bot"
 	"hellper/internal/config"
@@ -13,7 +14,7 @@ import (
 )
 
 func createDateFields(inc model.Incident) (fields []slack.AttachmentField) {
-	dateLayout := "02/01/2006 15:04:05 MST"
+	dateLayout := time.RFC1123
 
 	if startTime := inc.StartTimestamp; startTime != nil {
 		timeMessage := startTime.Format(dateLayout)
@@ -133,7 +134,7 @@ func createStatusAttachment(ctx context.Context, client bot.Client, logger log.L
 			}
 
 			field := slack.AttachmentField{
-				Title: timeMessage.Format("02/01/2006 15:04:05 MST"),
+				Title: timeMessage.Format(time.RFC1123),
 				Value: attachText,
 			}
 			fields = append(fields, field)

@@ -87,6 +87,7 @@ cp development.env.example development.env
 |**HELLPER_NOTIFY_ON_RESOLVE**|Notify the main channel when resolve the incident| `true` |
 |**HELLPER_NOTIFY_ON_CLOSE**|Notify the main channel when close the incident| `true` |
 |**FILE_STORAGE**|Hellper file storage for postmortem document| `google_drive` |
+|**TIMEZONE**|Timezone for Post Mortem Meeting| `America/Sao_Paulo` |
 
 ## Running the Tests
 1. `make test`

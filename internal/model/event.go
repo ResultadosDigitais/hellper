@@ -1,8 +1,10 @@
 package model
 
+import "time"
+
 type Event struct {
 	EventURL string
-	Start    string
-	End      string
+	Start    *time.Time
+	End      *time.Time
 	Summary  string
 }

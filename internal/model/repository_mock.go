@@ -57,7 +57,7 @@ func (mock *RepositoryMock) InsertIncident(ctx context.Context, inc *Incident) (
 
 func (mock *RepositoryMock) ResolveIncident(ctx context.Context, inc *Incident) error {
 	args := mock.Called(inc)
-	return args.Error(1)
+	return args.Error(0)
 }
 
 func (mock *RepositoryMock) UpdateIncidentDates(ctx context.Context, inc *Incident) error {

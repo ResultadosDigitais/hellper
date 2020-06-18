@@ -241,9 +241,9 @@ func createResolveChannelAttachment(inc model.Incident, userName string, event *
 		endDateText          = inc.EndTimestamp.Format(time.RFC822)
 		meetingStartDateText = event.Start.Format(time.RFC822)
 		postMortemMessage    string
+		messageText          strings.Builder
 	)
 
-	var messageText strings.Builder
 	messageText.WriteString("The Incident <#" + inc.ChannelId + "> has been resolved by <@" + userName + ">\n\n")
 	messageText.WriteString("*End date:* <#" + endDateText + ">\n")
 	messageText.WriteString("*Status.io link:* `" + inc.StatusPageUrl + "`\n")
@@ -288,9 +288,11 @@ func createResolveChannelAttachment(inc model.Incident, userName string, event *
 
 func createResolvePrivateAttachment(inc model.Incident, event *model.Event) slack.Attachment {
 	var (
-		privateText       strings.Builder
-		postMortemMessage string
+		meetingStartDateText = event.Start.Format(time.RFC822)
+		postMortemMessage    string
+		privateText          strings.Builder
 	)
+
 	privateText.WriteString("The Incident <#" + inc.ChannelId + "> has been resolved by you\n\n")
 	privateText.WriteString("*Status.io:* Be sure to update the incident status on" + inc.StatusPageUrl + "\n")
 	if (&model.Event{}) == event {
@@ -298,7 +300,7 @@ func createResolvePrivateAttachment(inc model.Incident, event *model.Event) slac
 		postMortemMessage = "A Post Mortem Meeting was not schedule, be sure to fill up the Post Mortem document."
 	} else {
 		privateText.WriteString("*Post Mortem Meeting Link:* `" + event.EventURL + "`\n\n")
-		postMortemMessage = "I have scheduled a Post Mortem Meeting for you!\nIt will be on `" + event.Start.Format("02/01/2006 15:04:05 MST") + "`.\nHere is the link: `" + event.EventURL + "`\n"
+		postMortemMessage = "I have scheduled a Post Mortem Meeting for you!\nIt will be on `" + meetingStartDateText + "`.\nHere is the link: `" + event.EventURL + "`\n"
 	}
 
 	return slack.Attachment{

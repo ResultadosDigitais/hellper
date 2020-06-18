@@ -56,7 +56,7 @@ func (mock *RepositoryMock) InsertIncident(ctx context.Context, inc *Incident) (
 }
 
 func (mock *RepositoryMock) ResolveIncident(ctx context.Context, inc *Incident) error {
-	args := mock.Called(inc)
+	args := mock.Called(ctx, inc)
 	return args.Error(0)
 }
 

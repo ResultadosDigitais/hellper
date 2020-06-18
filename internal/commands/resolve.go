@@ -88,18 +88,19 @@ func ResolveIncidentByDialog(ctx context.Context, client bot.Client, logger log.
 	)
 
 	var (
-		now                  = time.Now().UTC()
-		channelID            = incidentDetails.Channel.ID
-		channelName          = incidentDetails.Channel.Name
-		userID               = incidentDetails.User.ID
-		userName             = incidentDetails.User.Name
-		submissions          = incidentDetails.Submission
-		description          = submissions.IncidentDescription
-		statusPageURL        = submissions.StatusIO
-		postMortemMeeting    = submissions.PostMortemMeeting
-		postMortemMeetingURL = ""
-		notifyOnResolve      = config.Env.NotifyOnResolve
-		productChannelID     = config.Env.ProductChannelID
+		now               = time.Now().UTC()
+		channelID         = incidentDetails.Channel.ID
+		channelName       = incidentDetails.Channel.Name
+		userID            = incidentDetails.User.ID
+		userName          = incidentDetails.User.Name
+		submissions       = incidentDetails.Submission
+		description       = submissions.IncidentDescription
+		statusPageURL     = submissions.StatusIO
+		postMortemMeeting = submissions.PostMortemMeeting
+		notifyOnResolve   = config.Env.NotifyOnResolve
+		productChannelID  = config.Env.ProductChannelID
+
+		calendarEvent *model.Event
 	)
 
 	incident := model.Incident{
@@ -131,7 +132,7 @@ func ResolveIncidentByDialog(ctx context.Context, client bot.Client, logger log.
 
 	if hasPostMortemMeeting {
 
-		calendarEvent, err := getCalendarEvent(ctx, logger, repository, calendar, incident.EndTimestamp, channelName, channelID)
+		calendarEvent, err = getCalendarEvent(ctx, logger, repository, calendar, incident.EndTimestamp, channelName, channelID)
 		if err != nil {
 			logger.Error(
 				ctx,
@@ -140,11 +141,10 @@ func ResolveIncidentByDialog(ctx context.Context, client bot.Client, logger log.
 			)
 			return err
 		}
-		postMortemMeetingURL = calendarEvent.EventURL
 	}
 
-	channelAttachment := createResolveChannelAttachment(incident, userName, postMortemMeetingURL)
-	privateAttachment := createResolvePrivateAttachment(incident, postMortemMeetingURL)
+	channelAttachment := createResolveChannelAttachment(incident, userName, calendarEvent.EventURL)
+	privateAttachment := createResolvePrivateAttachment(incident, calendarEvent)
 
 	var waitgroup sync.WaitGroup
 	defer waitgroup.Wait()
@@ -192,7 +192,15 @@ func setMeetingDate(ctx context.Context, logger log.Logger, d *time.Time, postMo
 	return startMeeting.Format(time.RFC3339), endMeeting, err
 }
 
-func getCalendarEvent(ctx context.Context, logger log.Logger, repository model.Repository, calendar calendar.Calendar, t *time.Time, channelName string, channelID string) (*model.Event, error) {
+func getCalendarEvent(
+	ctx context.Context,
+	logger log.Logger,
+	repository model.Repository,
+	calendar calendar.Calendar,
+	t *time.Time,
+	channelName string,
+	channelID string,
+) (*model.Event, error) {
 	startMeeting, endMeeting, err := setMeetingDate(ctx, logger, t, config.Env.PostmortemGapDays, config.Env.Timezone)
 	if err != nil {
 		logger.Error(
@@ -273,24 +281,27 @@ func createResolveChannelAttachment(inc model.Incident, userName string, postMor
 	}
 }
 
-func createResolvePrivateAttachment(inc model.Incident, postMortemMeetingURL string) slack.Attachment {
-	var privateText strings.Builder
+func createResolvePrivateAttachment(inc model.Incident, event *model.Event) slack.Attachment {
+	var (
+		privateText       strings.Builder
+		postMortemMessage string
+	)
 	privateText.WriteString("The Incident <#" + inc.ChannelId + "> has been resolved by you\n\n")
 	privateText.WriteString("*Status.io:* Be sure to update the incident status on" + inc.StatusPageUrl + "\n")
-	if postMortemMeetingURL != "" {
-		privateText.WriteString("*Post Mortem Meeting Link:*<`" + postMortemMeetingURL + "`>\n\n")
-		postMortemMeetingURL = "Post Mortem Meeting Link:<`" + postMortemMeetingURL + "`>"
-	} else {
+	if (&model.Event{}) == event {
 		privateText.WriteString("\n\n")
 		privateText.WriteString("*Post Mortem:* Don't forget to bookmark Post Mortem for the incident <#" + inc.ChannelId + ">\n")
-		postMortemMeetingURL = "The Meeting is not scheduled."
+		postMortemMessage = "A Post Mortem Meeting was not schedule, be sure to fill up the Post Mortem document in the next 7 days."
+	} else {
+		privateText.WriteString("*Post Mortem Meeting Link:* `" + event.EventURL + "`\n\n")
+		postMortemMessage = "I have schedule a Post Mortem Meeting for you!\nIt will be on `" + event.Start + "`.\nHere is the link: `" + event.EventURL + "`\n"
 	}
 
 	return slack.Attachment{
 		Pretext:  "The Incident <#" + inc.ChannelId + "> has been resolved by you",
 		Fallback: privateText.String(),
 		Text:     "",
-		Color:    "#FE4D4D",
+		Color:    "#1164A3",
 		Fields: []slack.AttachmentField{
 			{
 				Title: "Status.io",
@@ -298,7 +309,7 @@ func createResolvePrivateAttachment(inc model.Incident, postMortemMeetingURL str
 			},
 			{
 				Title: "Post Mortem",
-				Value: postMortemMeetingURL,
+				Value: postMortemMessage,
 			},
 		},
 	}

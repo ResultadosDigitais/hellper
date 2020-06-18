@@ -98,10 +98,8 @@ func ResolveIncidentByDialog(ctx context.Context, client bot.Client, logger log.
 		statusPageURL        = submissions.StatusIO
 		postMortemMeeting    = submissions.PostMortemMeeting
 		postMortemMeetingURL = ""
-		postMortemGapDays    = config.Env.PostmortemGapDays
 		notifyOnResolve      = config.Env.NotifyOnResolve
 		productChannelID     = config.Env.ProductChannelID
-		timezone             = config.Env.Timezone
 	)
 
 	incident := model.Incident{
@@ -121,7 +119,7 @@ func ResolveIncidentByDialog(ctx context.Context, client bot.Client, logger log.
 		return err
 	}
 
-	isPostMortemMeeting, err := strconv.ParseBool(postMortemMeeting)
+	hasPostMortemMeeting, err := strconv.ParseBool(postMortemMeeting)
 	if err != nil {
 		logger.Error(
 			ctx,
@@ -131,36 +129,13 @@ func ResolveIncidentByDialog(ctx context.Context, client bot.Client, logger log.
 		return err
 	}
 
-	if isPostMortemMeeting {
-		finishDate := incident.EndTimestamp
-		startMeeting, endMeeting, err := setMeetingDate(finishDate, postMortemGapDays, timezone, logger, ctx)
+	if hasPostMortemMeeting {
+
+		calendarEvent, err := getCalendarEvent(ctx, logger, repository, calendar, incident.EndTimestamp, channelName, channelID)
 		if err != nil {
 			logger.Error(
 				ctx,
-				"command/resolve.ResolveIncidentByDialog set_meeting_date error",
-				log.NewValue("error", err),
-			)
-			return err
-		}
-
-		summary := "[Post Mortem] " + channelName
-		emails := []string{}
-
-		user, err := getSlackUserInfo(ctx, client, logger, userID)
-		if err != nil {
-			logger.Error(
-				ctx,
-				"command/resolve.ResolveIncidentByDialog get_slack_user_info error",
-				log.NewValue("error", err),
-			)
-			return err
-		}
-
-		calendarEvent, err := calendar.CreateCalendarEvent(ctx, startMeeting, endMeeting, summary, user.Email, emails)
-		if err != nil {
-			logger.Error(
-				ctx,
-				"command/resolve.ResolveIncidentByDialog calendar.create_calendar_event error",
+				"command/resolve.ResolveIncidentByDialog get_calendar_event error",
 				log.NewValue("error", err),
 			)
 			return err
@@ -187,7 +162,7 @@ func ResolveIncidentByDialog(ctx context.Context, client bot.Client, logger log.
 	return nil
 }
 
-func setMeetingDate(d *time.Time, postMortemGapDays int, timezone string, logger log.Logger, ctx context.Contex) (string, string, error) {
+func setMeetingDate(ctx context.Context, logger log.Logger, d *time.Time, postMortemGapDays int, timezone string) (string, string, error) {
 	previewPostMortemDate := d.AddDate(0, 0, postMortemGapDays)
 
 	switch previewPostMortemDate.Weekday() {
@@ -215,6 +190,42 @@ func setMeetingDate(d *time.Time, postMortemGapDays int, timezone string, logger
 	endMeeting := startMeeting.Add(time.Hour).Format(time.RFC3339)
 
 	return startMeeting.Format(time.RFC3339), endMeeting, err
+}
+
+func getCalendarEvent(ctx context.Context, logger log.Logger, repository model.Repository, calendar calendar.Calendar, t *time.Time, channelName string, channelID string) (*model.Event, error) {
+	startMeeting, endMeeting, err := setMeetingDate(ctx, logger, t, config.Env.PostmortemGapDays, config.Env.Timezone)
+	if err != nil {
+		logger.Error(
+			ctx,
+			"command/resolve.getCalendarEvent set_meeting_date error",
+			log.NewValue("error", err),
+		)
+		return nil, err
+	}
+
+	summary := "[Post Mortem] " + channelName
+	emails := []string{} //This will be filled in V2
+
+	inc, err := repository.GetIncident(ctx, channelID)
+	if err != nil {
+		logger.Error(
+			ctx,
+			"command/resolve.getCalendarEvent repository.get_incident error",
+			log.NewValue("error", err),
+		)
+		return nil, err
+	}
+
+	calendarEvent, err := calendar.CreateCalendarEvent(ctx, startMeeting, endMeeting, summary, inc.CommanderEmail, emails)
+	if err != nil {
+		logger.Error(
+			ctx,
+			"command/resolve.getCalendarEvent calendar.create_calendar_event error",
+			log.NewValue("error", err),
+		)
+		return nil, err
+	}
+	return calendarEvent, err
 }
 
 func createResolveChannelAttachment(inc model.Incident, userName string, postMortemMeetingURL string) slack.Attachment {

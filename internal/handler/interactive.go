@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"hellper/internal/bot"
+	calendar "hellper/internal/calendar"
 	"hellper/internal/commands"
 	filestorage "hellper/internal/file_storage"
 	"hellper/internal/log"
@@ -17,14 +18,16 @@ type handlerInteractive struct {
 	client      bot.Client
 	repository  model.Repository
 	fileStorage filestorage.Driver
+	calendar    calendar.Calendar
 }
 
-func newHandlerInteractive(logger log.Logger, client bot.Client, repository model.Repository, fileStorage filestorage.Driver) *handlerInteractive {
+func newHandlerInteractive(logger log.Logger, client bot.Client, repository model.Repository, fileStorage filestorage.Driver, calendar calendar.Calendar) *handlerInteractive {
 	return &handlerInteractive{
 		logger:      logger,
 		client:      client,
 		repository:  repository,
 		fileStorage: fileStorage,
+		calendar:    calendar,
 	}
 }
 
@@ -84,7 +87,7 @@ func (h *handlerInteractive) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "inc-open":
 		err = commands.StartIncidentByDialog(ctx, h.client, h.logger, h.repository, h.fileStorage, dialogSubmission)
 	case "inc-resolve":
-		err = commands.ResolveIncidentByDialog(ctx, h.client, h.logger, h.repository, dialogSubmission)
+		err = commands.ResolveIncidentByDialog(ctx, h.client, h.logger, h.repository, dialogSubmission, h.calendar)
 	case "inc-dates":
 		err = commands.UpdateDatesByDialog(ctx, h.client, h.logger, h.repository, dialogSubmission)
 	default:

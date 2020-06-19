@@ -72,7 +72,7 @@ func (s *storage) CreatePostMortemDocument(ctx context.Context, postMortemName s
 		return "", err
 	}
 
-	file, err := s.copyFile(ctx, driveService, config.Env.GoogleDriveFileId, postMortemName)
+	file, err := s.copyFile(ctx, driveService, config.Env.GoogleDriveFileID, postMortemName)
 	if err != nil {
 		s.logger.Error(
 			ctx,

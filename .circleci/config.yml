@@ -19,5 +19,15 @@ jobs:
             sudo apt-get update
             sudo apt-get install -y --allow-unauthenticated postgresql-client --no-install-recommends
             psql $HELLPER_DSN -f "./internal/model/sql/postgres/schema/hellper.sql"
+      - run:
+          name: Waiting for Postgres to be ready
+          command: |
+            for i in `seq 1 10`;
+            do
+              nc -z localhost 5432 && echo Success && exit 0
+              echo -n .
+              sleep 1
+            done
+            echo Failed waiting for Postgres && exit 1
       - run: go get -v -t -d ./...
       - run: go test ./...

@@ -33,7 +33,7 @@ type googleCalendarFixture struct {
 	summary                     string
 	mockEvent                   *gCalendar.Event
 	mockEventInsertCall         google.CalendarEventsInsertCall
-	mockCreateConferenceRequest *gCalendar.CreateConferenceRequest
+	mockCreateConferenceRequest *gCalendar.ConferenceData
 	doError                     error
 	calendarID                  string
 }
@@ -59,13 +59,13 @@ func (f *googleCalendarFixture) setup(t *testing.T) {
 	f.calendarService = calendarServiceMock(f.mockLogger, f.mockCalendarService, f.mockCalendarEventsService, f.calendarID)
 }
 
-func TestCreateConferenceRequest(t *testing.T) {
+func TestConferenceData(t *testing.T) {
 	f := googleCalendarFixture{
 		testName:                    "ConferenceSolutionKey created",
-		mockCreateConferenceRequest: newCreateConferenceRequestMock(),
+		mockCreateConferenceRequest: newConferenceDataMock(),
 	}
 	t.Run(f.testName, func(t *testing.T) {
-		conferenceRequest := createConferenceRequest()
+		conferenceRequest := conferenceData()
 		assert.EqualValues(t, f.mockCreateConferenceRequest, conferenceRequest)
 	})
 }
@@ -203,10 +203,12 @@ func calendarServiceMock(
 	}
 }
 
-func newCreateConferenceRequestMock() *gCalendar.CreateConferenceRequest {
-	return &gCalendar.CreateConferenceRequest{
-		ConferenceSolutionKey: &gCalendar.ConferenceSolutionKey{
-			Type: "hangoutsMeet",
+func newConferenceDataMock() *gCalendar.ConferenceData {
+	return &gCalendar.ConferenceData{
+		CreateRequest: &gCalendar.CreateConferenceRequest{
+			ConferenceSolutionKey: &gCalendar.ConferenceSolutionKey{
+				Type: "hangoutsMeet",
+			},
 		},
 	}
 }

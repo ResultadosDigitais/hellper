@@ -3,11 +3,13 @@ package commands
 import (
 	"context"
 	"hellper/internal/concurrence"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 
 	"hellper/internal/bot"
+	calendar "hellper/internal/calendar"
 	"hellper/internal/config"
 	"hellper/internal/log"
 	"hellper/internal/model"
@@ -40,6 +42,28 @@ func ResolveIncidentDialog(client bot.Client, triggerID string) error {
 		Subtype: slack.InputSubtypeURL,
 	}
 
+	postMortemMeeting := &slack.DialogInputSelect{
+		DialogInput: slack.DialogInput{
+			Label:       "Can I schedule a Post Mortem meeting?",
+			Name:        "post_mortem_meeting",
+			Type:        "select",
+			Placeholder: "Post Mortem Meeting",
+			Optional:    false,
+		},
+		Value: "false",
+		Options: []slack.DialogSelectOption{
+			{
+				Label: "Yes",
+				Value: "true",
+			},
+			{
+				Label: "No",
+				Value: "false",
+			},
+		},
+		OptionGroups: []slack.DialogOptionGroup{},
+	}
+
 	dialog := slack.Dialog{
 		CallbackID:     "inc-resolve",
 		Title:          "Resolve an Incident",
@@ -48,6 +72,7 @@ func ResolveIncidentDialog(client bot.Client, triggerID string) error {
 		Elements: []slack.DialogElement{
 			statusIO,
 			description,
+			postMortemMeeting,
 		},
 	}
 
@@ -55,7 +80,7 @@ func ResolveIncidentDialog(client bot.Client, triggerID string) error {
 }
 
 // ResolveIncidentByDialog resolves an incident after receiving data from a Slack dialog
-func ResolveIncidentByDialog(ctx context.Context, client bot.Client, logger log.Logger, repository model.Repository, incidentDetails bot.DialogSubmission) error {
+func ResolveIncidentByDialog(ctx context.Context, client bot.Client, logger log.Logger, repository model.Repository, incidentDetails bot.DialogSubmission, calendar calendar.Calendar) error {
 	logger.Info(
 		ctx,
 		"command/resolve.ResolveIncidentByDialog",
@@ -63,15 +88,18 @@ func ResolveIncidentByDialog(ctx context.Context, client bot.Client, logger log.
 	)
 
 	var (
-		now              = time.Now().UTC()
-		channelID        = incidentDetails.Channel.ID
-		userID           = incidentDetails.User.ID
-		userName         = incidentDetails.User.Name
-		submissions      = incidentDetails.Submission
-		description      = submissions.IncidentDescription
-		statusPageURL    = submissions.StatusIO
-		notifyOnResolve  = config.Env.NotifyOnResolve
-		productChannelID = config.Env.ProductChannelID
+		now                  = time.Now().UTC()
+		channelID            = incidentDetails.Channel.ID
+		channelName          = incidentDetails.Channel.Name
+		userID               = incidentDetails.User.ID
+		userName             = incidentDetails.User.Name
+		submissions          = incidentDetails.Submission
+		description          = submissions.IncidentDescription
+		statusPageURL        = submissions.StatusIO
+		postMortemMeeting    = submissions.PostMortemMeeting
+		postMortemMeetingURL = ""
+		notifyOnResolve      = config.Env.NotifyOnResolve
+		productChannelID     = config.Env.ProductChannelID
 	)
 
 	incident := model.Incident{
@@ -83,11 +111,40 @@ func ResolveIncidentByDialog(ctx context.Context, client bot.Client, logger log.
 
 	err := repository.ResolveIncident(ctx, &incident)
 	if err != nil {
+		logger.Error(
+			ctx,
+			"command/resolve.ResolveIncidentByDialog repository.resolve_incident error",
+			log.NewValue("error", err),
+		)
 		return err
 	}
 
-	channelAttachment := createResolveChannelAttachment(incident, userName)
-	privateAttachment := createResolvePrivateAttachment(incident)
+	hasPostMortemMeeting, err := strconv.ParseBool(postMortemMeeting)
+	if err != nil {
+		logger.Error(
+			ctx,
+			"command/resolve.ResolveIncidentByDialog strconv.parse_bool error",
+			log.NewValue("error", err),
+		)
+		return err
+	}
+
+	if hasPostMortemMeeting {
+
+		calendarEvent, err := getCalendarEvent(ctx, logger, repository, calendar, incident.EndTimestamp, channelName, channelID)
+		if err != nil {
+			logger.Error(
+				ctx,
+				"command/resolve.ResolveIncidentByDialog get_calendar_event error",
+				log.NewValue("error", err),
+			)
+			return err
+		}
+		postMortemMeetingURL = calendarEvent.EventURL
+	}
+
+	channelAttachment := createResolveChannelAttachment(incident, userName, postMortemMeetingURL)
+	privateAttachment := createResolvePrivateAttachment(incident, postMortemMeetingURL)
 
 	var waitgroup sync.WaitGroup
 	defer waitgroup.Wait()
@@ -105,14 +162,86 @@ func ResolveIncidentByDialog(ctx context.Context, client bot.Client, logger log.
 	return nil
 }
 
-func createResolveChannelAttachment(inc model.Incident, userName string) slack.Attachment {
+func setMeetingDate(ctx context.Context, logger log.Logger, d *time.Time, postMortemGapDays int, timezone string) (string, string, error) {
+	previewPostMortemDate := d.AddDate(0, 0, postMortemGapDays)
+
+	switch previewPostMortemDate.Weekday() {
+	case time.Saturday:
+		postMortemGapDays += 2
+	case time.Sunday:
+		postMortemGapDays++
+	default:
+		break
+	}
+
+	utc, err := time.LoadLocation(timezone)
+	if err != nil {
+		logger.Error(
+			ctx,
+			"command/resolve.setMeetingDate time.load_location error",
+			log.NewValue("error", err),
+		)
+		return "", "", err
+	}
+
+	setMeetingHour := time.Date(d.Year(), d.Month(), d.Day(), 15, 0, 0, 0, utc)
+
+	startMeeting := setMeetingHour.AddDate(0, 0, postMortemGapDays)
+	endMeeting := startMeeting.Add(time.Hour).Format(time.RFC3339)
+
+	return startMeeting.Format(time.RFC3339), endMeeting, err
+}
+
+func getCalendarEvent(ctx context.Context, logger log.Logger, repository model.Repository, calendar calendar.Calendar, t *time.Time, channelName string, channelID string) (*model.Event, error) {
+	startMeeting, endMeeting, err := setMeetingDate(ctx, logger, t, config.Env.PostmortemGapDays, config.Env.Timezone)
+	if err != nil {
+		logger.Error(
+			ctx,
+			"command/resolve.getCalendarEvent set_meeting_date error",
+			log.NewValue("error", err),
+		)
+		return nil, err
+	}
+
+	summary := "[Post Mortem] " + channelName
+	emails := []string{} //This will be filled in V2
+
+	inc, err := repository.GetIncident(ctx, channelID)
+	if err != nil {
+		logger.Error(
+			ctx,
+			"command/resolve.getCalendarEvent repository.get_incident error",
+			log.NewValue("error", err),
+		)
+		return nil, err
+	}
+
+	calendarEvent, err := calendar.CreateCalendarEvent(ctx, startMeeting, endMeeting, summary, inc.CommanderEmail, emails)
+	if err != nil {
+		logger.Error(
+			ctx,
+			"command/resolve.getCalendarEvent calendar.create_calendar_event error",
+			log.NewValue("error", err),
+		)
+		return nil, err
+	}
+	return calendarEvent, err
+}
+
+func createResolveChannelAttachment(inc model.Incident, userName string, postMortemMeetingURL string) slack.Attachment {
 	endDateText := inc.EndTimestamp.Format(time.RFC3339)
 
 	var messageText strings.Builder
 	messageText.WriteString("The Incident <#" + inc.ChannelId + "> has been resolved by <@" + userName + ">\n\n")
 	messageText.WriteString("*End date:* <#" + endDateText + ">\n")
 	messageText.WriteString("*Status.io link:* `" + inc.StatusPageUrl + "`\n")
-	messageText.WriteString("*Description:* `" + inc.DescriptionResolved + "`\n\n")
+	messageText.WriteString("*Description:* `" + inc.DescriptionResolved + "`\n")
+	if postMortemMeetingURL != "" {
+		messageText.WriteString("*Post Mortem Meeting Link:* `" + postMortemMeetingURL + "`\n")
+	} else {
+		messageText.WriteString("\n\n")
+		postMortemMeetingURL = "The Meeting is not scheduled."
+	}
 
 	return slack.Attachment{
 		Pretext:  "The Incident <#" + inc.ChannelId + "> has been resolved by <@" + userName + ">",
@@ -136,15 +265,26 @@ func createResolveChannelAttachment(inc model.Incident, userName string) slack.A
 				Title: "Description",
 				Value: inc.DescriptionResolved,
 			},
+			{
+				Title: "Post Mortem meeting link",
+				Value: postMortemMeetingURL,
+			},
 		},
 	}
 }
 
-func createResolvePrivateAttachment(inc model.Incident) slack.Attachment {
+func createResolvePrivateAttachment(inc model.Incident, postMortemMeetingURL string) slack.Attachment {
 	var privateText strings.Builder
 	privateText.WriteString("The Incident <#" + inc.ChannelId + "> has been resolved by you\n\n")
 	privateText.WriteString("*Status.io:* Be sure to update the incident status on" + inc.StatusPageUrl + "\n")
-	privateText.WriteString("*Post Mortem:* Don't forget to bookmark Post Mortem for the incident <#" + inc.ChannelId + ">\n\n")
+	if postMortemMeetingURL != "" {
+		privateText.WriteString("*Post Mortem Meeting Link:*<`" + postMortemMeetingURL + "`>\n\n")
+		postMortemMeetingURL = "Post Mortem Meeting Link:<`" + postMortemMeetingURL + "`>"
+	} else {
+		privateText.WriteString("\n\n")
+		privateText.WriteString("*Post Mortem:* Don't forget to bookmark Post Mortem for the incident <#" + inc.ChannelId + ">\n")
+		postMortemMeetingURL = "The Meeting is not scheduled."
+	}
 
 	return slack.Attachment{
 		Pretext:  "The Incident <#" + inc.ChannelId + "> has been resolved by you",
@@ -158,7 +298,7 @@ func createResolvePrivateAttachment(inc model.Incident) slack.Attachment {
 			},
 			{
 				Title: "Post Mortem",
-				Value: "Don't forget to bookmark Post Mortem for the incident <#" + inc.ChannelId + ">",
+				Value: postMortemMeetingURL,
 			},
 		},
 	}

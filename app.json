@@ -100,6 +100,14 @@
       "description": "Slack Token to verify external requests",
       "value": "YOUR_SLACK_VERIFICATION_TOKEN"
     },
+    "FILE_STORAGE": {
+      "description": "Hellper file storage for postmortem document",
+      "value": "google_drive"
+    },
+    "TIMEZONE": {
+      "description": "Timezone for Post Mortem Meeting",
+      "value": "America/Sao_Paulo"
+    },
     "ENFORCE_SSL": {
       "description": "If you running in HTTPS this variable forces redirect to HTTPS when user access with HTTP",
       "value": "true"

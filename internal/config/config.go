@@ -23,7 +23,7 @@ type environment struct {
 	DSN                           string
 	GoogleCredentials             string
 	GoogleDriveToken              string
-	GoogleDriveFileId             string
+	GoogleDriveFileID             string
 	GoogleCalendarToken           string
 	GoogleCalendarID              string
 	PostmortemGapDays             int
@@ -35,6 +35,7 @@ type environment struct {
 	FileStorage                   string
 	NotifyOnResolve               bool
 	NotifyOnClose                 bool
+	Timezone                      string
 }
 
 type messages struct {
@@ -64,7 +65,7 @@ func newEnvironment() environment {
 	vars.StringVar(&env.DSN, "hellper_dsn", "", "Hellper database provider")
 	vars.StringVar(&env.GoogleCredentials, "hellper_google_credentials", "", "Google Credentials")
 	vars.StringVar(&env.GoogleDriveToken, "hellper_google_drive_token", "", "Google Drive Token")
-	vars.StringVar(&env.GoogleDriveFileId, "hellper_google_drive_file_id", "", "Google Drive FileId")
+	vars.StringVar(&env.GoogleDriveFileID, "hellper_google_drive_file_id", "", "Google Drive FileId")
 	vars.StringVar(&env.GoogleCalendarToken, "hellper_google_calendar_token", "", "Google Calendar Token")
 	vars.StringVar(&env.GoogleCalendarID, "hellper_google_calendar_id", "", "Calendar ID to create a event")
 	vars.IntVar(&env.PostmortemGapDays, "hellper_postmortem_gap_days", 2, "Gap in days between resolve and postmortem event")
@@ -76,6 +77,7 @@ func newEnvironment() environment {
 	vars.StringVar(&env.FileStorage, "file_storage", "google_drive", "Hellper file storage for postmortem document")
 	vars.BoolVar(&env.NotifyOnResolve, "hellper_notify_on_resolve", true, "Notify the main channel when resolve the incident")
 	vars.BoolVar(&env.NotifyOnClose, "hellper_notify_on_close", true, "Notify the main channel when close the incident")
+	vars.StringVar(&env.Timezone, "timezone", "America/Sao_Paulo", "The local time of a region or a country used to create a event.")
 
 	vars.Parse()
 	env.Messages = newMessages(env.Language)

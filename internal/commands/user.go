@@ -3,6 +3,8 @@ package commands
 import (
 	"context"
 
+	"github.com/slack-go/slack"
+
 	"hellper/internal/bot"
 	"hellper/internal/log"
 	"hellper/internal/model"
@@ -34,4 +36,13 @@ func getSlackUserInfo(
 	}
 
 	return &user, err
+}
+
+func getUsersInConversationParameters(
+	ctx context.Context,
+	client bot.Client,
+	logger log.Logger,
+) *slack.GetUsersInConversationParameters {
+
+	return nil
 }

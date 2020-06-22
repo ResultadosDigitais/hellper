@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"fmt"
 	"hellper/internal/concurrence"
 	"strconv"
 	"strings"
@@ -80,7 +81,14 @@ func ResolveIncidentDialog(client bot.Client, triggerID string) error {
 }
 
 // ResolveIncidentByDialog resolves an incident after receiving data from a Slack dialog
-func ResolveIncidentByDialog(ctx context.Context, client bot.Client, logger log.Logger, repository model.Repository, incidentDetails bot.DialogSubmission, calendar calendar.Calendar) error {
+func ResolveIncidentByDialog(
+	ctx context.Context,
+	client bot.Client,
+	logger log.Logger,
+	repository model.Repository,
+	calendar calendar.Calendar,
+	incidentDetails bot.DialogSubmission,
+) error {
 	logger.Info(
 		ctx,
 		"command/resolve.ResolveIncidentByDialog",
@@ -131,7 +139,6 @@ func ResolveIncidentByDialog(ctx context.Context, client bot.Client, logger log.
 	}
 
 	if hasPostMortemMeeting {
-
 		calendarEvent, err = getCalendarEvent(ctx, logger, repository, calendar, incident.EndTimestamp, channelName, channelID)
 		if err != nil {
 			logger.Error(
@@ -142,6 +149,8 @@ func ResolveIncidentByDialog(ctx context.Context, client bot.Client, logger log.
 			return err
 		}
 	}
+
+	fmt.Printf("Incident:\n%+v\nUserName:\n%+v\nEvent:\n%+v\n", incident, userName, calendarEvent)
 
 	channelAttachment := createResolveChannelAttachment(incident, userName, calendarEvent)
 	privateAttachment := createResolvePrivateAttachment(incident, calendarEvent)

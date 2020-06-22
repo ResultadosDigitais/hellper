@@ -25,16 +25,17 @@ type googleCalendarFixture struct {
 	mockCalendarService       google.CalendarService
 	mockCalendarEventsService google.CalendarEventsService
 
-	ctx                 context.Context
-	startDateTime       string
-	endDateTime         string
-	emails              []string
-	commander           string
-	summary             string
-	mockEvent           *gCalendar.Event
-	mockEventInsertCall google.CalendarEventsInsertCall
-	doError             error
-	calendarID          string
+	ctx                         context.Context
+	startDateTime               string
+	endDateTime                 string
+	emails                      []string
+	commander                   string
+	summary                     string
+	mockEvent                   *gCalendar.Event
+	mockEventInsertCall         google.CalendarEventsInsertCall
+	mockCreateConferenceRequest *gCalendar.ConferenceData
+	doError                     error
+	calendarID                  string
 }
 
 func (f *googleCalendarFixture) setup(t *testing.T) {
@@ -58,13 +59,14 @@ func (f *googleCalendarFixture) setup(t *testing.T) {
 	f.calendarService = calendarServiceMock(f.mockLogger, f.mockCalendarService, f.mockCalendarEventsService, f.calendarID)
 }
 
-func TestGoogleMeetKey(t *testing.T) {
+func TestConferenceData(t *testing.T) {
 	f := googleCalendarFixture{
-		testName: "ConferenceSolutionKey created",
+		testName:                    "ConferenceSolutionKey created",
+		mockCreateConferenceRequest: newConferenceDataMock(),
 	}
 	t.Run(f.testName, func(t *testing.T) {
-		key := googleMeetKey()
-		assert.IsType(t, new(gCalendar.ConferenceSolutionKey), key)
+		conferenceRequest := conferenceData()
+		assert.EqualValues(t, f.mockCreateConferenceRequest, conferenceRequest)
 	})
 }
 
@@ -198,5 +200,15 @@ func calendarServiceMock(
 		calendarService: service,
 		eventsService:   eventsService,
 		calendarID:      calendarID,
+	}
+}
+
+func newConferenceDataMock() *gCalendar.ConferenceData {
+	return &gCalendar.ConferenceData{
+		CreateRequest: &gCalendar.CreateConferenceRequest{
+			ConferenceSolutionKey: &gCalendar.ConferenceSolutionKey{
+				Type: "hangoutsMeet",
+			},
+		},
 	}
 }

@@ -138,25 +138,33 @@ func TestResolveIncidentDialog(t *testing.T) {
 func TestResolveIncidentByDialog(t *testing.T) {
 	table := []resolveCommandFixture{
 		{
-			testName:        "Incident Resolved properly, with PM Meeting",
+			testName:        "Incident Resolved with PM Meeting",
 			expectError:     false,
 			incidentDetails: buildSubmissionMock("true"),
 			channelID:       "CT50JJGP5",
 			mockEvent:       buildEventMock(),
 		},
-		// {
-		// 	testName:        "Incident Resolved properly, without PM Meeting",
-		// 	expectError:     false,
-		// 	incidentDetails: buildSubmissionMock("false"),
-		// 	channelID:       "CT50JJGP5",
-		// },
+		{
+			testName:        "Incident Resolved without PM Meeting",
+			expectError:     false,
+			incidentDetails: buildSubmissionMock("false"),
+			channelID:       "CT50JJGP5",
+		},
+		{
+			testName:        "Incident Resolved without PM conditional",
+			expectError:     true,
+			errorMessage:    "strconv.ParseBool: parsing \"\": invalid syntax",
+			incidentDetails: buildSubmissionMock(""),
+			channelID:       "CT50JJGP5",
+			mockEvent:       buildEventMock(),
+		},
 	}
 
 	for index, f := range table {
 		t.Run(fmt.Sprintf("%v-%v", index, f.testName), func(t *testing.T) {
 			f.setup(t)
 
-			err := commands.ResolveIncidentByDialog(f.ctx, f.mockClient, f.mockLogger, f.mockRepository, f.incidentDetails, f.mockCalendar)
+			err := commands.ResolveIncidentByDialog(f.ctx, f.mockClient, f.mockLogger, f.mockRepository, f.mockCalendar, f.incidentDetails)
 
 			if f.expectError {
 				if err == nil {

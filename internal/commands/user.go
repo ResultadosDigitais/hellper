@@ -42,7 +42,19 @@ func getUsersInConversationParameters(
 	ctx context.Context,
 	client bot.Client,
 	logger log.Logger,
+	channelID string,
+	cursor string,
 ) *slack.GetUsersInConversationParameters {
 
-	return &slack.GetUsersInConversationParameters{}
+	//Check if a cursor for a next page was received
+	if cursor != "" {
+		return &slack.GetUsersInConversationParameters{
+			ChannelID: channelID,
+			Cursor:    cursor,
+		}
+	}
+
+	return &slack.GetUsersInConversationParameters{
+		ChannelID: channelID,
+	}
 }

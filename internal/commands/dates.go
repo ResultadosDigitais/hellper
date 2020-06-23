@@ -255,7 +255,7 @@ func parseTimeZone(timeZoneString string) (*time.Location, error) {
 
 func createDatesSuccessAttachment(inc model.Incident, userName string) slack.Attachment {
 	var (
-		dateLayout  = "02/01/2006 15:04:05 MST"
+		dateLayout  = time.RFC1123
 		messageText strings.Builder
 	)
 

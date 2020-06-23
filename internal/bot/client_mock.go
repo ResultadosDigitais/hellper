@@ -77,12 +77,14 @@ func (mock *ClientMock) SetChannelTopic(channelID, topic string) (string, error)
 	return args.String(0), args.Error(1)
 }
 
-func (mock *ClientMock) OpenDialog(string, slack.Dialog) error {
-	return nil
+func (mock *ClientMock) OpenDialog(triggerID string, dialog slack.Dialog) error {
+	args := mock.Called(triggerID, dialog)
+	return args.Error(0)
 }
 
-func (mock *ClientMock) AddPin(string, slack.ItemRef) error {
-	return nil
+func (mock *ClientMock) AddPin(channel string, item slack.ItemRef) error {
+	args := mock.Called(channel, item)
+	return args.Error(0)
 }
 
 func (mock *ClientMock) ArchiveChannel(channelID string) error {

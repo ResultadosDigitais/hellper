@@ -6,6 +6,8 @@ import (
 	"hellper/internal/bot"
 	"hellper/internal/log"
 	"hellper/internal/model"
+
+	"github.com/slack-go/slack"
 )
 
 func getSlackUserInfo(
@@ -34,4 +36,44 @@ func getSlackUserInfo(
 	}
 
 	return &user, err
+}
+
+func getUsersInConversation(
+	ctx context.Context,
+	client bot.Client,
+	logger log.Logger,
+	channelID string,
+) *[]string {
+	logger.Info(
+		ctx,
+		"command/user.getUsersInConversation",
+		log.NewValue("params", channelID),
+	)
+
+	params := slack.GetUsersInConversationParameters{
+		ChannelID: channelID,
+	}
+
+	var members []string
+
+	for {
+		list, cursor, err := client.GetUsersInConversationContext(ctx, &params)
+		if err != nil {
+			logger.Error(
+				ctx,
+				"command/user.getUsersInConversation",
+				log.NewValue("channelID", channelID),
+				log.NewValue("error", err),
+			)
+			break
+		}
+		members = append(members, list...)
+		if cursor == "" {
+			break
+		} else {
+			params.Cursor = cursor
+		}
+	}
+
+	return &members
 }

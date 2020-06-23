@@ -39,9 +39,6 @@ func getSlackUserInfo(
 }
 
 func getUsersInConversationParameters(
-	ctx context.Context,
-	client bot.Client,
-	logger log.Logger,
 	channelID string,
 	cursor string,
 ) *slack.GetUsersInConversationParameters {

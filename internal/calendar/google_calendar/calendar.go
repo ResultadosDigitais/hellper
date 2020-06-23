@@ -7,6 +7,7 @@ import (
 	googleauth "hellper/internal/google_auth"
 	"hellper/internal/log"
 	"hellper/internal/model"
+	"time"
 
 	gCalendar "google.golang.org/api/calendar/v3"
 )
@@ -157,10 +158,30 @@ func (gc *googleCalendar) CreateCalendarEvent(ctx context.Context, start, end, s
 		return nil, err
 	}
 
+	eventStart, err := time.Parse(time.RFC3339, googleEvent.Start.DateTime)
+	if err != nil {
+		gc.logger.Error(
+			ctx,
+			"googlecalendar/calendar.CreateCalendarEvent time.Parse ERROR",
+			log.NewValue("error", err),
+		)
+		return nil, err
+	}
+
+	eventEnd, err := time.Parse(time.RFC3339, googleEvent.End.DateTime)
+	if err != nil {
+		gc.logger.Error(
+			ctx,
+			"googlecalendar/calendar.CreateCalendarEvent time.Parse ERROR",
+			log.NewValue("error", err),
+		)
+		return nil, err
+	}
+
 	modelEvent := &model.Event{
 		EventURL: googleEvent.HtmlLink,
-		Start:    googleEvent.Start.DateTime,
-		End:      googleEvent.End.DateTime,
+		Start:    &eventStart,
+		End:      &eventEnd,
 		Summary:  googleEvent.Summary,
 	}
 

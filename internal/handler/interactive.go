@@ -87,7 +87,7 @@ func (h *handlerInteractive) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "inc-open":
 		err = commands.StartIncidentByDialog(ctx, h.client, h.logger, h.repository, h.fileStorage, dialogSubmission)
 	case "inc-resolve":
-		err = commands.ResolveIncidentByDialog(ctx, h.client, h.logger, h.repository, dialogSubmission, h.calendar)
+		err = commands.ResolveIncidentByDialog(ctx, h.client, h.logger, h.repository, h.calendar, dialogSubmission)
 	case "inc-dates":
 		err = commands.UpdateDatesByDialog(ctx, h.client, h.logger, h.repository, dialogSubmission)
 	default:

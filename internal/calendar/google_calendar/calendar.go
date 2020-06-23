@@ -113,7 +113,8 @@ func (gc *googleCalendar) insertEvent(ctx context.Context, event *gCalendar.Even
 }
 
 func (gc *googleCalendar) handleInsertEvent(ctx context.Context, insertCall google.CalendarEventsInsertCall) (*gCalendar.Event, error) {
-	// insertCall := insertCall.Context(ctx)
+	insertCall = insertCall.Context(ctx)
+	insertCall = insertCall.ConferenceDataVersion(1)
 	gcEvent, err := insertCall.Do()
 	if err != nil {
 		gc.logger.Error(
@@ -123,6 +124,7 @@ func (gc *googleCalendar) handleInsertEvent(ctx context.Context, insertCall goog
 		)
 		return nil, err
 	}
+
 	return gcEvent, nil
 }
 

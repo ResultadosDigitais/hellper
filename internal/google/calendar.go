@@ -1,6 +1,7 @@
 package google
 
 import (
+	"context"
 	"net/http"
 
 	"google.golang.org/api/calendar/v3"
@@ -17,8 +18,9 @@ type CalendarEventsService interface {
 }
 
 type CalendarEventsInsertCall interface {
-	// Context(context.Context) *calendar.EventsInsertCall
+	Context(context.Context) *calendar.EventsInsertCall
 	Do(...googleapi.CallOption) (*calendar.Event, error)
+	ConferenceDataVersion(int64) *calendar.EventsInsertCall
 }
 
 //NewCalendarEventsService calls the initializer for EventsService, from the Google Calendar package

@@ -36,6 +36,7 @@ type googleCalendarFixture struct {
 	mockCreateConferenceRequest *gCalendar.ConferenceData
 	doError                     error
 	calendarID                  string
+	ConferenceData              *gCalendar.ConferenceData
 }
 
 func (f *googleCalendarFixture) setup(t *testing.T) {
@@ -184,7 +185,8 @@ func newEventMock() *gCalendar.Event {
 		End: &gCalendar.EventDateTime{
 			DateTime: `2020-05-27T17:00:00-07:00`,
 		},
-		Summary: `Test postmortem event`,
+		Summary:        `Test postmortem event`,
+		ConferenceData: newConferenceDataMock(),
 	}
 }
 

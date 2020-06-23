@@ -44,5 +44,5 @@ func getUsersInConversationParameters(
 	logger log.Logger,
 ) *slack.GetUsersInConversationParameters {
 
-	return nil
+	return &slack.GetUsersInConversationParameters{}
 }

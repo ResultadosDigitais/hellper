@@ -49,6 +49,7 @@ func (f *datesCommandFixture) setup(t *testing.T) {
 
 	clientMock.On("PostEphemeralContext", f.ctx, mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("[]slack.MsgOption")).Return("", nil)
 	clientMock.On("PostMessage", f.channelID, mock.AnythingOfType("[]slack.MsgOption")).Return("", "", nil)
+	clientMock.On("OpenDialog", mock.AnythingOfType("string"), mock.AnythingOfType("slack.Dialog")).Return(nil)
 
 	repositoryMock.On("GetIncident", f.channelID).Return(f.mockIncident, f.getIncidentError)
 	repositoryMock.On("UpdateIncidentDates", f.ctx, mock.AnythingOfType("*model.Incident")).Return(f.updateIncidentDatesError)

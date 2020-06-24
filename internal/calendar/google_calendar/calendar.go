@@ -9,6 +9,8 @@ import (
 	"hellper/internal/model"
 	"time"
 
+	"github.com/google/uuid"
+
 	gCalendar "google.golang.org/api/calendar/v3"
 )
 
@@ -142,9 +144,14 @@ func googleMeetKey() *gCalendar.ConferenceSolutionKey {
 	}
 }
 
+func requestID() string {
+	return uuid.New().String()
+}
+
 func createConferenceRequest() *gCalendar.CreateConferenceRequest {
 	return &gCalendar.CreateConferenceRequest{
 		ConferenceSolutionKey: googleMeetKey(),
+		RequestId:             requestID(),
 	}
 }
 
@@ -157,6 +164,13 @@ func conferenceData() *gCalendar.ConferenceData {
 //CreateCalendarEvent creates a event in Google Calendar
 func (gc *googleCalendar) CreateCalendarEvent(ctx context.Context, start, end, summary, commander string, emails []string) (*model.Event, error) {
 	e := event(start, end, summary, commander, emails)
+
+	gc.logger.Info(
+		ctx,
+		"EVENT",
+		log.NewValue("event", e),
+	)
+
 	googleEvent, err := gc.insertEvent(ctx, e)
 	if err != nil {
 		gc.logger.Error(

@@ -43,7 +43,7 @@ func getUsersInConversation(
 	client bot.Client,
 	logger log.Logger,
 	channelID string,
-) *[]string {
+) (*[]string, error) {
 	logger.Info(
 		ctx,
 		"command/user.getUsersInConversation",
@@ -65,7 +65,7 @@ func getUsersInConversation(
 				log.NewValue("channelID", channelID),
 				log.NewValue("error", err),
 			)
-			break
+			return nil, err
 		}
 		members = append(members, list...)
 		if cursor == "" {
@@ -75,5 +75,5 @@ func getUsersInConversation(
 		}
 	}
 
-	return &members
+	return &members, nil
 }

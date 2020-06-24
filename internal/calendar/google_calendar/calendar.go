@@ -116,16 +116,10 @@ func (gc *googleCalendar) insertEvent(ctx context.Context, event *gCalendar.Even
 }
 
 func (gc *googleCalendar) handleInsertEvent(ctx context.Context, insertCall google.CalendarEventsInsertCall) (*gCalendar.Event, error) {
-	// insertCall1 := insertCall.Context(ctx)
-	insertCall2 := insertCall.ConferenceDataVersion(1)
+	insertCall = insertCall.Context(ctx)
+	insertCall = insertCall.ConferenceDataVersion(1)
 
-	gc.logger.Info(
-		ctx,
-		"InsertCall before Do()",
-		log.NewValue("insertCall", &insertCall2),
-	)
-
-	gcEvent, err := insertCall2.Do()
+	gcEvent, err := insertCall.Do()
 	if err != nil {
 		gc.logger.Error(
 			ctx,
@@ -164,13 +158,6 @@ func conferenceData() *gCalendar.ConferenceData {
 //CreateCalendarEvent creates a event in Google Calendar
 func (gc *googleCalendar) CreateCalendarEvent(ctx context.Context, start, end, summary, commander string, emails []string) (*model.Event, error) {
 	e := event(start, end, summary, commander, emails)
-
-	gc.logger.Info(
-		ctx,
-		"EVENT",
-		log.NewValue("event", e),
-	)
-
 	googleEvent, err := gc.insertEvent(ctx, e)
 	if err != nil {
 		gc.logger.Error(
@@ -180,12 +167,6 @@ func (gc *googleCalendar) CreateCalendarEvent(ctx context.Context, start, end, s
 		)
 		return nil, err
 	}
-
-	gc.logger.Info(
-		ctx,
-		"Google Calendar Event after insert",
-		log.NewValue("googleEvent", googleEvent),
-	)
 
 	eventStart, err := time.Parse(time.RFC3339, googleEvent.Start.DateTime)
 	if err != nil {

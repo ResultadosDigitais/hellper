@@ -77,9 +77,9 @@ func (mock *ClientMock) GetUsersInConversationContext(ctx context.Context, param
 		args   = mock.Called(ctx, params)
 		list   = args.Get(0)
 		cursor = args.Get(1)
-		err    = args.Get(2)
+		err    = args.Error(2)
 	)
-	return list.([]string), cursor.(string), err.(error)
+	return list.([]string), cursor.(string), err
 }
 
 func (mock *ClientMock) SetChannelTopic(channelID, topic string) (string, error) {

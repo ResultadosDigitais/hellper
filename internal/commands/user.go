@@ -42,8 +42,33 @@ func getUsersInConversation(
 	ctx context.Context,
 	client bot.Client,
 	logger log.Logger,
-	channelID string,
+	usersIDs *[]string,
 ) (*[]model.User, error) {
+	var users []model.User
+
+	for _, id := range *usersIDs {
+		user, err := getSlackUserInfo(ctx, client, logger, id)
+		if err != nil {
+			logger.Error(
+				ctx,
+				"command/user.getUsersInConversation",
+				log.NewValue("channelID", usersIDs),
+				log.NewValue("error", err),
+			)
+			return nil, err
+		}
+		users = append(users, *user)
+	}
+
+	return &users, nil
+}
+
+func getUsersIDs(
+	ctx context.Context,
+	client bot.Client,
+	logger log.Logger,
+	channelID string,
+) (*[]string, error) {
 	logger.Info(
 		ctx,
 		"command/user.getUsersInConversation",
@@ -54,10 +79,7 @@ func getUsersInConversation(
 		ChannelID: channelID,
 	}
 
-	var (
-		membersID []string
-		users     []model.User
-	)
+	var members []string
 
 	for {
 		list, cursor, err := client.GetUsersInConversationContext(ctx, &params)
@@ -70,7 +92,7 @@ func getUsersInConversation(
 			)
 			return nil, err
 		}
-		membersID = append(membersID, list...)
+		members = append(members, list...)
 		if cursor == "" {
 			break
 		} else {
@@ -78,5 +100,5 @@ func getUsersInConversation(
 		}
 	}
 
-	return &users, nil
+	return &members, nil
 }

@@ -87,12 +87,15 @@ func getUsersInConversation(
 	var users []model.User
 
 	usersIDs, err := getUsersIDsInConversation(ctx, client, logger, channelID)
-	logger.Error(
-		ctx,
-		"command/user.getUsersInConversation",
-		log.NewValue("channelID", channelID),
-		log.NewValue("error", err),
-	)
+	if err != nil {
+		logger.Error(
+			ctx,
+			"command/user.getUsersInConversation",
+			log.NewValue("channel_id", channelID),
+			log.NewValue("error", err),
+		)
+		return nil, err
+	}
 
 	for _, id := range *usersIDs {
 		user, err := getSlackUserInfo(ctx, client, logger, id)

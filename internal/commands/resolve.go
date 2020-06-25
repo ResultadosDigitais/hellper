@@ -127,16 +127,6 @@ func ResolveIncidentByDialog(
 		return err
 	}
 
-	// LOG FOR TEST PURPOSE, WILL BE REMOVED!
-	// ---------------
-	emails, _ := getUsersEmailsInConversation(ctx, client, logger, channelID)
-	logger.Info(
-		ctx,
-		"command/resolve.ResolveIncidentByDialog",
-		log.NewValue("users_emails", *emails),
-	)
-	// ---------------
-
 	hasPostMortemMeeting, err := strconv.ParseBool(postMortemMeeting)
 	if err != nil {
 		logger.Error(

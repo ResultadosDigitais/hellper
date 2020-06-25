@@ -43,7 +43,7 @@ func getUsersInConversation(
 	client bot.Client,
 	logger log.Logger,
 	channelID string,
-) (*[]string, error) {
+) (*[]model.User, error) {
 	logger.Info(
 		ctx,
 		"command/user.getUsersInConversation",
@@ -54,7 +54,10 @@ func getUsersInConversation(
 		ChannelID: channelID,
 	}
 
-	var members []string
+	var (
+		membersID []string
+		users     []model.User
+	)
 
 	for {
 		list, cursor, err := client.GetUsersInConversationContext(ctx, &params)
@@ -67,7 +70,7 @@ func getUsersInConversation(
 			)
 			return nil, err
 		}
-		members = append(members, list...)
+		membersID = append(membersID, list...)
 		if cursor == "" {
 			break
 		} else {
@@ -75,5 +78,5 @@ func getUsersInConversation(
 		}
 	}
 
-	return &members, nil
+	return &users, nil
 }

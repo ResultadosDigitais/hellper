@@ -20,6 +20,7 @@ func canStopReminder(incident model.Incident) bool {
 func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, repository model.Repository, jobIncident model.Incident) func(j job.Job) {
 	return func(j job.Job) {
 		incident, err := repository.GetIncident(ctx, jobIncident.ChannelId)
+
 		if err != nil {
 			logger.Error(
 				ctx,
@@ -73,7 +74,17 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 		}
 
 		if incident.Status == model.StatusResolved {
+			now := time.Now()
+			endTS := incident.EndTimestamp
+			diffHours := now.Sub(*endTS)
+			if int(diffHours.Hours()) <= config.Env.SLAHoursToClose {
+				job.Stop(&j)
+				return
+			}
+
 			sendNotification(ctx, logger, client, incident)
+			startReminderStatusJob(ctx, logger, client, repository, incident)
+			job.Stop(&j)
 			return
 		}
 

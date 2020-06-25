@@ -110,3 +110,29 @@ func getUsersInConversation(
 
 	return &users, err
 }
+
+func getUsersEmailsInConversation(
+	ctx context.Context,
+	client bot.Client,
+	logger log.Logger,
+	channelID string,
+) (*[]string, error) {
+	var emails []string
+
+	users, err := getUsersInConversation(ctx, client, logger, channelID)
+	if err != nil {
+		logger.Error(
+			ctx,
+			"command/user.getUsersEmailsInConversation",
+			log.NewValue("channel_id", channelID),
+			log.NewValue("error", err),
+		)
+		return nil, err
+	}
+
+	for _, user := range *users {
+		emails = append(emails, user.Email)
+	}
+
+	return &emails, err
+}

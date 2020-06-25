@@ -63,7 +63,7 @@ func getUsersInConversation(
 	return &users, nil
 }
 
-func getUsersIDs(
+func getUsersIDsInConversation(
 	ctx context.Context,
 	client bot.Client,
 	logger log.Logger,

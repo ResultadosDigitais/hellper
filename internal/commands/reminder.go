@@ -77,13 +77,10 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 			endTS := incident.EndTimestamp
 			diffHours := now.Sub(*endTS)
 			if int(diffHours.Hours()) <= config.Env.SLAHoursToClose {
-				job.Stop(&j)
 				return
 			}
 
 			sendNotification(ctx, logger, client, incident)
-			startReminderStatusJob(ctx, logger, client, repository, incident)
-			job.Stop(&j)
 			return
 		}
 

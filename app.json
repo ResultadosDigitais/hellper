@@ -109,7 +109,7 @@
       "value": "America/Sao_Paulo"
     },
     "HELLPER_SLA_HOURS_TO_CLOSE": {
-      "description": "Number of hours after the resolution of the incident",
+      "description": "Number of hours between the incident resolution and Hellper reminder to close the incident",
       "value": "168"
     },
     "ENFORCE_SSL": {

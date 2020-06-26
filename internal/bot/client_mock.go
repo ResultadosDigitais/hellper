@@ -72,6 +72,16 @@ func (mock *ClientMock) GetUserInfoContext(ctx context.Context, userID string) (
 	return result.(*slack.User), args.Error(1)
 }
 
+func (mock *ClientMock) GetUsersInConversationContext(ctx context.Context, params *slack.GetUsersInConversationParameters) ([]string, string, error) {
+	var (
+		args   = mock.Called(ctx, params)
+		list   = args.Get(0)
+		cursor = args.Get(1)
+		err    = args.Error(2)
+	)
+	return list.([]string), cursor.(string), err
+}
+
 func (mock *ClientMock) SetChannelTopic(channelID, topic string) (string, error) {
 	args := mock.Called(channelID, topic)
 	return args.String(0), args.Error(1)

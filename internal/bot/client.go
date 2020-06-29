@@ -19,4 +19,5 @@ type Client interface {
 	ArchiveChannel(channelID string) error
 	JoinConversation(string) (*slack.Channel, string, []string, error)
 	InviteUsersToConversation(string, ...string) (*slack.Channel, error)
+	GetUsersInConversationContext(context.Context, *slack.GetUsersInConversationParameters) ([]string, string, error)
 }

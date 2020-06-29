@@ -30,7 +30,7 @@ func getLastPin(itens []slack.Item) (result slack.Item, err error) {
 func LastPin(client Client, channelID string) (result slack.Item, err error) {
 	itens, _, err := client.ListPins(channelID)
 	if len(itens) == 0 {
-		return slack.Item{}, errors.New("Lista está vazia")
+		return slack.Item{}, errors.New("The Pinned List Itens is empty")
 	}
 
 	if err != nil {

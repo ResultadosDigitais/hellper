@@ -73,6 +73,13 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 		}
 
 		if incident.Status == model.StatusResolved {
+			now := time.Now()
+			endTS := incident.EndTimestamp
+			diffHours := now.Sub(*endTS)
+			if int(diffHours.Hours()) <= config.Env.SLAHoursToClose {
+				return
+			}
+
 			sendNotification(ctx, logger, client, incident)
 			return
 		}

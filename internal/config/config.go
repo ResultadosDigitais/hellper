@@ -36,6 +36,7 @@ type environment struct {
 	NotifyOnResolve               bool
 	NotifyOnClose                 bool
 	Timezone                      string
+	SLAHoursToClose               int
 }
 
 type messages struct {
@@ -78,6 +79,7 @@ func newEnvironment() environment {
 	vars.BoolVar(&env.NotifyOnResolve, "hellper_notify_on_resolve", true, "Notify the main channel when resolve the incident")
 	vars.BoolVar(&env.NotifyOnClose, "hellper_notify_on_close", true, "Notify the main channel when close the incident")
 	vars.StringVar(&env.Timezone, "timezone", "America/Sao_Paulo", "The local time of a region or a country used to create a event.")
+	vars.IntVar(&env.SLAHoursToClose, "hellper_sla_hours_to_close", 168, "SLA hours to close")
 
 	vars.Parse()
 	env.Messages = newMessages(env.Language)

@@ -88,6 +88,7 @@ cp development.env.example development.env
 |**HELLPER_NOTIFY_ON_CLOSE**|Notify the main channel when close the incident| `true` |
 |**FILE_STORAGE**|Hellper file storage for postmortem document| `google_drive` |
 |**TIMEZONE**|Timezone for Post Mortem Meeting| `America/Sao_Paulo` |
+|**HELLPER_SLA_HOURS_TO_CLOSE**|Number of hours between the incident resolution and Hellper reminder to close the incident.| `168` |
 
 ## Running the Tests
 1. `make test`

@@ -19,7 +19,7 @@ CREATE TABLE public.incident (
 	severity_level int4 NULL,
 	channel_name text NULL,
 	updated_at timestamp NOT NULL DEFAULT now(),
-  snoozed_at timestamptz NULL,
+  snoozed_at timestamp NULL,
 	description_started text NULL,
 	description_cancelled text NULL,
 	description_resolved text NULL,

@@ -38,7 +38,7 @@ func getSlackUserInfo(
 	return &user, err
 }
 
-func getUsersInConversation(
+func getUsersIDsInConversation(
 	ctx context.Context,
 	client bot.Client,
 	logger log.Logger,
@@ -61,7 +61,7 @@ func getUsersInConversation(
 		if err != nil {
 			logger.Error(
 				ctx,
-				"command/user.getUsersInConversation",
+				"command/user.getUsersIDsInConversation",
 				log.NewValue("channelID", channelID),
 				log.NewValue("error", err),
 			)
@@ -76,4 +76,66 @@ func getUsersInConversation(
 	}
 
 	return &members, nil
+}
+
+func getUsersInConversation(
+	ctx context.Context,
+	client bot.Client,
+	logger log.Logger,
+	channelID string,
+) (*[]model.User, error) {
+	var users []model.User
+
+	usersIDs, err := getUsersIDsInConversation(ctx, client, logger, channelID)
+	if err != nil {
+		logger.Error(
+			ctx,
+			"command/user.getUsersInConversation",
+			log.NewValue("channel_id", channelID),
+			log.NewValue("error", err),
+		)
+		return nil, err
+	}
+
+	for _, id := range *usersIDs {
+		user, err := getSlackUserInfo(ctx, client, logger, id)
+		if err != nil {
+			logger.Error(
+				ctx,
+				"command/user.getUsersInConversation",
+				log.NewValue("user_id", id),
+				log.NewValue("error", err),
+			)
+			return nil, err
+		}
+		users = append(users, *user)
+	}
+
+	return &users, err
+}
+
+func getUsersEmailsInConversation(
+	ctx context.Context,
+	client bot.Client,
+	logger log.Logger,
+	channelID string,
+) (*[]string, error) {
+	var emails []string
+
+	users, err := getUsersInConversation(ctx, client, logger, channelID)
+	if err != nil {
+		logger.Error(
+			ctx,
+			"command/user.getUsersEmailsInConversation",
+			log.NewValue("channel_id", channelID),
+			log.NewValue("error", err),
+		)
+		return nil, err
+	}
+
+	for _, user := range *users {
+		emails = append(emails, user.Email)
+	}
+
+	return &emails, err
 }

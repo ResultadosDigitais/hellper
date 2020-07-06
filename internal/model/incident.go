@@ -27,6 +27,7 @@ type Incident struct {
 	SeverityLevel           int64      `db:"severity_level,omitempty"`
 	ChannelName             string     `db:"channel_name,omitempty"`
 	UpdatedAt               *time.Time `db:"updated_at,omitempty"`
+	SnoozedAt               *time.Time `db:"snoozed_at,omitempty"`
 	DescriptionStarted      string     `db:"description_started,omitempty"`
 	DescriptionCancelled    string     `db:"description_cancelled,omitempty"`
 	DescriptionResolved     string     `db:"description_resolved,omitempty"`

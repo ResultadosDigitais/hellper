@@ -33,6 +33,7 @@ func incidentLogValues(inc *model.Incident) []log.Value {
 		log.NewValue("startTime", inc.StartTimestamp),
 		log.NewValue("identificationTime", inc.IdentificationTimestamp),
 		log.NewValue("endTime", inc.EndTimestamp),
+		log.NewValue("snoozedTime", inc.SnoozedAt),
 		log.NewValue("responsibility", inc.Responsibility),
 		log.NewValue("functionality", inc.Functionality),
 		log.NewValue("rootCause", inc.RootCause),

@@ -138,7 +138,7 @@ func ResolveIncidentByDialog(
 	}
 
 	if hasPostMortemMeeting {
-		calendarEvent, err = getCalendarEvent(ctx, logger, repository, calendar, incident.EndTimestamp, channelName, channelID)
+		calendarEvent, err = getCalendarEvent(ctx, client, logger, repository, calendar, incident.EndTimestamp, channelName, channelID)
 		if err != nil {
 			logger.Error(
 				ctx,
@@ -200,6 +200,7 @@ func setMeetingDate(ctx context.Context, logger log.Logger, d *time.Time, postMo
 
 func getCalendarEvent(
 	ctx context.Context,
+	client bot.Client,
 	logger log.Logger,
 	repository model.Repository,
 	calendar calendar.Calendar,
@@ -218,7 +219,7 @@ func getCalendarEvent(
 	}
 
 	summary := "[Post Mortem] " + channelName
-	emails := []string{} //This will be filled in V2
+	emails, _ := getUsersEmailsInConversation(ctx, client, logger, channelID)
 
 	inc, err := repository.GetIncident(ctx, channelID)
 	if err != nil {
@@ -230,7 +231,7 @@ func getCalendarEvent(
 		return nil, err
 	}
 
-	calendarEvent, err := calendar.CreateCalendarEvent(ctx, startMeeting, endMeeting, summary, inc.CommanderEmail, emails)
+	calendarEvent, err := calendar.CreateCalendarEvent(ctx, startMeeting, endMeeting, summary, inc.CommanderEmail, *emails)
 	if err != nil {
 		logger.Error(
 			ctx,

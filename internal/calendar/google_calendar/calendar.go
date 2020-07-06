@@ -82,10 +82,12 @@ func eventDateTime(datetime string) *gCalendar.EventDateTime {
 
 func event(start, end, summary, commander string, emails []string) *gCalendar.Event {
 	var attendees []*gCalendar.EventAttendee
-	for _, email := range emails {
-		attendees = append(attendees, eventAttendee(email, false))
-	}
 	attendees = append(attendees, eventAttendee(commander, true))
+	for _, email := range emails {
+		if email != "" && email != commander {
+			attendees = append(attendees, eventAttendee(email, false))
+		}
+	}
 
 	eventStart := eventDateTime(start)
 	eventEnd := eventDateTime(end)

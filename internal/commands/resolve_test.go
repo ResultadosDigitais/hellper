@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -39,8 +40,10 @@ func (f *resolveCommandFixture) setup(t *testing.T) {
 		clientMock     = bot.NewClientMock()
 		repositoryMock = model.NewRepositoryMock()
 		calendarMock   = calendar.NewCalendarMock()
+		mockUser       = slack.User{}
 	)
 
+	mockUser.ID = "ABC123"
 	f.ctx = context.Background()
 
 	//Logger Mock
@@ -73,6 +76,16 @@ func (f *resolveCommandFixture) setup(t *testing.T) {
 		mock.AnythingOfType("string"),            //channel
 		mock.AnythingOfType("[]slack.MsgOption"), //options
 	).Return("", "", nil)
+	clientMock.On(
+		"GetUsersInConversationContext",
+		f.ctx, //ctx
+		mock.AnythingOfType("*slack.GetUsersInConversationParameters"), //params
+	).Return([]string{""}, "", nil)
+	clientMock.On(
+		"GetUserInfoContext",
+		f.ctx,                         //ctx
+		mock.AnythingOfType("string"), //userID
+	).Return(&mockUser, nil)
 
 	//Repository Mock
 	repositoryMock.On(

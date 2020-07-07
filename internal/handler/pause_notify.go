@@ -64,7 +64,6 @@ func (h *handlerPauseNotify) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	userID := r.FormValue("user_id")
 	triggerID := r.FormValue("trigger_id")
 
-	// err := commands.PauseNotifyIncidentDialog(h.client, triggerID)
 	err := commands.PauseNotifyIncidentDialog(ctx, logger, client, repository, channelID, userID, triggerID)
 	if err != nil {
 		logger.Error(

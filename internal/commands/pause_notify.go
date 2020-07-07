@@ -43,12 +43,23 @@ func PauseNotifyIncidentDialog(ctx context.Context, logger log.Logger, client bo
 		OptionGroups: []slack.DialogOptionGroup{},
 	}
 
+	reason := &slack.TextInputElement{
+		DialogInput: slack.DialogInput{
+			Label:       "Reason",
+			Name:        "pause_notify_reason",
+			Type:        "textarea",
+			Placeholder: "Reason",
+			Optional:    false,
+		},
+		MaxLength: 500,
+	}
+
 	dialog := slack.Dialog{
 		CallbackID:     "inc-pausenotify",
 		Title:          "Pause Notify",
 		SubmitLabel:    "Pause",
 		NotifyOnCancel: false,
-		Elements:       []slack.DialogElement{pauseNotifyTime},
+		Elements:       []slack.DialogElement{pauseNotifyTime, reason},
 	}
 
 	return client.OpenDialog(triggerID, dialog)

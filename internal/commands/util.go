@@ -86,6 +86,22 @@ func PostErrorAttachment(ctx context.Context, client bot.Client, logger log.Logg
 	}
 }
 
+// PostInfoAttachment posts a info attachment on the given channel
+func PostInfoAttachment(ctx context.Context, client bot.Client, channelID string, userID string, title string, message string) {
+	client.PostEphemeralContext(ctx, channelID, userID, slack.MsgOptionAttachments(slack.Attachment{
+		Pretext:  "",
+		Fallback: "",
+		Text:     "",
+		Color:    "#4DA6FE",
+		Fields: []slack.AttachmentField{
+			slack.AttachmentField{
+				Title: title,
+				Value: message,
+			},
+		},
+	}))
+}
+
 func postMessage(client bot.Client, channel string, text string, attachments ...slack.Attachment) error {
 	_, _, err := client.PostMessage(channel, slack.MsgOptionText(text, false), slack.MsgOptionAttachments(attachments...))
 	if err != nil {

@@ -5,6 +5,8 @@ import (
 	"hellper/internal/bot"
 	"hellper/internal/log"
 	"hellper/internal/model"
+	"strconv"
+	"time"
 
 	"github.com/slack-go/slack"
 )
@@ -73,15 +75,61 @@ func PauseNotifyIncidentByDialog(
 	repository model.Repository,
 	incidentDetails bot.DialogSubmission,
 ) error {
+
+	var (
+		channelID             = incidentDetails.Channel.ID
+		userID                = incidentDetails.User.ID
+		submissions           = incidentDetails.Submission
+		pauseNotifyTimeText   = submissions.PauseNotifyTime
+		pauseNotifyReasonText = submissions.PauseNotifyReason
+
+		pauseNotifyTime time.Time
+	)
+
+	days, err := strconv.Atoi(pauseNotifyTimeText)
+	if err != nil {
+		logger.Error(
+			ctx,
+			"command/pauseNotify.PauseNotifyIncidentByDialog strconv.Atoi ERROR",
+			log.NewValue("channelID", channelID),
+			log.NewValue("pauseNotifyTimeText", pauseNotifyTimeText),
+			log.NewValue("error", err),
+		)
+
+		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
+		return err
+	}
+
+	pauseNotifyTime = time.Now().AddDate(0, 0, days)
+
 	logger.Info(
 		ctx,
 		"command/pauseNotify.PauseNotifyIncidentByDialog",
+		log.NewValue("pauseNotifyTimeText", pauseNotifyTimeText),
+		log.NewValue("pauseNotifyReasonText", pauseNotifyReasonText),
+		log.NewValue("pauseNotifyTime", pauseNotifyTime),
 		log.NewValue("incidentDetails", incidentDetails),
-		log.NewValue("repository", repository),
-		log.NewValue("client", client),
 	)
 
-	PostInfoAttachment(ctx, client, incidentDetails.Channel.ID, incidentDetails.User.ID, "Ops", "This command is not ready yet")
+	incident := model.Incident{
+		ChannelId: channelID,
+		SnoozedAt: &pauseNotifyTime,
+	}
+
+	err = repository.PauseNotifyIncident(ctx, &incident)
+	if err != nil {
+		logger.Error(
+			ctx,
+			"command/pauseNotify.PauseNotifyIncidentByDialog PauseNotifyIncident ERROR",
+			log.NewValue("incident", incident),
+			log.NewValue("error", err),
+		)
+
+		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
+		return err
+	}
+
+	PostInfoAttachment(ctx, client, channelID, userID, "Ops", "This command is not ready yet")
 	return nil
 }
 

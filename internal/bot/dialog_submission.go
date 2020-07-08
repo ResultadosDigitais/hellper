@@ -46,4 +46,6 @@ type Submission struct {
 	Impact              string `json:"impact"`
 	StatusIO            string `json:"status_io"`
 	PostMortemMeeting   string `json:"post_mortem_meeting"`
+	PauseNotifyTime     string `json:"pause_notify_time"`
+	PauseNotifyReason   string `json:"pause_notify_reason"`
 }

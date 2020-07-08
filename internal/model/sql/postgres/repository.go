@@ -633,3 +633,64 @@ func GetIncidentStatusFilterQuery() string {
 	WHERE status IN ($1, $2)
 	LIMIT 10`
 }
+
+func (r *repository) PauseNotifyIncident(ctx context.Context, inc *model.Incident) error {
+	r.logger.Info(
+		ctx,
+		"postgres/repository.PauseNotifyIncident INFO",
+		incidentLogValues(inc)...,
+	)
+
+	result, err := r.db.Exec(
+		`UPDATE incident SET
+			snoozed_at = $1
+		WHERE channel_id = $2`,
+		inc.SnoozedAt,
+		inc.ChannelId,
+	)
+	if err != nil {
+		r.logger.Error(
+			ctx,
+			"postgres/repository.PauseNotifyIncident Exec ERROR",
+			append(
+				incidentLogValues(inc),
+				log.NewValue("error", err),
+			)...,
+		)
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		r.logger.Error(
+			ctx,
+			"postgres/repository.PauseNotifyIncident RowsAffected ERROR",
+			append(
+				incidentLogValues(inc),
+				log.NewValue("error", err),
+			)...,
+		)
+		return err
+	}
+
+	if rowsAffected == 0 {
+		err = errors.New("rows not affected")
+		r.logger.Error(
+			ctx,
+			"postgres/repository.PauseNotifyIncident ERROR",
+			append(
+				incidentLogValues(inc),
+				log.NewValue("error", err),
+			)...,
+		)
+		return err
+	}
+
+	r.logger.Info(
+		ctx,
+		"postgres/repository.PauseNotifyIncident SUCCESS",
+		incidentLogValues(inc)...,
+	)
+
+	return nil
+}

@@ -19,6 +19,7 @@ var (
 	cancelHandler      http.Handler
 	resolveHandler     http.Handler
 	datesHandler       http.Handler
+	pauseNotifyHandler http.Handler
 )
 
 func init() {
@@ -31,6 +32,7 @@ func init() {
 	closeHandler = newHandlerClose(logger, client, repository)
 	cancelHandler = newHandlerCancel(logger, client, repository)
 	resolveHandler = newHandlerResolve(logger, client, repository)
+	pauseNotifyHandler = newHandlerPauseNotify(logger, client, repository)
 	commands.StartAllReminderJobs(logger, client, repository)
 }
 
@@ -70,6 +72,8 @@ func NewHandlerRoute() func(http.ResponseWriter, *http.Request) {
 			w.WriteHeader(http.StatusNotImplemented)
 		case "resolve":
 			resolveHandler.ServeHTTP(w, r)
+		case "pause-notify":
+			pauseNotifyHandler.ServeHTTP(w, r)
 		default:
 			fmt.Fprintf(w, "invalid path, %s!", lastPath)
 			w.WriteHeader(http.StatusBadRequest)

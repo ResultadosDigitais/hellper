@@ -90,6 +90,8 @@ func (h *handlerInteractive) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		err = commands.ResolveIncidentByDialog(ctx, h.client, h.logger, h.repository, h.calendar, dialogSubmission)
 	case "inc-dates":
 		err = commands.UpdateDatesByDialog(ctx, h.client, h.logger, h.repository, dialogSubmission)
+	case "inc-pausenotify":
+		err = commands.PauseNotifyIncidentByDialog(ctx, h.client, h.logger, h.repository, dialogSubmission)
 	default:
 		commands.PostErrorAttachment(
 			ctx,

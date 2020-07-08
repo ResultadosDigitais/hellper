@@ -108,7 +108,6 @@ func PauseNotifyIncidentByDialog(
 		log.NewValue("pauseNotifyTimeText", pauseNotifyTimeText),
 		log.NewValue("pauseNotifyReasonText", pauseNotifyReasonText),
 		log.NewValue("pauseNotifyTime", pauseNotifyTime),
-		log.NewValue("incidentDetails", incidentDetails),
 	)
 
 	incident := model.Incident{

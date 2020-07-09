@@ -64,3 +64,8 @@ func (mock *RepositoryMock) UpdateIncidentDates(ctx context.Context, inc *Incide
 	args := mock.Called(ctx, inc)
 	return args.Error(0)
 }
+
+func (mock *RepositoryMock) PauseNotifyIncident(ctx context.Context, inc *Incident) error {
+	args := mock.Called(ctx, inc)
+	return args.Error(0)
+}

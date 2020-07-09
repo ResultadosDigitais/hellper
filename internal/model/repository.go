@@ -11,4 +11,5 @@ type Repository interface {
 	CloseIncident(context.Context, *Incident) error
 	ListActiveIncidents(context.Context) ([]Incident, error)
 	ResolveIncident(context.Context, *Incident) error
+	PauseNotifyIncident(context.Context, *Incident) error
 }

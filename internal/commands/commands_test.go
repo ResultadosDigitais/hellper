@@ -47,7 +47,7 @@ func (scenario *testCommand) setup(t *testing.T) {
 		scenario.trigger.Channel, time.Now().Format(time.RFC3339), nil,
 	)
 	slackMock.On(
-		"InviteUserToChannel", mock.AnythingOfType("string"), mock.AnythingOfType("string"),
+		"InviteUsersToConversationContext", mock.AnythingOfType("context.Context"), mock.AnythingOfType("string"), mock.AnythingOfType("string"),
 	).Return(&mockChannel, nil)
 	slackMock.On("ListPins", mock.AnythingOfType("string")).Return([]slack.Item{}, nil, nil)
 	slackMock.On(

@@ -34,9 +34,9 @@ func (mock *ClientMock) CreateConversationContext(ctx context.Context, channelNa
 	return result.(*slack.Channel), args.Error(1)
 }
 
-func (mock *ClientMock) InviteUserToChannel(channelID string, userID string) (*slack.Channel, error) {
+func (mock *ClientMock) InviteUsersToConversationContext(ctx context.Context, channelID string, users ...string) (*slack.Channel, error) {
 	var (
-		args   = mock.Called(channelID, userID)
+		args   = mock.Called(ctx, channelID, users)
 		result = args.Get(0)
 	)
 	if result == nil {

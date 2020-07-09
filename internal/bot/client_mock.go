@@ -22,14 +22,15 @@ func (mock *ClientMock) PostMessage(
 	return args.String(0), args.String(1), args.Error(2)
 }
 
-func (mock *ClientMock) CreateChannel(name string) (*slack.Channel, error) {
+func (mock *ClientMock) CreateConversationContext(ctx context.Context, channelName string, isPrivate bool) (*slack.Channel, error) {
 	var (
-		args   = mock.Called(name)
+		args   = mock.Called(ctx, channelName, isPrivate)
 		result = args.Get(0)
 	)
 	if result == nil {
 		return nil, args.Error(1)
 	}
+
 	return result.(*slack.Channel), args.Error(1)
 }
 

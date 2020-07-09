@@ -168,9 +168,9 @@ func StartIncidentByDialog(
 		return fmt.Errorf("commands.StartIncidentByDialog.get_slack_user_info: incident=%v commanderId=%v error=%v", channelName, commander, err)
 	}
 
-	channel, err := client.CreateChannel(channelName)
+	channel, err := client.CreateConversationContext(ctx, channelName, false)
 	if err != nil {
-		return fmt.Errorf("commands.StartIncidentByDialog.create_channel: incident=%v error=%v", channelName, err)
+		return fmt.Errorf("commands.StartIncidentByDialog.create_conversation_context: incident=%v error=%v", channelName, err)
 	}
 
 	severityLevelInt64, err := getStringInt64(severityLevel)

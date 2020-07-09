@@ -42,7 +42,7 @@ func (scenario *testCommand) setup(t *testing.T) {
 
 	mockChannel.ID = "mockChannel"
 	mockChannel.Name = "Mock Channel Name"
-	slackMock.On("CreateChannel", mock.AnythingOfType("string")).Return(&mockChannel, nil)
+	slackMock.On("CreateConversationContext", mock.AnythingOfType("context.Context"), mock.AnythingOfType("string"), mock.AnythingOfType("bool")).Return(&mockChannel, nil)
 	slackMock.On("PostMessage", mock.AnythingOfType("string"), mock.Anything).Return(
 		scenario.trigger.Channel, time.Now().Format(time.RFC3339), nil,
 	)

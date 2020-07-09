@@ -9,7 +9,7 @@ import (
 type Client interface {
 	PostEphemeralContext(context.Context, string, string, ...slack.MsgOption) (string, error)
 	PostMessage(string, ...slack.MsgOption) (string, string, error)
-	CreateChannel(string) (*slack.Channel, error)
+	CreateConversationContext(context.Context, string, bool) (*slack.Channel, error)
 	InviteUserToChannel(string, string) (*slack.Channel, error)
 	ListPins(string) ([]slack.Item, *slack.Paging, error)
 	GetUserInfoContext(context.Context, string) (*slack.User, error)

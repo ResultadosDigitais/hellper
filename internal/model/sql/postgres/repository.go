@@ -635,7 +635,7 @@ func GetIncidentStatusFilterQuery() string {
 		, CASE WHEN commander_email IS NULL THEN '' ELSE commander_email END commander_email
 	FROM incident
 	WHERE status IN ($1, $2)
-	LIMIT 10`
+	LIMIT 100`
 }
 
 func (r *repository) PauseNotifyIncident(ctx context.Context, inc *model.Incident) error {

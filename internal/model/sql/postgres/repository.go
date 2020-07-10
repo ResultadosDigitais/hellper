@@ -207,6 +207,7 @@ func (r *repository) GetIncident(ctx context.Context, channelID string) (inc mod
 		&inc.StartTimestamp,
 		&inc.EndTimestamp,
 		&inc.IdentificationTimestamp,
+		&inc.SnoozedAt,
 		&inc.Responsibility,
 		&inc.Functionality,
 		&inc.RootCause,
@@ -240,7 +241,8 @@ func GetIncidentByChannelID() string {
 		, start_ts
 		, end_ts
 		, identification_ts
-		, responsibility
+    , snoozed_at
+    , responsibility
 		, functionality
 		, root_cause
 		, customer_impact
@@ -570,6 +572,7 @@ func (r *repository) ListActiveIncidents(ctx context.Context) ([]model.Incident,
 			&inc.StartTimestamp,
 			&inc.EndTimestamp,
 			&inc.IdentificationTimestamp,
+			&inc.SnoozedAt,
 			&inc.Responsibility,
 			&inc.Functionality,
 			&inc.RootCause,
@@ -616,6 +619,7 @@ func GetIncidentStatusFilterQuery() string {
 		, start_ts
 		, end_ts
 		, identification_ts
+    , snoozed_at
 		, responsibility
 		, functionality
 		, root_cause
@@ -645,7 +649,7 @@ func (r *repository) PauseNotifyIncident(ctx context.Context, inc *model.Inciden
 		`UPDATE incident SET
 			snoozed_at = $1
 		WHERE channel_id = $2`,
-		inc.SnoozedAt,
+		inc.SnoozedAt.Time,
 		inc.ChannelId,
 	)
 	if err != nil {

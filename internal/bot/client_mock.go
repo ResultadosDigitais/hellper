@@ -118,7 +118,3 @@ func (mock *ClientMock) JoinConversationContext(ctx context.Context, channelID s
 	args := mock.Called(ctx, channelID)
 	return args.Get(0).(*slack.Channel), args.String(1), args.Get(2).([]string), args.Error(3)
 }
-
-func (mock *ClientMock) InviteUsersToConversation(string, ...string) (*slack.Channel, error) {
-	return nil, nil
-}

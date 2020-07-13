@@ -234,7 +234,7 @@ func StartIncidentByDialog(
 		return err
 	}
 
-	_, err = client.InviteUsersToConversation(channel.ID, commander)
+	_, err = client.InviteUsersToConversationContext(ctx, channel.ID, commander)
 	if err != nil {
 		logger.Error(
 			ctx,

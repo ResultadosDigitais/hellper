@@ -77,9 +77,7 @@ func CancelIncidentByDialog(ctx context.Context, client bot.Client, logger log.L
 	postAndPinMessage(client, channelID, "", attachment)
 	postAndPinMessage(client, config.Env.ProductChannelID, "", attachment)
 	repository.CancelIncident(ctx, channelID, description)
-	client.ArchiveChannel(channelID)
-
-	client.ArchiveChannel(channelID)
+	client.ArchiveConversationContext(ctx, channelID)
 
 	return nil
 }

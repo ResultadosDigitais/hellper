@@ -104,8 +104,9 @@ func (mock *ClientMock) AddPin(channel string, item slack.ItemRef) error {
 	return args.Error(0)
 }
 
-func (mock *ClientMock) ArchiveChannel(channelID string) error {
-	return nil
+func (mock *ClientMock) ArchiveConversationContext(ctx context.Context, channelID string) error {
+	args := mock.Called(ctx, channelID)
+	return args.Error(0)
 }
 
 func (mock *ClientMock) PostEphemeralContext(ctx context.Context, channelID string, userID string, options ...slack.MsgOption) (string, error) {

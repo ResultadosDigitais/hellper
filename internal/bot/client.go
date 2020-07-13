@@ -16,7 +16,7 @@ type Client interface {
 	SetTopicOfConversationContext(ctx context.Context, channelID, topic string) (*slack.Channel, error)
 	OpenDialog(string, slack.Dialog) error
 	AddPin(string, slack.ItemRef) error
-	ArchiveChannel(channelID string) error
+	ArchiveConversationContext(ctx context.Context, channelID string) error
 	JoinConversation(string) (*slack.Channel, string, []string, error)
 	InviteUsersToConversation(string, ...string) (*slack.Channel, error)
 	GetUsersInConversationContext(context.Context, *slack.GetUsersInConversationParameters) ([]string, string, error)

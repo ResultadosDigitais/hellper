@@ -263,7 +263,7 @@ func createPostMortemAndUpdateTopic(ctx context.Context, logger log.Logger, clie
 	topic.WriteString("*War Room:* " + warRoomURL + "\n\n")
 	topic.WriteString("*Post Mortem URL:* " + postMortemURL + "\n\n")
 
-	_, err = client.SetChannelTopic(channel.ID, topic.String())
+	_, err = client.SetTopicOfConversationContext(ctx, channel.ID, topic.String())
 	if err != nil {
 		logger.Error(
 			ctx,

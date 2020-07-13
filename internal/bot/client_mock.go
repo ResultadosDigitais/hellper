@@ -83,9 +83,15 @@ func (mock *ClientMock) GetUsersInConversationContext(ctx context.Context, param
 	return list.([]string), cursor.(string), err
 }
 
-func (mock *ClientMock) SetChannelTopic(channelID, topic string) (string, error) {
-	args := mock.Called(channelID, topic)
-	return args.String(0), args.Error(1)
+func (mock *ClientMock) SetTopicOfConversationContext(ctx context.Context, channelID, topic string) (*slack.Channel, error) {
+	var (
+		args   = mock.Called(ctx, channelID, topic)
+		result = args.Get(0)
+	)
+	if result == nil {
+		return nil, args.Error(1)
+	}
+	return result.(*slack.Channel), args.Error(1)
 }
 
 func (mock *ClientMock) OpenDialog(triggerID string, dialog slack.Dialog) error {

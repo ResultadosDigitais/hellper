@@ -80,6 +80,7 @@ func PauseNotifyIncidentByDialog(
 	var (
 		channelID             = incidentDetails.Channel.ID
 		userID                = incidentDetails.User.ID
+		userName              = incidentDetails.User.Name
 		submissions           = incidentDetails.Submission
 		pauseNotifyTimeText   = submissions.PauseNotifyTime
 		pauseNotifyReasonText = submissions.PauseNotifyReason
@@ -129,7 +130,7 @@ func PauseNotifyIncidentByDialog(
 		return err
 	}
 
-	PostInfoAttachment(ctx, client, channelID, userID, "Ops", "This command is not ready yet")
+	postAndPinMessage(client, channelID, "Hellper notifications has been paused by <@"+userName+"> until *"+incident.SnoozedAt.Format(time.RFC1123)+"* for the following reason:\n```\n"+pauseNotifyReasonText+"\n```")
 	return nil
 }
 

@@ -222,7 +222,7 @@ func StartIncidentByDialog(
 
 	startReminderStatusJob(ctx, logger, client, repository, incident)
 
-	_, warning, metaWarning, err := client.JoinConversation(channel.ID)
+	_, warning, metaWarning, err := client.JoinConversationContext(ctx, channel.ID)
 	if err != nil {
 		logger.Error(
 			ctx,

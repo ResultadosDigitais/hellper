@@ -216,6 +216,13 @@ func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Lo
 	postAndPinMessage(client, channelID, "", channelAttachment)
 	err = client.ArchiveConversationContext(ctx, channelID)
 	if err != nil {
+		logger.Error(
+			ctx,
+			"command/close.CloseIncidentByDialog ArchiveConversationContext ERROR",
+			log.NewValue("channelID", channelID),
+			log.NewValue("userID", userID),
+			log.NewValue("error", err),
+		)
 		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
 		return err
 	}

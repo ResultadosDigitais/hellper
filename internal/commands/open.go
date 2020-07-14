@@ -168,9 +168,9 @@ func StartIncidentByDialog(
 		return fmt.Errorf("commands.StartIncidentByDialog.get_slack_user_info: incident=%v commanderId=%v error=%v", channelName, commander, err)
 	}
 
-	channel, err := client.CreateChannel(channelName)
+	channel, err := client.CreateConversationContext(ctx, channelName, false)
 	if err != nil {
-		return fmt.Errorf("commands.StartIncidentByDialog.create_channel: incident=%v error=%v", channelName, err)
+		return fmt.Errorf("commands.StartIncidentByDialog.create_conversation_context: incident=%v error=%v", channelName, err)
 	}
 
 	severityLevelInt64, err := getStringInt64(severityLevel)
@@ -222,7 +222,7 @@ func StartIncidentByDialog(
 
 	startReminderStatusJob(ctx, logger, client, repository, incident)
 
-	_, warning, metaWarning, err := client.JoinConversation(channel.ID)
+	_, warning, metaWarning, err := client.JoinConversationContext(ctx, channel.ID)
 	if err != nil {
 		logger.Error(
 			ctx,
@@ -234,7 +234,7 @@ func StartIncidentByDialog(
 		return err
 	}
 
-	_, err = client.InviteUsersToConversation(channel.ID, commander)
+	_, err = client.InviteUsersToConversationContext(ctx, channel.ID, commander)
 	if err != nil {
 		logger.Error(
 			ctx,
@@ -263,7 +263,7 @@ func createPostMortemAndUpdateTopic(ctx context.Context, logger log.Logger, clie
 	topic.WriteString("*War Room:* " + warRoomURL + "\n\n")
 	topic.WriteString("*Post Mortem URL:* " + postMortemURL + "\n\n")
 
-	_, err = client.SetChannelTopic(channel.ID, topic.String())
+	_, err = client.SetTopicOfConversationContext(ctx, channel.ID, topic.String())
 	if err != nil {
 		logger.Error(
 			ctx,

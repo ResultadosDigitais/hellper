@@ -17,6 +17,7 @@ import (
 )
 
 type testCommand struct {
+	ctx            context.Context
 	name           string
 	command        string
 	trigger        TriggerEvent
@@ -39,20 +40,18 @@ func (scenario *testCommand) setup(t *testing.T) {
 		repositoryMock = model.NewRepositoryMock()
 		mockChannel    = slack.Channel{}
 	)
+	scenario.ctx = context.Background()
 
 	mockChannel.ID = "mockChannel"
 	mockChannel.Name = "Mock Channel Name"
-	slackMock.On("CreateChannel", mock.AnythingOfType("string")).Return(&mockChannel, nil)
+	slackMock.On("CreateConversationContext", scenario.ctx, mock.AnythingOfType("string"), mock.AnythingOfType("bool")).Return(&mockChannel, nil)
 	slackMock.On("PostMessage", mock.AnythingOfType("string"), mock.Anything).Return(
 		scenario.trigger.Channel, time.Now().Format(time.RFC3339), nil,
 	)
 	slackMock.On(
-		"InviteUserToChannel", mock.AnythingOfType("string"), mock.AnythingOfType("string"),
+		"InviteUsersToConversationContext", scenario.ctx, mock.AnythingOfType("string"), mock.AnythingOfType("string"),
 	).Return(&mockChannel, nil)
 	slackMock.On("ListPins", mock.AnythingOfType("string")).Return([]slack.Item{}, nil, nil)
-	slackMock.On(
-		"SetChannelTopic", mock.AnythingOfType("string"), mock.AnythingOfType("string"),
-	).Return(scenario.trigger.Channel, nil)
 
 	repositoryMock.On("SetIncident", mock.AnythingOfType("*model.Incident")).Return(nil)
 	repositoryMock.On("GetIncident", mock.AnythingOfType("string")).Return(model.Incident{}, nil)

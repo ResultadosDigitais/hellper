@@ -45,8 +45,10 @@ func (scenario *testHandler) setup(*testing.T) {
 		mock.AnythingOfType("string"),
 		mock.Anything,
 	).Return("mockChannel", time.Now().Format(time.RFC3339), nil)
-	slackMock.On("CreateChannel", mock.AnythingOfType("string")).Return(new(slack.Channel), nil).Once()
-	slackMock.On("InviteUserToChannel",
+	slackMock.On("CreateConversationContext", mock.AnythingOfType("context.Context"), mock.AnythingOfType("string"), mock.AnythingOfType("bool")).Return(new(slack.Channel), nil).Once()
+	slackMock.On(
+		"InviteUsersToConversationContext",
+		mock.AnythingOfType("context.Context"),
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("string"),
 	).Return(

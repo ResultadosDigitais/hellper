@@ -22,20 +22,21 @@ func (mock *ClientMock) PostMessage(
 	return args.String(0), args.String(1), args.Error(2)
 }
 
-func (mock *ClientMock) CreateChannel(name string) (*slack.Channel, error) {
+func (mock *ClientMock) CreateConversationContext(ctx context.Context, channelName string, isPrivate bool) (*slack.Channel, error) {
 	var (
-		args   = mock.Called(name)
+		args   = mock.Called(ctx, channelName, isPrivate)
 		result = args.Get(0)
 	)
 	if result == nil {
 		return nil, args.Error(1)
 	}
+
 	return result.(*slack.Channel), args.Error(1)
 }
 
-func (mock *ClientMock) InviteUserToChannel(channelID string, userID string) (*slack.Channel, error) {
+func (mock *ClientMock) InviteUsersToConversationContext(ctx context.Context, channelID string, users ...string) (*slack.Channel, error) {
 	var (
-		args   = mock.Called(channelID, userID)
+		args   = mock.Called(ctx, channelID, users)
 		result = args.Get(0)
 	)
 	if result == nil {
@@ -82,9 +83,15 @@ func (mock *ClientMock) GetUsersInConversationContext(ctx context.Context, param
 	return list.([]string), cursor.(string), err
 }
 
-func (mock *ClientMock) SetChannelTopic(channelID, topic string) (string, error) {
-	args := mock.Called(channelID, topic)
-	return args.String(0), args.Error(1)
+func (mock *ClientMock) SetTopicOfConversationContext(ctx context.Context, channelID, topic string) (*slack.Channel, error) {
+	var (
+		args   = mock.Called(ctx, channelID, topic)
+		result = args.Get(0)
+	)
+	if result == nil {
+		return nil, args.Error(1)
+	}
+	return result.(*slack.Channel), args.Error(1)
 }
 
 func (mock *ClientMock) OpenDialog(triggerID string, dialog slack.Dialog) error {
@@ -97,8 +104,9 @@ func (mock *ClientMock) AddPin(channel string, item slack.ItemRef) error {
 	return args.Error(0)
 }
 
-func (mock *ClientMock) ArchiveChannel(channelID string) error {
-	return nil
+func (mock *ClientMock) ArchiveConversationContext(ctx context.Context, channelID string) error {
+	args := mock.Called(ctx, channelID)
+	return args.Error(0)
 }
 
 func (mock *ClientMock) PostEphemeralContext(ctx context.Context, channelID string, userID string, options ...slack.MsgOption) (string, error) {
@@ -106,10 +114,7 @@ func (mock *ClientMock) PostEphemeralContext(ctx context.Context, channelID stri
 	return args.String(0), args.Error(1)
 }
 
-func (mock *ClientMock) JoinConversation(string) (*slack.Channel, string, []string, error) {
-	return nil, "", nil, nil
-}
-
-func (mock *ClientMock) InviteUsersToConversation(string, ...string) (*slack.Channel, error) {
-	return nil, nil
+func (mock *ClientMock) JoinConversationContext(ctx context.Context, channelID string) (*slack.Channel, string, []string, error) {
+	args := mock.Called(ctx, channelID)
+	return args.Get(0).(*slack.Channel), args.String(1), args.Get(2).([]string), args.Error(3)
 }

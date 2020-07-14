@@ -75,7 +75,13 @@ func CancelIncidentByDialog(ctx context.Context, client bot.Client, logger log.L
 	}
 
 	postAndPinMessage(client, channelID, "", attachment)
-	postAndPinMessage(client, config.Env.ProductChannelID, "", attachment)
+
+	if config.Env.NotifyOnCancel {
+		// concurrence.WithWaitGroup(&waitgroup, func() {
+		postAndPinMessage(client, config.Env.ProductChannelID, "", attachment)
+		// })
+	}
+
 	repository.CancelIncident(ctx, channelID, description)
 	client.ArchiveConversationContext(ctx, channelID)
 

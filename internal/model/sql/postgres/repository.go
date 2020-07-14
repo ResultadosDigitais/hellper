@@ -331,7 +331,7 @@ func (r *repository) CancelIncident(ctx context.Context, channelID string, descr
 		log.NewValue("descriptionCancel", description),
 	)
 	result, err := r.db.Exec(
-		`UPDATE incident SET status = $1, description = $2 WHERE channel_id = $3`,
+		`UPDATE incident SET status = $1, description_cancelled = $2 WHERE channel_id = $3`,
 		model.StatusCancel,
 		description,
 		channelID,

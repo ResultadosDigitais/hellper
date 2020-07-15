@@ -149,6 +149,7 @@ After [Configuring Slack](/docs/CONFIGURING-SLACK.md) you can use the commands c
 |`/hellper_close`|_Closes Incident_|
 |`/hellper_resolve`|_Resolves Incident_|
 |`/hellper_cancel`|_Cancels Incident_|
+|`/hellper_pause_notify`|_Pauses incident notification_|
 |`/hellper_update_dates`|_Updates the dates for an incident_|
 
 The first command `/hellper_incident` can be use at any channel and/or conversation on Slack. It will open a pop-up for the user to set and start an Incident, creating the channel, meeting room link and post-mortem doc.

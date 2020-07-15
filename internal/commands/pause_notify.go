@@ -113,8 +113,8 @@ func PauseNotifyIncidentByDialog(
 	)
 
 	incident := model.Incident{
-		ChannelId: channelID,
-		SnoozedAt: pauseNotifyTime,
+		ChannelId:    channelID,
+		SnoozedUntil: pauseNotifyTime,
 	}
 
 	err = repository.PauseNotifyIncident(ctx, &incident)
@@ -130,7 +130,7 @@ func PauseNotifyIncidentByDialog(
 		return err
 	}
 
-	postAndPinMessage(client, channelID, "Hellper notifications has been paused by <@"+userName+"> until *"+incident.SnoozedAt.Time.Format(time.RFC1123)+"* for the following reason:\n```\n"+pauseNotifyReasonText+"\n```")
+	postAndPinMessage(client, channelID, "Hellper notifications has been paused by <@"+userName+"> until *"+incident.SnoozedUntil.Time.Format(time.RFC1123)+"* for the following reason:\n```\n"+pauseNotifyReasonText+"\n```")
 	return nil
 }
 

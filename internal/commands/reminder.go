@@ -42,13 +42,13 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 			return
 		}
 
-		snoozedAt := incident.SnoozedAt
-		if snoozedAt.Time.Unix() > time.Now().Unix() {
+		snoozedUntil := incident.SnoozedUntil
+		if snoozedUntil.Time.Unix() > time.Now().Unix() {
 			logger.Info(
 				ctx,
 				"command/reminder.requestStatus isPaused",
 				log.NewValue("channelID", incident.ChannelId),
-				log.NewValue("snoozedAt", snoozedAt.Time),
+				log.NewValue("snoozedUntil", snoozedUntil.Time),
 			)
 			return
 		}

@@ -94,11 +94,12 @@ func event(start, end, summary, commander string, emails []string) *gCalendar.Ev
 	conferenceData := conferenceData()
 
 	return &gCalendar.Event{
-		Attendees:      attendees,
-		Start:          eventStart,
-		End:            eventEnd,
-		Summary:        summary,
-		ConferenceData: conferenceData,
+		Attendees:       attendees,
+		Start:           eventStart,
+		End:             eventEnd,
+		Summary:         summary,
+		ConferenceData:  conferenceData,
+		GuestsCanModify: true,
 	}
 }
 

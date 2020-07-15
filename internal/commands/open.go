@@ -218,7 +218,7 @@ func StartIncidentByDialog(
 	})
 
 	//We need run that without wait because the modal need close in only 3s
-	go createPostMortemAndUpdateTopic(ctx, logger, client, fileStorage, incidentID, repository, channel, warRoomURL)
+	go createPostMortemAndUpdateTopic(model.Incident{}, ctx, logger, client, fileStorage, incidentID, repository, channel, warRoomURL)
 
 	startReminderStatusJob(ctx, logger, client, repository, incident)
 

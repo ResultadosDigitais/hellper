@@ -91,6 +91,7 @@ _* you will receive the same info in your console application too._;
 |`/hellper_close`|https://yourhost.publicaddress.com/close|_Closes Incident_|
 |`/hellper_resolve`|https://yourhost.publicaddress.com/resolve|_Resolves Incident_|
 |`/hellper_cancel`|https://yourhost.publicaddress.com/cancel|_Cancels Incident_|
+|`/hellper_pause_notify`|https://yourhost.publicaddress.com/pause-notify|_Pauses incident notification_|
 |`/hellper_update_dates`|https://yourhost.publicaddress.com/dates|_Updates the dates for an incident_|
 
 - At last, click on the __Save Changes__;

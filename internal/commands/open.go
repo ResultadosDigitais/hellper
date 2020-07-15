@@ -263,16 +263,19 @@ func createPostMortemAndUpdateTopic(ctx context.Context, logger log.Logger, clie
 	// topic.WriteString("*War Room:* " + warRoomURL + "\n\n")
 	// topic.WriteString("*Post Mortem URL:* " + postMortemURL + "\n\n")
 	topic.WriteString("*Commander:* <@" + incident.CommanderId + ">\n\n")
-	logger.Info(ctx, incident.CommanderId)
+	logger.Info(ctx,
+		"teste-commander-id",
+		log.NewValue("error", incident.CommanderId),
+	)
 
-	// _, err = client.SetTopicOfConversation(channel.ID, topic.String())
-	// if err != nil {
-	// 	logger.Error(
-	// 		ctx,
-	// 		"command/open.set_channel_topic_error",
-	// 		log.NewValue("error", err),
-	// 	)
-	// }
+	_, err := client.SetTopicOfConversation(channel.ID, topic.String())
+	if err != nil {
+		logger.Error(
+			ctx,
+			"command/open.set_channel_topic_error",
+			log.NewValue("error", err),
+		)
+	}
 }
 
 func createOpenAttachment(incident model.Incident, incidentID int64, warRoomURL string, supportTeam string) slack.Attachment {

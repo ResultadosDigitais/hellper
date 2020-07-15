@@ -13,7 +13,7 @@ type Client interface {
 	InviteUsersToConversationContext(ctx context.Context, channelID string, users ...string) (*slack.Channel, error)
 	ListPins(string) ([]slack.Item, *slack.Paging, error)
 	GetUserInfoContext(context.Context, string) (*slack.User, error)
-	SetTopicOfConversationContext(ctx context.Context, channelID, topic string) (*slack.Channel, error)
+	SetTopicOfConversation(channelID, topic string) (*slack.Channel, error)
 	OpenDialog(string, slack.Dialog) error
 	AddPin(string, slack.ItemRef) error
 	ArchiveConversationContext(ctx context.Context, channelID string) error

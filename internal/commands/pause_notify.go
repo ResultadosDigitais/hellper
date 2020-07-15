@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"database/sql"
 	"hellper/internal/bot"
 	"hellper/internal/log"
 	"hellper/internal/model"
@@ -84,7 +85,7 @@ func PauseNotifyIncidentByDialog(
 		pauseNotifyTimeText   = submissions.PauseNotifyTime
 		pauseNotifyReasonText = submissions.PauseNotifyReason
 
-		pauseNotifyTime time.Time
+		pauseNotifyTime sql.NullTime
 	)
 
 	days, err := strconv.Atoi(pauseNotifyTimeText)
@@ -101,7 +102,7 @@ func PauseNotifyIncidentByDialog(
 		return err
 	}
 
-	pauseNotifyTime = time.Now().AddDate(0, 0, days)
+	pauseNotifyTime.Time = time.Now().AddDate(0, 0, days)
 
 	logger.Info(
 		ctx,
@@ -113,7 +114,7 @@ func PauseNotifyIncidentByDialog(
 
 	incident := model.Incident{
 		ChannelId: channelID,
-		SnoozedAt: &pauseNotifyTime,
+		SnoozedAt: pauseNotifyTime,
 	}
 
 	err = repository.PauseNotifyIncident(ctx, &incident)
@@ -129,7 +130,7 @@ func PauseNotifyIncidentByDialog(
 		return err
 	}
 
-	postAndPinMessage(client, channelID, "Hellper notifications has been paused by <@"+userName+"> until *"+incident.SnoozedAt.Format(time.RFC1123)+"* for the following reason:\n```\n"+pauseNotifyReasonText+"\n```")
+	postAndPinMessage(client, channelID, "Hellper notifications has been paused by <@"+userName+"> until *"+incident.SnoozedAt.Time.Format(time.RFC1123)+"* for the following reason:\n```\n"+pauseNotifyReasonText+"\n```")
 	return nil
 }
 

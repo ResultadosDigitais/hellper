@@ -38,6 +38,7 @@
 - chat:write
 - mpim:write
 - pins:read
+- pins:write
 - users:read
 - users:read.email
 ```

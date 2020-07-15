@@ -248,27 +248,23 @@ func StartIncidentByDialog(
 }
 
 func createPostMortemAndUpdateTopic(ctx context.Context, logger log.Logger, client bot.Client, fileStorage filestorage.Driver, incident model.Incident, incidentID int64, repository model.Repository, channel *slack.Channel, warRoomURL string) {
-	// postMortemURL, err := createPostMortem(ctx, logger, client, fileStorage, incidentID, channel.Name, repository, channel.Name)
-	// if err != nil {
-	// 	logger.Error(
-	// 		ctx,
-	// 		"command/open.create_post_mortem ERROR",
-	// 		log.NewValue("channel_name", channel.Name),
-	// 		log.NewValue("error", err),
-	// 	)
-	// 	return
-	// }
+	postMortemURL, err := createPostMortem(ctx, logger, client, fileStorage, incidentID, channel.Name, repository, channel.Name)
+	if err != nil {
+		logger.Error(
+			ctx,
+			"command/open.create_post_mortem ERROR",
+			log.NewValue("channel_name", channel.Name),
+			log.NewValue("error", err),
+		)
+		return
+	}
 
 	var topic strings.Builder
-	// topic.WriteString("*War Room:* " + warRoomURL + "\n\n")
-	// topic.WriteString("*Post Mortem URL:* " + postMortemURL + "\n\n")
+	topic.WriteString("*WarRoom:* " + warRoomURL + "\n\n")
+	topic.WriteString("*PostMortem:* " + postMortemURL + "\n\n")
 	topic.WriteString("*Commander:* <@" + incident.CommanderId + ">\n\n")
-	logger.Info(ctx,
-		"teste-commander-id",
-		log.NewValue("error", incident.CommanderId),
-	)
 
-	_, err := client.SetTopicOfConversation(channel.ID, topic.String())
+	_, err = client.SetTopicOfConversation(channel.ID, topic.String())
 	if err != nil {
 		logger.Error(
 			ctx,

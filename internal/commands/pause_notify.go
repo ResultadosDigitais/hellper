@@ -130,7 +130,7 @@ func PauseNotifyIncidentByDialog(
 		return err
 	}
 
-	postAndPinMessage(client, channelID, "Hellper notifications has been paused by <@"+userName+"> until *"+incident.SnoozedUntil.Time.Format(time.RFC1123)+"* for the following reason:\n```\n"+pauseNotifyReasonText+"\n```")
+	postAndPinMessage(client, channelID, "Hellper notifications has been paused by *"+userName+"* until *"+incident.SnoozedUntil.Time.Format(time.RFC1123)+"* for the following reason:\n```\n"+pauseNotifyReasonText+"\n```")
 	return nil
 }
 

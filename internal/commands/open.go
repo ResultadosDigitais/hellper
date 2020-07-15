@@ -218,7 +218,7 @@ func StartIncidentByDialog(
 	})
 
 	//We need run that without wait because the modal need close in only 3s
-	go createPostMortemAndUpdateTopic(incident, ctx, logger, client, fileStorage, incidentID, repository, channel, warRoomURL)
+	go createPostMortemAndUpdateTopic(ctx, logger, client, fileStorage, incident, user.SlackID, incidentID, repository, channel, warRoomURL)
 
 	startReminderStatusJob(ctx, logger, client, repository, incident)
 
@@ -247,7 +247,7 @@ func StartIncidentByDialog(
 	return nil
 }
 
-func createPostMortemAndUpdateTopic(incident model.Incident, ctx context.Context, logger log.Logger, client bot.Client, fileStorage filestorage.Driver, incidentID int64, repository model.Repository, channel *slack.Channel, warRoomURL string) {
+func createPostMortemAndUpdateTopic(ctx context.Context, logger log.Logger, client bot.Client, fileStorage filestorage.Driver, incident model.Incident, userID string, incidentID int64, repository model.Repository, channel *slack.Channel, warRoomURL string) {
 	postMortemURL, err := createPostMortem(ctx, logger, client, fileStorage, incidentID, channel.Name, repository, channel.Name)
 	if err != nil {
 		logger.Error(
@@ -263,6 +263,7 @@ func createPostMortemAndUpdateTopic(incident model.Incident, ctx context.Context
 	topic.WriteString("*War Room:* " + warRoomURL + "\n\n")
 	topic.WriteString("*Post Mortem URL:* " + postMortemURL + "\n\n")
 	topic.WriteString("*Commander:* <@" + incident.CommanderId + ">\n\n")
+	topic.WriteString("*User:* <@" + userID + ">\n\n")
 
 	_, err = client.SetTopicOfConversation(channel.ID, topic.String())
 	if err != nil {

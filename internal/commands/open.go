@@ -1,4 +1,4 @@
-package commands
+opackage commands
 
 import (
 	"context"
@@ -247,7 +247,7 @@ func StartIncidentByDialog(
 	return nil
 }
 
-func createPostMortemAndUpdateTopic(ctx context.Context, logger log.Logger, client bot.Client, fileStorage filestorage.Driver, incidentID int64, CommanderID string, repository model.Repository, channel *slack.Channel, warRoomURL string) {
+func createPostMortemAndUpdateTopic(incident model.Incident, ctx context.Context, logger log.Logger, client bot.Client, fileStorage filestorage.Driver, incidentID int64, repository model.Repository, channel *slack.Channel, warRoomURL string) {
 	postMortemURL, err := createPostMortem(ctx, logger, client, fileStorage, incidentID, channel.Name, repository, channel.Name)
 	if err != nil {
 		logger.Error(
@@ -262,7 +262,7 @@ func createPostMortemAndUpdateTopic(ctx context.Context, logger log.Logger, clie
 	var topic strings.Builder
 	topic.WriteString("*War Room:* " + warRoomURL + "\n\n")
 	topic.WriteString("*Post Mortem URL:* " + postMortemURL + "\n\n")
-	topic.WriteString("*Commander:* <@" + CommanderID + ">\n\n")
+	topic.WriteString("*Commander:* <@" + incident.CommanderId + ">\n\n")
 
 	_, err = client.SetTopicOfConversation(channel.ID, topic.String())
 	if err != nil {

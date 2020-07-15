@@ -33,7 +33,7 @@ func incidentLogValues(inc *model.Incident) []log.Value {
 		log.NewValue("startTime", inc.StartTimestamp),
 		log.NewValue("identificationTime", inc.IdentificationTimestamp),
 		log.NewValue("endTime", inc.EndTimestamp),
-		log.NewValue("snoozedTime", inc.SnoozedAt),
+		log.NewValue("snoozedTime", inc.SnoozedUntil),
 		log.NewValue("responsibility", inc.Responsibility),
 		log.NewValue("functionality", inc.Functionality),
 		log.NewValue("rootCause", inc.RootCause),
@@ -207,7 +207,7 @@ func (r *repository) GetIncident(ctx context.Context, channelID string) (inc mod
 		&inc.StartTimestamp,
 		&inc.EndTimestamp,
 		&inc.IdentificationTimestamp,
-		&inc.SnoozedAt,
+		&inc.SnoozedUntil,
 		&inc.Responsibility,
 		&inc.Functionality,
 		&inc.RootCause,
@@ -241,7 +241,7 @@ func GetIncidentByChannelID() string {
 		, start_ts
 		, end_ts
 		, identification_ts
-    , snoozed_at
+    , snoozed_until
     , responsibility
 		, functionality
 		, root_cause
@@ -572,7 +572,7 @@ func (r *repository) ListActiveIncidents(ctx context.Context) ([]model.Incident,
 			&inc.StartTimestamp,
 			&inc.EndTimestamp,
 			&inc.IdentificationTimestamp,
-			&inc.SnoozedAt,
+			&inc.SnoozedUntil,
 			&inc.Responsibility,
 			&inc.Functionality,
 			&inc.RootCause,
@@ -619,7 +619,7 @@ func GetIncidentStatusFilterQuery() string {
 		, start_ts
 		, end_ts
 		, identification_ts
-    , snoozed_at
+    , snoozed_until
 		, responsibility
 		, functionality
 		, root_cause
@@ -647,9 +647,9 @@ func (r *repository) PauseNotifyIncident(ctx context.Context, inc *model.Inciden
 
 	result, err := r.db.Exec(
 		`UPDATE incident SET
-			snoozed_at = $1
+			snoozed_until = $1
 		WHERE channel_id = $2`,
-		inc.SnoozedAt.Time,
+		inc.SnoozedUntil.Time,
 		inc.ChannelId,
 	)
 	if err != nil {

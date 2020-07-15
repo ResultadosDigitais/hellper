@@ -1,4 +1,4 @@
-opackage commands
+package commands
 
 import (
 	"context"

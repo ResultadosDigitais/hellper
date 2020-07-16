@@ -206,7 +206,7 @@ func StartIncidentByDialog(
 	}
 
 	attachment := createOpenAttachment(incident, incidentID, warRoomURL, supportTeam)
-	message := "An Incident has been opened by <@" + incident.IncidentAuthor + "> *cc:* <!subteam^" + supportTeam + ">"
+	message := "An Incident has been opened by <@" + incident.IncidentAuthor + ">"
 
 	var waitgroup sync.WaitGroup
 	defer waitgroup.Wait()
@@ -287,7 +287,7 @@ func createOpenAttachment(incident model.Incident, incidentID int64, warRoomURL 
 	messageText.WriteString("*cc:* <@" + supportTeam + ">\n")
 
 	return slack.Attachment{
-		Pretext:  "",
+		Pretext:  "*cc:* <!subteam^" + supportTeam + ">",
 		Fallback: messageText.String(),
 		Text:     "",
 		Color:    "#FE4D4D",

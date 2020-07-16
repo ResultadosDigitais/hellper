@@ -29,6 +29,7 @@ func OpenCancelIncidentDialog(
 			ctx,
 			"command/dates.OpenCancelIncidentDialog GetIncident ERROR",
 			log.NewValue("channelID", channelID),
+			log.NewValue("userID", userID),
 			log.NewValue("error", err),
 		)
 
@@ -51,7 +52,21 @@ func OpenCancelIncidentDialog(
 			Fields:   []slack.AttachmentField{},
 		}
 
-		return postMessage(client, channelID, "", attch)
+		_, err = client.PostEphemeralContext(ctx, channelID, userID, slack.MsgOptionAttachments(attch))
+		if err != nil {
+			logger.Error(
+				ctx,
+				"command/dates.OpenCancelIncidentDialog PostEphemeralContext ERROR",
+				log.NewValue("channelID", channelID),
+				log.NewValue("userID", userID),
+				log.NewValue("error", err),
+			)
+
+			PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
+			return err
+		}
+
+		return nil
 	}
 
 	description := &slack.TextInputElement{

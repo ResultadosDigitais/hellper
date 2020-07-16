@@ -206,15 +206,16 @@ func StartIncidentByDialog(
 	}
 
 	attachment := createOpenAttachment(incident, incidentID, warRoomURL, supportTeam)
+	message := "An Incident has been opened by <@" + incident.IncidentAuthor + "> *cc:* <!subteam^" + supportTeam + ">"
 
 	var waitgroup sync.WaitGroup
 	defer waitgroup.Wait()
 
 	concurrence.WithWaitGroup(&waitgroup, func() {
-		postAndPinMessage(client, channel.ID, "", attachment)
+		postAndPinMessage(client, channel.ID, message, attachment)
 	})
 	concurrence.WithWaitGroup(&waitgroup, func() {
-		postAndPinMessage(client, productChannelID, "", attachment)
+		postAndPinMessage(client, productChannelID, message, attachment)
 	})
 
 	//We need run that without wait because the modal need close in only 3s
@@ -288,7 +289,7 @@ func createOpenAttachment(incident model.Incident, incidentID int64, warRoomURL 
 	return slack.Attachment{
 		Pretext:  "",
 		Fallback: messageText.String(),
-		Text:     "An Incident has been opened by <@" + incident.IncidentAuthor + "> *cc:* <!subteam^" + supportTeam + ">",
+		Text:     "",
 		Color:    "#FE4D4D",
 		Fields: []slack.AttachmentField{
 			{

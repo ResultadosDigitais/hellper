@@ -286,9 +286,9 @@ func createOpenAttachment(incident model.Incident, incidentID int64, warRoomURL 
 	messageText.WriteString("*cc:* <@" + supportTeam + ">\n")
 
 	return slack.Attachment{
-		Pretext:  "An Incident has been opened by <@" + incident.IncidentAuthor + "> *cc:* <!subteam^" + supportTeam + ">",
+		Pretext:  "",
 		Fallback: messageText.String(),
-		Text:     "",
+		Text:     "An Incident has been opened by <@" + incident.IncidentAuthor + "> *cc:* <!subteam^" + supportTeam + ">",
 		Color:    "#FE4D4D",
 		Fields: []slack.AttachmentField{
 			{

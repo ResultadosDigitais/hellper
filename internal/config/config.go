@@ -35,6 +35,7 @@ type environment struct {
 	FileStorage                   string
 	NotifyOnResolve               bool
 	NotifyOnClose                 bool
+	NotifyOnCancel                bool
 	Timezone                      string
 	SLAHoursToClose               int
 }
@@ -76,8 +77,9 @@ func newEnvironment() environment {
 	vars.StringVar(&env.ReminderResolvedNotifyMsg, "hellper_reminder_resolved_notify_msg", "Incident Status: Resolved - Update the status of this incident, just pin a message with status on the channel.", "Notify message when status is resolved")
 	vars.StringVar(&env.Environment, "hellper_environment", "", "Hellper current environment")
 	vars.StringVar(&env.FileStorage, "file_storage", "google_drive", "Hellper file storage for postmortem document")
-	vars.BoolVar(&env.NotifyOnResolve, "hellper_notify_on_resolve", true, "Notify the main channel when resolve the incident")
-	vars.BoolVar(&env.NotifyOnClose, "hellper_notify_on_close", true, "Notify the main channel when close the incident")
+	vars.BoolVar(&env.NotifyOnResolve, "hellper_notify_on_resolve", true, "Notify the Product channel when resolve the incident")
+	vars.BoolVar(&env.NotifyOnClose, "hellper_notify_on_close", true, "Notify the Product channel when close the incident")
+	vars.BoolVar(&env.NotifyOnCancel, "hellper_notify_on_cancel", true, "Notify the Product channel when cancel the incident")
 	vars.StringVar(&env.Timezone, "timezone", "America/Sao_Paulo", "The local time of a region or a country used to create a event.")
 	vars.IntVar(&env.SLAHoursToClose, "hellper_sla_hours_to_close", 168, "SLA hours to close")
 

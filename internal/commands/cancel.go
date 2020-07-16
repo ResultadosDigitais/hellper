@@ -74,16 +74,18 @@ func CancelIncidentByDialog(ctx context.Context, client bot.Client, logger log.L
 		},
 	}
 
+	message := "An Incident has been canceled by <@" + incidentAuthor + "> *cc:* <" + config.Env.SupportTeam + ">"
+
 	postAndPinMessage(
 		client,
 		channelID,
-		"An Incident has been canceled by <@"+incidentAuthor+"> *cc:* <"+config.Env.SupportTeam+">",
+		message,
 		attachment,
 	)
 	postAndPinMessage(
 		client,
 		config.Env.ProductChannelID,
-		"An Incident has been canceled by <@"+incidentAuthor+"> *cc:* <"+config.Env.SupportTeam+">",
+		message,
 		attachment,
 	)
 	repository.CancelIncident(ctx, channelID, description)

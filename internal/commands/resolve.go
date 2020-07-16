@@ -156,7 +156,7 @@ func ResolveIncidentByDialog(
 	defer waitgroup.Wait()
 
 	concurrence.WithWaitGroup(&waitgroup, func() {
-		postAndPinMessage(client, channelID, "", channelAttachment)
+		postAndPinMessage(client, channelID, channelAttachment.Pretext, channelAttachment)
 	})
 	if notifyOnResolve {
 		concurrence.WithWaitGroup(&waitgroup, func() {

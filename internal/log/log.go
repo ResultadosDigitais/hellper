@@ -1,6 +1,9 @@
 package log
 
-import "context"
+import (
+	"context"
+	"runtime"
+)
 
 const (
 	//STDOUT any message to stdout
@@ -66,4 +69,12 @@ type Logger interface {
 	Debug(context.Context, string, ...Value)
 	Info(context.Context, string, ...Value)
 	Error(context.Context, string, ...Value)
+}
+
+func Trace() string {
+	pc := make([]uintptr, 15)
+	n := runtime.Callers(2, pc)
+	frames := runtime.CallersFrames(pc[:n])
+	frame, _ := frames.Next()
+	return frame.Function
 }

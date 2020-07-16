@@ -23,19 +23,33 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 		if err != nil {
 			logger.Error(
 				ctx,
-				"command/reminder.requestStatus GetIncident error",
-				log.NewValue("channelID", incident.ChannelId),
+				log.Trace(),
+				log.NewValue("reason", "GetIncident"),
+				log.NewValue("channelId", incident.ChannelId),
+				log.NewValue("channelName", incident.ChannelName),
 				log.NewValue("error", err),
 			)
 			return
 		}
 
+		logger.Info(
+			ctx,
+			log.Trace(),
+			log.NewValue("action", "running"),
+			log.NewValue("channelID", incident.ChannelId),
+			log.NewValue("channelName", incident.ChannelName),
+		)
+
 		if canStopReminder(incident) {
 			logger.Info(
 				ctx,
-				"command/reminder.requestStatus stop",
+				log.Trace(),
+				log.NewValue("action", "do_not_notify"),
+				log.NewValue("reason", "canStopReminder"),
 				log.NewValue("channelID", incident.ChannelId),
-				log.NewValue("job", j),
+				log.NewValue("channelName", incident.ChannelName),
+				log.NewValue("incident.Status", incident.Status),
+				log.NewValue("jobIncident.Status", jobIncident.Status),
 			)
 
 			job.Stop(&j)
@@ -46,8 +60,11 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 		if snoozedUntil.Time.Unix() > time.Now().Unix() {
 			logger.Info(
 				ctx,
-				"command/reminder.requestStatus isPaused",
+				log.Trace(),
+				log.NewValue("action", "do_not_notify"),
+				log.NewValue("reason", "isPaused"),
 				log.NewValue("channelID", incident.ChannelId),
+				log.NewValue("channelName", incident.ChannelName),
 				log.NewValue("snoozedUntil", snoozedUntil.Time),
 			)
 			return
@@ -56,8 +73,11 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 		if incident.Status != jobIncident.Status {
 			logger.Info(
 				ctx,
-				"command/reminder.requestStatus statusChanged updating job",
+				log.Trace(),
+				log.NewValue("action", "do_not_notify"),
+				log.NewValue("reason", "statusChanged"),
 				log.NewValue("channelID", incident.ChannelId),
+				log.NewValue("channelName", incident.ChannelName),
 				log.NewValue("incident.Status", incident.Status),
 				log.NewValue("jobIncident.Status", jobIncident.Status),
 			)
@@ -66,18 +86,14 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 			return
 		}
 
-		logger.Info(
-			ctx,
-			"command/reminder.requestStatus running",
-			log.NewValue("channelID", incident.ChannelId),
-			log.NewValue("job", j),
-		)
 		pin, err := bot.LastPin(client, incident.ChannelId)
 		if err != nil {
 			logger.Error(
 				ctx,
-				"command/reminder.requestStatus LastPin error",
+				log.Trace(),
+				log.NewValue("reason", "LastPin"),
 				log.NewValue("channelID", incident.ChannelId),
+				log.NewValue("channelName", incident.ChannelName),
 				log.NewValue("error", err),
 			)
 			return
@@ -88,6 +104,18 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 			endTS := incident.EndTimestamp
 			diffHours := now.Sub(*endTS)
 			if int(diffHours.Hours()) <= config.Env.SLAHoursToClose {
+				logger.Info(
+					ctx,
+					log.Trace(),
+					log.NewValue("action", "do_not_notify"),
+					log.NewValue("reason", "SLAHoursToClose"),
+					log.NewValue("channelID", incident.ChannelId),
+					log.NewValue("channelName", incident.ChannelName),
+					log.NewValue("incident.Status", incident.Status),
+					log.NewValue("incident.EndTimestamp", incident.EndTimestamp),
+					log.NewValue("SLAHoursToClose", config.Env.SLAHoursToClose),
+					log.NewValue("diffHours", diffHours),
+				)
 				return
 			}
 
@@ -99,30 +127,36 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 		if err != nil {
 			logger.Error(
 				ctx,
-				"command/reminder.requestStatus convertTimestamp error",
+				log.Trace(),
+				log.NewValue("action", "convertTimestamp"),
 				log.NewValue("channelID", incident.ChannelId),
+				log.NewValue("channelName", incident.ChannelName),
 				log.NewValue("error", err),
 			)
 			return
 		}
 
-		if timeMessage.Before(time.Now().Add(-setRecurrence(incident))) {
-			sendNotification(ctx, logger, client, incident)
-			return
-		} else {
+		if timeMessage.After(time.Now().Add(-setRecurrence(incident))) {
 			logger.Info(
 				ctx,
-				"command/reminder.requestStatus OK",
+				log.Trace(),
+				log.NewValue("action", "do_not_notify"),
+				log.NewValue("reason", "last_pin_time"),
 				log.NewValue("channelID", incident.ChannelId),
+				log.NewValue("channelName", incident.ChannelName),
 			)
+			return
 		}
+
+		sendNotification(ctx, logger, client, incident)
 	}
 }
 
 func startReminderStatusJob(ctx context.Context, logger log.Logger, client bot.Client, repository model.Repository, incident model.Incident) {
 	logger.Info(
 		ctx,
-		"command/reminder.startReminderStatusJob",
+		log.Trace(),
+		log.NewValue("action", "running"),
 		log.NewValue("ChannelId", incident.ChannelId),
 		log.NewValue("ChannelName", incident.ChannelName),
 		log.NewValue("Status", incident.Status),
@@ -137,17 +171,14 @@ func startReminderStatusJob(ctx context.Context, logger log.Logger, client bot.C
 // This function is called only once, in the inicialization of the aplication. For new incidents, the startReminderStatusJob is called specifically for that incident.
 func StartAllReminderJobs(logger log.Logger, client bot.Client, repository model.Repository) {
 	ctx := context.Background()
-
-	logger.Info(
-		ctx,
-		"command/reminder.StartAllReminderJobs",
-	)
+	logger.Info(ctx, log.Trace())
 
 	incidents, err := repository.ListActiveIncidents(ctx)
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/reminder.StartAllReminderJobs ListActiveIncidents error",
+			log.Trace(),
+			log.NewValue("action", "ListActiveIncidents"),
 			log.NewValue("error", err),
 		)
 	}
@@ -184,9 +215,22 @@ func sendNotification(ctx context.Context, logger log.Logger, client bot.Client,
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/reminder.requestStatus postMessage error",
+			log.Trace(),
+			log.NewValue("action", "postMessage"),
 			log.NewValue("channelID", incident.ChannelId),
+			log.NewValue("channelName", incident.ChannelName),
+			log.NewValue("incident.Status", incident.Status),
 			log.NewValue("error", err),
 		)
+		return
 	}
+
+	logger.Info(
+		ctx,
+		log.Trace(),
+		log.NewValue("action", "postMessage"),
+		log.NewValue("channelID", incident.ChannelId),
+		log.NewValue("channelName", incident.ChannelName),
+		log.NewValue("incident.Status", incident.Status),
+	)
 }

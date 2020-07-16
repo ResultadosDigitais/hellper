@@ -151,6 +151,7 @@ func ResolveIncidentByDialog(
 
 	channelAttachment := createResolveChannelAttachment(incident, userName, calendarEvent)
 	privateAttachment := createResolvePrivateAttachment(incident, calendarEvent)
+	message := "The Incident <#" + incident.ChannelId + "> has been resolved by <@" + userName + ">"
 
 	var waitgroup sync.WaitGroup
 	defer waitgroup.Wait()
@@ -159,7 +160,7 @@ func ResolveIncidentByDialog(
 		postAndPinMessage(
 			client,
 			channelID,
-			"The Incident <#"+incident.ChannelId+"> has been resolved by <@"+userName+">",
+			message,
 			channelAttachment,
 		)
 	})
@@ -168,7 +169,7 @@ func ResolveIncidentByDialog(
 			postAndPinMessage(
 				client,
 				productChannelID,
-				"The Incident <#"+incident.ChannelId+"> has been resolved by <@"+userName+">",
+				message,
 				channelAttachment,
 			)
 		})

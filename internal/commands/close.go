@@ -200,20 +200,31 @@ func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Lo
 
 	channelAttachment := createCloseChannelAttachment(incident, userName, impact)
 	privateAttachment := createClosePrivateAttachment(incident)
+	message := "The Incident <#" + incident.ChannelId + "> has been closed by <@" + userName + ">"
 
 	var waitgroup sync.WaitGroup
 	defer waitgroup.Wait()
 
 	if notifyOnClose {
 		concurrence.WithWaitGroup(&waitgroup, func() {
-			postAndPinMessage(client, productChannelID, "", channelAttachment)
+			postAndPinMessage(
+				client,
+				productChannelID,
+				message,
+				channelAttachment,
+			)
 		})
 	}
 	concurrence.WithWaitGroup(&waitgroup, func() {
 		postMessage(client, userID, "", privateAttachment)
 	})
 
-	postAndPinMessage(client, channelID, "", channelAttachment)
+	postAndPinMessage(
+		client,
+		channelID,
+		message,
+		channelAttachment,
+	)
 	err = client.ArchiveConversationContext(ctx, channelID)
 	if err != nil {
 		logger.Error(
@@ -253,7 +264,7 @@ func createCloseChannelAttachment(inc model.Incident, userName, impact string) s
 	messageText.WriteString("*Root cause:* `" + inc.RootCause + "`\n\n")
 
 	return slack.Attachment{
-		Pretext:  "The Incident <#" + inc.ChannelId + "> has been closed by <@" + userName + ">",
+		Pretext:  "",
 		Fallback: messageText.String(),
 		Text:     "",
 		Color:    "#6fff47",

@@ -20,23 +20,26 @@
 ---
 
 ## Contents
-1. [Getting Started](#getting-started)
-   * [Prerequisites](#prerequisites)
-   * [Installing](#installing)
-2. [Running the Tests](#running-the-tests)
-3. [Running the Application](#running-the-application)
-4. [Deployment](#deployment)
-5. [Optional Setup](#optional-setup)
-   * [Ngrok (To receive events from Slack)](#ngrok-to-receive-events-from-slack)
-   * [Setup Golang](#setup-golang)
-   * [Setup Database](#setup-database)
-6. [How to use](#how-to-use)
-   * [Commands](#commands)
-   * [Metrics](#metrics)
-7. [Contributing](#contributing)
-8. [Code of Conduct](#code-of-conduct)
-9. [Need help?](#need-help)
-10. [License](#license)
+- [Contents](#contents)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installing](#installing)
+    - [Variables explanation](#variables-explanation)
+- [Running the Tests](#running-the-tests)
+- [Running the application](#running-the-application)
+- [Deployment](#deployment)
+  - [Setup database](#setup-database)
+- [Optional Setup](#optional-setup)
+  - [Ngrok (To receive events from Slack)](#ngrok-to-receive-events-from-slack)
+  - [Golang](#golang)
+  - [Database](#database)
+- [How to use](#how-to-use)
+  - [Commands](#commands)
+  - [Metrics](#metrics)
+- [Contributing](#contributing)
+- [Code of Conduct](#code-of-conduct)
+- [Need help?](#need-help)
+- [License](#license)
 
 
 ## Getting Started
@@ -76,6 +79,9 @@ cp development.env.example development.env
 |**HELLPER_POSTMORTEM_GAP_DAYS**|Gap in days between resolve and postmortem event, by dafault the gap is 5 days if there is no variable| `5` |
 |**HELLPER_MATRIX_HOST**|[Matrix](https://github.com/ResultadosDigitais/matrix) URL host| --- |
 |**HELLPER_PRODUCT_CHANNEL_ID**|The Product channel id used to notify new incidents| --- |
+|**HELLPER_NOTIFY_ON_RESOLVE**|Notify the Product channel when resolve the incident| `true` |
+|**HELLPER_NOTIFY_ON_CLOSE**|Notify the Product channel when close the incident| `true` |
+|**HELLPER_NOTIFY_ON_CANCEL**|Notify the Product channel when cancel the incident| `true` |
 |**HELLPER_SUPPORT_TEAM**|Support team identifier to notify| --- |
 |**HELLPER_PRODUCT_LIST**|List of all products splitted by semicolon| `Product A;Product B;Product C;Product D` |
 |**HELLPER_REMINDER_OPEN_STATUS_SECONDS**|Contains the time for the stat reminder to be triggered in open incidents, by default the time is 2 hours if there is no variable| `7200` |
@@ -84,8 +90,6 @@ cp development.env.example development.env
 |**HELLPER_REMINDER_RESOLVED_NOTIFY_MSG**|Notify message when status is resolved| `Incident Status: Resolved - Update the status of this incident, just pin a message with status on the channel.` |
 |**HELLPER_OAUTH_TOKEN**|[Slack token](/docs/CONFIGURING-SLACK.md#User-Token-Scopes) to exeucte bot user actions| --- |
 |**HELLPER_VERIFICATION_TOKEN**|[Slack token](/docs/CONFIGURING-SLACK.md#User-Token-Scopes) to verify external requests| --- |
-|**HELLPER_NOTIFY_ON_RESOLVE**|Notify the main channel when resolve the incident| `true` |
-|**HELLPER_NOTIFY_ON_CLOSE**|Notify the main channel when close the incident| `true` |
 |**FILE_STORAGE**|Hellper file storage for postmortem document| `google_drive` |
 |**TIMEZONE**|Timezone for Post Mortem Meeting| `America/Sao_Paulo` |
 |**HELLPER_SLA_HOURS_TO_CLOSE**|Number of hours between the incident resolution and Hellper reminder to close the incident.| `168` |

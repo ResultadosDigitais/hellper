@@ -24,8 +24,8 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 			logger.Error(
 				ctx,
 				log.Trace(),
-				log.NewValue("reason", "GetIncident"),
-				log.NewValue("channelId", incident.ChannelId),
+				log.Reason("GetIncident"),
+				log.NewValue("channelID", incident.ChannelId),
 				log.NewValue("channelName", incident.ChannelName),
 				log.NewValue("error", err),
 			)
@@ -35,7 +35,7 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 		logger.Info(
 			ctx,
 			log.Trace(),
-			log.NewValue("action", "running"),
+			log.Action("running"),
 			log.NewValue("channelID", incident.ChannelId),
 			log.NewValue("channelName", incident.ChannelName),
 		)
@@ -44,8 +44,8 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 			logger.Info(
 				ctx,
 				log.Trace(),
-				log.NewValue("action", "do_not_notify"),
-				log.NewValue("reason", "canStopReminder"),
+				log.Action("do_not_notify"),
+				log.Reason("canStopReminder"),
 				log.NewValue("channelID", incident.ChannelId),
 				log.NewValue("channelName", incident.ChannelName),
 				log.NewValue("incident.Status", incident.Status),
@@ -61,8 +61,8 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 			logger.Info(
 				ctx,
 				log.Trace(),
-				log.NewValue("action", "do_not_notify"),
-				log.NewValue("reason", "isPaused"),
+				log.Action("do_not_notify"),
+				log.Reason("isPaused"),
 				log.NewValue("channelID", incident.ChannelId),
 				log.NewValue("channelName", incident.ChannelName),
 				log.NewValue("snoozedUntil", snoozedUntil.Time),
@@ -74,8 +74,8 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 			logger.Info(
 				ctx,
 				log.Trace(),
-				log.NewValue("action", "do_not_notify"),
-				log.NewValue("reason", "statusChanged"),
+				log.Action("do_not_notify"),
+				log.Reason("statusChanged"),
 				log.NewValue("channelID", incident.ChannelId),
 				log.NewValue("channelName", incident.ChannelName),
 				log.NewValue("incident.Status", incident.Status),
@@ -91,7 +91,7 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 			logger.Error(
 				ctx,
 				log.Trace(),
-				log.NewValue("reason", "LastPin"),
+				log.Reason("LastPin"),
 				log.NewValue("channelID", incident.ChannelId),
 				log.NewValue("channelName", incident.ChannelName),
 				log.NewValue("error", err),
@@ -107,8 +107,8 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 				logger.Info(
 					ctx,
 					log.Trace(),
-					log.NewValue("action", "do_not_notify"),
-					log.NewValue("reason", "SLAHoursToClose"),
+					log.Action("do_not_notify"),
+					log.Reason("SLAHoursToClose"),
 					log.NewValue("channelID", incident.ChannelId),
 					log.NewValue("channelName", incident.ChannelName),
 					log.NewValue("incident.Status", incident.Status),
@@ -128,7 +128,7 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 			logger.Error(
 				ctx,
 				log.Trace(),
-				log.NewValue("action", "convertTimestamp"),
+				log.Action("convertTimestamp"),
 				log.NewValue("channelID", incident.ChannelId),
 				log.NewValue("channelName", incident.ChannelName),
 				log.NewValue("error", err),
@@ -140,8 +140,8 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 			logger.Info(
 				ctx,
 				log.Trace(),
-				log.NewValue("action", "do_not_notify"),
-				log.NewValue("reason", "last_pin_time"),
+				log.Action("do_not_notify"),
+				log.Reason("last_pin_time"),
 				log.NewValue("channelID", incident.ChannelId),
 				log.NewValue("channelName", incident.ChannelName),
 			)
@@ -156,8 +156,8 @@ func startReminderStatusJob(ctx context.Context, logger log.Logger, client bot.C
 	logger.Info(
 		ctx,
 		log.Trace(),
-		log.NewValue("action", "running"),
-		log.NewValue("ChannelId", incident.ChannelId),
+		log.Action("running"),
+		log.NewValue("channelID", incident.ChannelId),
 		log.NewValue("ChannelName", incident.ChannelName),
 		log.NewValue("Status", incident.Status),
 		log.NewValue("recurrence", setRecurrence(incident).Seconds()),
@@ -178,7 +178,7 @@ func StartAllReminderJobs(logger log.Logger, client bot.Client, repository model
 		logger.Error(
 			ctx,
 			log.Trace(),
-			log.NewValue("action", "ListActiveIncidents"),
+			log.Action("ListActiveIncidents"),
 			log.NewValue("error", err),
 		)
 	}
@@ -216,7 +216,7 @@ func sendNotification(ctx context.Context, logger log.Logger, client bot.Client,
 		logger.Error(
 			ctx,
 			log.Trace(),
-			log.NewValue("action", "postMessage"),
+			log.Action("postMessage"),
 			log.NewValue("channelID", incident.ChannelId),
 			log.NewValue("channelName", incident.ChannelName),
 			log.NewValue("incident.Status", incident.Status),
@@ -228,7 +228,7 @@ func sendNotification(ctx context.Context, logger log.Logger, client bot.Client,
 	logger.Info(
 		ctx,
 		log.Trace(),
-		log.NewValue("action", "postMessage"),
+		log.Action("postMessage"),
 		log.NewValue("channelID", incident.ChannelId),
 		log.NewValue("channelName", incident.ChannelName),
 		log.NewValue("incident.Status", incident.Status),

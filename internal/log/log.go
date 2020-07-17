@@ -78,3 +78,11 @@ func Trace() string {
 	frame, _ := frames.Next()
 	return frame.Function
 }
+
+func Action(action string) Value {
+	return NewValue("action", action)
+}
+
+func Reason(reason string) Value {
+	return NewValue("reason", reason)
+}

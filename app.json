@@ -53,21 +53,25 @@
       "description": "Matrix host",
       "value": "YOUR_MATRIX_HOST"
     },
-    "HELLPER_NOTIFY_ON_CLOSE": {
-      "description": "Notify the main channel when close the incident",
-      "value": "true"
+    "HELLPER_PRODUCT_CHANNEL_ID": {
+      "description": "The Product channel id",
+      "value": "#your-incident-channel"
     },
     "HELLPER_NOTIFY_ON_RESOLVE": {
-      "description": "Notify the main channel when resolve the incident",
+      "description": "Notify the Product channel when resolve the incident",
+      "value": "true"
+    },
+    "HELLPER_NOTIFY_ON_CLOSE": {
+      "description": "Notify the Product channel when close the incident",
+      "value": "true"
+    },
+    "HELLPER_NOTIFY_ON_CANCEL": {
+      "description": "Notify the Product channel when cancel the incident",
       "value": "true"
     },
     "HELLPER_OAUTH_TOKEN": {
       "description": "Slack Token to execute oauth actions",
       "value": "YOUR_SLACK_OAUTH_TOKEN"
-    },
-    "HELLPER_PRODUCT_CHANNEL_ID": {
-      "description": "The Product channel id",
-      "value": "#your-incident-channel"
     },
     "HELLPER_REMINDER_OPEN_NOTIFY_MSG": {
       "description": "Notify message when status is open",

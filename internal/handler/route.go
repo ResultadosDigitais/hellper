@@ -69,7 +69,8 @@ func NewHandlerRoute() func(http.ResponseWriter, *http.Request) {
 		case "close":
 			closeHandler.ServeHTTP(w, r)
 		case "cancel":
-			w.WriteHeader(http.StatusNotImplemented)
+			// w.WriteHeader(http.StatusNotImplemented)
+			cancelHandler.ServeHTTP(w, r)
 		case "resolve":
 			resolveHandler.ServeHTTP(w, r)
 		case "pause-notify":

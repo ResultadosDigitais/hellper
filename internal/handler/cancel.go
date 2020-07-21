@@ -53,8 +53,10 @@ func (h *handlerCancel) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	)
 
 	tiggerID := r.FormValue("trigger_id")
+	channelID := r.FormValue("channel_id")
+	userID := r.FormValue("user_id")
 
-	err := commands.OpenCancelIncidentDialog(h.client, tiggerID)
+	err := commands.OpenCancelIncidentDialog(ctx, logger, h.client, h.repository, channelID, userID, tiggerID)
 	if err != nil {
 		logger.Error(
 			ctx,

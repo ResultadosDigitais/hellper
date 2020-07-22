@@ -151,16 +151,27 @@ func ResolveIncidentByDialog(
 
 	channelAttachment := createResolveChannelAttachment(incident, userName, calendarEvent)
 	privateAttachment := createResolvePrivateAttachment(incident, calendarEvent)
+	message := "The Incident <#" + incident.ChannelId + "> has been resolved by <@" + userName + ">"
 
 	var waitgroup sync.WaitGroup
 	defer waitgroup.Wait()
 
 	concurrence.WithWaitGroup(&waitgroup, func() {
-		postAndPinMessage(client, channelID, "", channelAttachment)
+		postAndPinMessage(
+			client,
+			channelID,
+			message,
+			channelAttachment,
+		)
 	})
 	if notifyOnResolve {
 		concurrence.WithWaitGroup(&waitgroup, func() {
-			postAndPinMessage(client, productChannelID, "", channelAttachment)
+			postAndPinMessage(
+				client,
+				productChannelID,
+				message,
+				channelAttachment,
+			)
 		})
 	}
 	postMessage(client, userID, "", privateAttachment)
@@ -263,7 +274,7 @@ func createResolveChannelAttachment(inc model.Incident, userName string, event *
 	}
 
 	return slack.Attachment{
-		Pretext:  "The Incident <#" + inc.ChannelId + "> has been resolved by <@" + userName + ">",
+		Pretext:  "",
 		Fallback: messageText.String(),
 		Text:     "",
 		Color:    "#1164A3",

@@ -13,7 +13,62 @@ import (
 )
 
 // OpenCancelIncidentDialog opens a dialog on Slack, so the user can cancel an incident
-func OpenCancelIncidentDialog(client bot.Client, triggerID string) error {
+func OpenCancelIncidentDialog(
+	ctx context.Context,
+	logger log.Logger,
+	client bot.Client,
+	repository model.Repository,
+	channelID string,
+	userID string,
+	triggerID string,
+) error {
+
+	inc, err := repository.GetIncident(ctx, channelID)
+	if err != nil {
+		logger.Error(
+			ctx,
+			"command/dates.OpenCancelIncidentDialog GetIncident ERROR",
+			log.NewValue("channelID", channelID),
+			log.NewValue("userID", userID),
+			log.NewValue("error", err),
+		)
+
+		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
+		return err
+	}
+
+	if inc.Status != model.StatusOpen {
+		message := "The incident <#" + inc.ChannelId + "> is already `" + inc.Status + "`.\n" +
+			"Only a `open` incident can be canceled."
+
+		var messageText strings.Builder
+		messageText.WriteString(message)
+
+		attch := slack.Attachment{
+			Pretext:  "",
+			Fallback: messageText.String(),
+			Text:     message,
+			Color:    "#ff8c00",
+			Fields:   []slack.AttachmentField{},
+		}
+
+		_, err = client.PostEphemeralContext(ctx, channelID, userID, slack.MsgOptionAttachments(attch))
+		if err != nil {
+			logger.Error(
+				ctx,
+				"command/dates.OpenCancelIncidentDialog PostEphemeralContext ERROR",
+				log.NewValue("channelID", channelID),
+				log.NewValue("userID", userID),
+				log.NewValue("error", err),
+			)
+
+			PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
+			return err
+		}
+
+		return nil
+	}
+
 	description := &slack.TextInputElement{
 		DialogInput: slack.DialogInput{
 			Label:       "Description",
@@ -58,7 +113,7 @@ func CancelIncidentByDialog(ctx context.Context, client bot.Client, logger log.L
 	messageText.WriteString("*Description:* `" + description + "`\n\n")
 
 	attachment := slack.Attachment{
-		Pretext:  "An Incident has been canceled by <@" + incidentAuthor + "> *cc:* <" + config.Env.SupportTeam + ">",
+		Pretext:  "",
 		Fallback: messageText.String(),
 		Text:     "",
 		Color:    "#EDA248",
@@ -74,8 +129,20 @@ func CancelIncidentByDialog(ctx context.Context, client bot.Client, logger log.L
 		},
 	}
 
-	postAndPinMessage(client, channelID, "", attachment)
-	postAndPinMessage(client, config.Env.ProductChannelID, "", attachment)
+	message := "An Incident has been canceled by <@" + incidentAuthor + "> *cc:* <" + config.Env.SupportTeam + ">"
+
+	postAndPinMessage(
+		client,
+		channelID,
+		message,
+		attachment,
+	)
+	postAndPinMessage(
+		client,
+		config.Env.ProductChannelID,
+		message,
+		attachment,
+	)
 	repository.CancelIncident(ctx, channelID, description)
 	client.ArchiveConversationContext(ctx, channelID)
 

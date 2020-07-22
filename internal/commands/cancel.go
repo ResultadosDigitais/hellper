@@ -113,7 +113,7 @@ func CancelIncidentByDialog(ctx context.Context, client bot.Client, logger log.L
 	messageText.WriteString("*Description:* `" + description + "`\n\n")
 
 	attachment := slack.Attachment{
-		Pretext:  "An Incident has been canceled by <@" + incidentAuthor + "> *cc:* <" + config.Env.SupportTeam + ">",
+		Pretext:  "",
 		Fallback: messageText.String(),
 		Text:     "",
 		Color:    "#EDA248",
@@ -129,8 +129,20 @@ func CancelIncidentByDialog(ctx context.Context, client bot.Client, logger log.L
 		},
 	}
 
-	postAndPinMessage(client, channelID, "", attachment)
-	postAndPinMessage(client, config.Env.ProductChannelID, "", attachment)
+	message := "An Incident has been canceled by <@" + incidentAuthor + "> *cc:* <" + config.Env.SupportTeam + ">"
+
+	postAndPinMessage(
+		client,
+		channelID,
+		message,
+		attachment,
+	)
+	postAndPinMessage(
+		client,
+		config.Env.ProductChannelID,
+		message,
+		attachment,
+	)
 	repository.CancelIncident(ctx, channelID, description)
 	client.ArchiveConversationContext(ctx, channelID)
 

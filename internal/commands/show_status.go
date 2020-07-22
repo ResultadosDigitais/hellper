@@ -134,8 +134,11 @@ func createStatusAttachment(ctx context.Context, client bot.Client, logger log.L
 			}
 
 			field := slack.AttachmentField{
-				Title: timeMessage.Format(time.RFC1123),
-				Value: attachText,
+				Value: "```" +
+					timeMessage.Format(time.RFC1123) +
+					"\n" +
+					attachText +
+					"```",
 			}
 			fields = append(fields, field)
 		}

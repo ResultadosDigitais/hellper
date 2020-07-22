@@ -43,7 +43,7 @@ func createPostMortem(
 	messageText.WriteString("*Post Mortem URL:* " + postMortemURL + "\n")
 
 	attachment := slack.Attachment{
-		Pretext:  "Post Mortem document created",
+		Pretext:  "",
 		Fallback: messageText.String(),
 		Text:     "",
 		Color:    "#FE4D4D",
@@ -55,7 +55,7 @@ func createPostMortem(
 		},
 	}
 
-	postAndPinMessage(client, channelName, "", attachment)
+	postAndPinMessage(client, channelName, "Post Mortem document created", attachment)
 	return postMortemURL, nil
 }
 

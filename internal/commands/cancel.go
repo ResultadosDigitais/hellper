@@ -101,6 +101,12 @@ func CancelIncidentByDialog(ctx context.Context, client bot.Client, logger log.L
 		log.NewValue("incident_cancel_details", incidentDetails),
 	)
 
+	var (
+		supportTeam      = config.Env.SupportTeam
+		notifyOnCancel   = config.Env.NotifyOnCancel
+		productChannelID = config.Env.ProductChannelID
+	)
+
 	incidentAuthor := incidentDetails.User.ID
 	channelID := incidentDetails.Channel.ID
 	submission := incidentDetails.Submission
@@ -129,7 +135,7 @@ func CancelIncidentByDialog(ctx context.Context, client bot.Client, logger log.L
 		},
 	}
 
-	message := "An Incident has been canceled by <@" + incidentAuthor + "> *cc:* <" + config.Env.SupportTeam + ">"
+	message := "An Incident has been canceled by <@" + incidentAuthor + "> *cc:* <!subteam^" + supportTeam + ">"
 
 	postAndPinMessage(
 		client,
@@ -137,12 +143,15 @@ func CancelIncidentByDialog(ctx context.Context, client bot.Client, logger log.L
 		message,
 		attachment,
 	)
-	postAndPinMessage(
-		client,
-		config.Env.ProductChannelID,
-		message,
-		attachment,
-	)
+	if notifyOnCancel {
+		postAndPinMessage(
+			client,
+			productChannelID,
+			message,
+			attachment,
+		)
+	}
+
 	repository.CancelIncident(ctx, channelID, description)
 	client.ArchiveConversationContext(ctx, channelID)
 

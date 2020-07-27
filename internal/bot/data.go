@@ -4,14 +4,6 @@ import (
 	"github.com/slack-go/slack"
 )
 
-type EmptyPin struct {
-	s string
-}
-
-func (e *EmptyPin) Error() string {
-	return e.s
-}
-
 func getLastPin(itens []slack.Item) slack.Item {
 	var result slack.Item
 	for _, item := range itens {

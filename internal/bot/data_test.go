@@ -23,10 +23,6 @@ type dataFixture struct {
 	listPinsError error
 }
 
-//1. Item, erro nil
-//2. n/a, error
-//3. vazio, erro nil
-
 func (f *dataFixture) setup(t *testing.T) {
 	clientMock := bot.NewClientMock()
 	clientMock.On("ListPins", f.channelID).Return(f.itemList, new(slack.Paging), f.listPinsError)

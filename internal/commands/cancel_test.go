@@ -24,10 +24,10 @@ type cancelCommandFixture struct {
 	mockClient     bot.Client
 	mockRepository model.Repository
 
-	channelID       string
-	userID          string
-	triggerID       string
-	incidentDetails bot.DialogSubmission
+	channelID   string
+	userID      string
+	triggerID   string
+	mockDetails bot.DialogSubmission
 
 	mockIncident model.Incident
 }
@@ -82,6 +82,11 @@ func (f *cancelCommandFixture) setup(t *testing.T) {
 		"AddPin",
 		mock.AnythingOfType("string"),        //channel
 		mock.AnythingOfType("slack.ItemRef"), //item
+	).Return(nil)
+	clientMock.On(
+		"ArchiveConversationContext",
+		f.ctx,
+		f.channelID,
 	).Return(nil)
 
 	f.mockLogger = loggerMock
@@ -145,22 +150,20 @@ func TestOpenCancelIncidentDiolog(t *testing.T) {
 func TestCancelIncidentByDialog(t *testing.T) {
 	table := []cancelCommandFixture{
 		{
-			testName:     "Check error if incident is not open",
-			expectError:  true,
-			errorMessage: "Incident is not open for cancel. The current incident status is resolved",
-			channelID:    "ABCD",
-			userID:       "ABCD",
-			triggerID:    "ABCD",
-			mockIncident: buildCancelIncidentMock(model.StatusResolved),
+			testName:    "test 1",
+			expectError: false,
+			channelID:   "CT50JJGP5",
+			userID:      "U0G9QF9C6",
+			mockDetails: buildCancelIncidentDetails(),
 		},
-		{
-			testName:     "If incident is open, return nil error",
-			expectError:  false,
-			channelID:    "XYZ",
-			userID:       "XYZ",
-			triggerID:    "XYZ",
-			mockIncident: buildCancelIncidentMock(model.StatusOpen),
-		},
+		// {
+		// 	testName:     "If incident is open, return nil error",
+		// 	expectError:  false,
+		// 	channelID:    "XYZ",
+		// 	userID:       "XYZ",
+		// 	triggerID:    "XYZ",
+		// 	mockIncident: buildCancelIncidentMock(model.StatusOpen),
+		// },
 	}
 	for index, f := range table {
 		t.Run(fmt.Sprintf("%v-%v", index, f.testName), func(t *testing.T) {
@@ -171,7 +174,7 @@ func TestCancelIncidentByDialog(t *testing.T) {
 				f.mockLogger,
 				f.mockClient,
 				f.mockRepository,
-				f.incidentDetails,
+				f.mockDetails,
 			)
 
 			if f.expectError {
@@ -222,5 +225,19 @@ func buildCancelIncidentMock(status string) model.Incident {
 		DescriptionCancelled:    "",
 		DescriptionResolved:     "PR was reverted",
 		ChannelId:               "CT50JJGP5",
+	}
+}
+
+func buildCancelIncidentDetails() bot.DialogSubmission {
+	return bot.DialogSubmission{
+		Channel: bot.Channel{
+			ID: "CT50JJGP5",
+		},
+		User: bot.User{
+			ID: "U0G9QF9C6",
+		},
+		Submission: bot.Submission{
+			IncidentDescription: "Incident Canceled!",
+		},
 	}
 }

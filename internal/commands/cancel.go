@@ -120,10 +120,26 @@ func CancelIncidentByDialog(
 		description      = incidentDetails.Submission.IncidentDescription
 	)
 
+	err := repository.CancelIncident(ctx, channelID, description)
+	if err != nil {
+		logger.Error(
+			ctx,
+			log.Trace(),
+			log.Reason("CancelIncident"),
+			log.NewValue("channelID", channelID),
+			log.NewValue("userID", userID),
+			log.NewValue("description", description),
+			log.NewValue("error", err),
+		)
+
+		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
+		return err
+	}
+
 	attachment := createCancelAttachment(channelID, userID, description)
 	message := "An Incident has been canceled by <@" + userID + "> *cc:* <!subteam^" + supportTeam + ">"
 
-	err := postAndPinMessage(
+	err = postAndPinMessage(
 		client,
 		channelID,
 		message,
@@ -162,22 +178,6 @@ func CancelIncidentByDialog(
 			)
 			return err
 		}
-	}
-
-	err = repository.CancelIncident(ctx, channelID, description)
-	if err != nil {
-		logger.Error(
-			ctx,
-			log.Trace(),
-			log.Reason("CancelIncident"),
-			log.NewValue("channelID", channelID),
-			log.NewValue("userID", userID),
-			log.NewValue("description", description),
-			log.NewValue("error", err),
-		)
-
-		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
-		return err
 	}
 
 	err = client.ArchiveConversationContext(ctx, channelID)

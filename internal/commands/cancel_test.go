@@ -73,7 +73,7 @@ func TestOpenCancelIncidentDiolog(t *testing.T) {
 			channelID:    "ABCD",
 			userID:       "ABCD",
 			triggerID:    "ABCD",
-			mockIncident: buildIncidentMock(model.StatusResolved),
+			mockIncident: buildCancelIncidentMock(model.StatusResolved),
 		},
 		{
 			testName:     "If incident is open, return nil error",
@@ -81,7 +81,7 @@ func TestOpenCancelIncidentDiolog(t *testing.T) {
 			channelID:    "XYZ",
 			userID:       "XYZ",
 			triggerID:    "XYZ",
-			mockIncident: buildIncidentMock(model.StatusOpen),
+			mockIncident: buildCancelIncidentMock(model.StatusOpen),
 		},
 	}
 	for index, f := range table {
@@ -116,7 +116,7 @@ func TestOpenCancelIncidentDiolog(t *testing.T) {
 	}
 }
 
-func buildIncidentMock(status string) model.Incident {
+func buildCancelIncidentMock(status string) model.Incident {
 	var (
 		startDate          = time.Date(2020, time.March, 19, 12, 00, 00, 00, time.UTC)
 		identificationDate = time.Date(2020, time.March, 19, 14, 20, 00, 00, time.UTC)

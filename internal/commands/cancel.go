@@ -27,7 +27,8 @@ func OpenCancelIncidentDialog(
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/dates.OpenCancelIncidentDialog GetIncident ERROR",
+			log.Trace(),
+			log.Reason("GetIncident"),
 			log.NewValue("channelID", channelID),
 			log.NewValue("userID", userID),
 			log.NewValue("error", err),
@@ -56,7 +57,8 @@ func OpenCancelIncidentDialog(
 		if err != nil {
 			logger.Error(
 				ctx,
-				"command/dates.OpenCancelIncidentDialog PostEphemeralContext ERROR",
+				log.Trace(),
+				log.Reason("PostEphemeralContext"),
 				log.NewValue("channelID", channelID),
 				log.NewValue("userID", userID),
 				log.NewValue("error", err),
@@ -94,7 +96,13 @@ func OpenCancelIncidentDialog(
 }
 
 // CancelIncidentByDialog cancels an incident after receiving data from a Slack dialog
-func CancelIncidentByDialog(ctx context.Context, client bot.Client, logger log.Logger, repository model.Repository, incidentDetails bot.DialogSubmission) error {
+func CancelIncidentByDialog(
+	ctx context.Context,
+	client bot.Client,
+	logger log.Logger,
+	repository model.Repository,
+	incidentDetails bot.DialogSubmission,
+) error {
 	logger.Info(
 		ctx,
 		"command/cancel.CancelIncidentByDialog",
@@ -105,20 +113,68 @@ func CancelIncidentByDialog(ctx context.Context, client bot.Client, logger log.L
 		supportTeam      = config.Env.SupportTeam
 		notifyOnCancel   = config.Env.NotifyOnCancel
 		productChannelID = config.Env.ProductChannelID
+		userID           = incidentDetails.User.ID
+		channelID        = incidentDetails.Channel.ID
+		description      = incidentDetails.Submission.IncidentDescription
 	)
 
-	incidentAuthor := incidentDetails.User.ID
-	channelID := incidentDetails.Channel.ID
-	submission := incidentDetails.Submission
-	description := submission.IncidentDescription
+	attachment := createCancelAttachment(channelID, userID, description)
+	message := "An Incident has been canceled by <@" + userID + "> *cc:* <!subteam^" + supportTeam + ">"
 
+	err := postAndPinMessage(
+		client,
+		channelID,
+		message,
+		attachment,
+	)
+	if err != nil {
+		logger.Error(
+			ctx,
+			log.Trace(),
+			log.Reason("postAndPinMessage"),
+			log.NewValue("channelID", channelID),
+			log.NewValue("userID", userID),
+			log.NewValue("attachment", attachment),
+			log.NewValue("error", err),
+		)
+		return err
+	}
+
+	if notifyOnCancel {
+		err := postAndPinMessage(
+			client,
+			productChannelID,
+			message,
+			attachment,
+		)
+		if err != nil {
+			logger.Error(
+				ctx,
+				log.Trace(),
+				log.Reason("postAndPinMessage"),
+				log.NewValue("productChannelID", productChannelID),
+				log.NewValue("userID", userID),
+				log.NewValue("attachment", attachment),
+				log.NewValue("error", err),
+			)
+			return err
+		}
+	}
+
+	repository.CancelIncident(ctx, channelID, description)
+	client.ArchiveConversationContext(ctx, channelID)
+
+	return nil
+}
+
+func createCancelAttachment(channelID, userID, description string) slack.Attachment {
 	var messageText strings.Builder
 
-	messageText.WriteString("An Incident has been canceled by <@" + incidentAuthor + ">\n\n")
+	messageText.WriteString("An Incident has been canceled by <@" + userID + ">\n\n")
 	messageText.WriteString("*Channel:* <#" + channelID + ">\n")
 	messageText.WriteString("*Description:* `" + description + "`\n\n")
 
-	attachment := slack.Attachment{
+	return slack.Attachment{
 		Pretext:  "",
 		Fallback: messageText.String(),
 		Text:     "",
@@ -134,26 +190,4 @@ func CancelIncidentByDialog(ctx context.Context, client bot.Client, logger log.L
 			},
 		},
 	}
-
-	message := "An Incident has been canceled by <@" + incidentAuthor + "> *cc:* <!subteam^" + supportTeam + ">"
-
-	postAndPinMessage(
-		client,
-		channelID,
-		message,
-		attachment,
-	)
-	if notifyOnCancel {
-		postAndPinMessage(
-			client,
-			productChannelID,
-			message,
-			attachment,
-		)
-	}
-
-	repository.CancelIncident(ctx, channelID, description)
-	client.ArchiveConversationContext(ctx, channelID)
-
-	return nil
 }

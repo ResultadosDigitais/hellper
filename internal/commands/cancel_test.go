@@ -150,20 +150,12 @@ func TestOpenCancelIncidentDiolog(t *testing.T) {
 func TestCancelIncidentByDialog(t *testing.T) {
 	table := []cancelCommandFixture{
 		{
-			testName:    "test 1",
+			testName:    "Incident canceled properly",
 			expectError: false,
 			channelID:   "CT50JJGP5",
 			userID:      "U0G9QF9C6",
 			mockDetails: buildCancelIncidentDetails(),
 		},
-		// {
-		// 	testName:     "If incident is open, return nil error",
-		// 	expectError:  false,
-		// 	channelID:    "XYZ",
-		// 	userID:       "XYZ",
-		// 	triggerID:    "XYZ",
-		// 	mockIncident: buildCancelIncidentMock(model.StatusOpen),
-		// },
 	}
 	for index, f := range table {
 		t.Run(fmt.Sprintf("%v-%v", index, f.testName), func(t *testing.T) {

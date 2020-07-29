@@ -24,9 +24,10 @@ type cancelCommandFixture struct {
 	mockClient     bot.Client
 	mockRepository model.Repository
 
-	channelID string
-	userID    string
-	triggerID string
+	channelID       string
+	userID          string
+	triggerID       string
+	incidentDetails bot.DialogSubmission
 
 	mockIncident model.Incident
 }
@@ -39,11 +40,25 @@ func (f *cancelCommandFixture) setup(t *testing.T) {
 	)
 	f.ctx = context.Background()
 
+	//LoggerMock
+	loggerMock.On(
+		"Info",
+		f.ctx,
+		mock.AnythingOfType("string"),
+		mock.AnythingOfType("[]log.Value"),
+	).Return()
+
 	//Repository Mock
 	repositoryMock.On(
 		"GetIncident",
 		f.channelID,
 	).Return(f.mockIncident, nil)
+	repositoryMock.On(
+		"CancelIncident",
+		f.ctx,
+		f.channelID,
+		mock.AnythingOfType("string"),
+	).Return(nil)
 
 	//Client Mock
 	clientMock.On(
@@ -57,6 +72,16 @@ func (f *cancelCommandFixture) setup(t *testing.T) {
 		"OpenDialog",
 		f.triggerID,                         //triggerID
 		mock.AnythingOfType("slack.Dialog"), //dialog
+	).Return(nil)
+	clientMock.On(
+		"PostMessage",
+		mock.AnythingOfType("string"),            //channel
+		mock.AnythingOfType("[]slack.MsgOption"), //options
+	).Return("", "", nil)
+	clientMock.On(
+		"AddPin",
+		mock.AnythingOfType("string"),        //channel
+		mock.AnythingOfType("slack.ItemRef"), //item
 	).Return(nil)
 
 	f.mockLogger = loggerMock
@@ -89,12 +114,64 @@ func TestOpenCancelIncidentDiolog(t *testing.T) {
 			f.setup(t)
 
 			err := commands.OpenCancelIncidentDialog(
-				f.ctx, f.mockLogger,
+				f.ctx,
+				f.mockLogger,
 				f.mockClient,
 				f.mockRepository,
 				f.channelID,
 				f.userID,
 				f.triggerID,
+			)
+
+			if f.expectError {
+				if err == nil {
+					t.Fatal("an error was expected, but not occurred")
+				}
+
+				assert.EqualError(t, err, f.errorMessage)
+			} else {
+				if err != nil {
+					t.Fatal(
+						"an error occurred, but was not expected\n",
+						"error: ",
+						err,
+					)
+				}
+			}
+		})
+	}
+}
+
+func TestCancelIncidentByDialog(t *testing.T) {
+	table := []cancelCommandFixture{
+		{
+			testName:     "Check error if incident is not open",
+			expectError:  true,
+			errorMessage: "Incident is not open for cancel. The current incident status is resolved",
+			channelID:    "ABCD",
+			userID:       "ABCD",
+			triggerID:    "ABCD",
+			mockIncident: buildCancelIncidentMock(model.StatusResolved),
+		},
+		{
+			testName:     "If incident is open, return nil error",
+			expectError:  false,
+			channelID:    "XYZ",
+			userID:       "XYZ",
+			triggerID:    "XYZ",
+			mockIncident: buildCancelIncidentMock(model.StatusOpen),
+		},
+	}
+	for index, f := range table {
+		t.Run(fmt.Sprintf("%v-%v", index, f.testName), func(t *testing.T) {
+			f.setup(t)
+
+			err := commands.CancelIncidentByDialog(
+				f.ctx,
+				f.mockLogger,
+				f.mockClient,
+				f.mockRepository,
+				f.incidentDetails,
 			)
 
 			if f.expectError {

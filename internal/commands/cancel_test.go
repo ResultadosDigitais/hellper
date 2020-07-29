@@ -8,6 +8,7 @@ import (
 	"hellper/internal/log"
 	"hellper/internal/model"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -26,6 +27,8 @@ type cancelCommandFixture struct {
 	channelID string
 	userID    string
 	triggerID string
+
+	mockIncident model.Incident
 }
 
 func (f *cancelCommandFixture) setup(t *testing.T) {
@@ -40,7 +43,7 @@ func (f *cancelCommandFixture) setup(t *testing.T) {
 	repositoryMock.On(
 		"GetIncident",
 		f.channelID,
-	).Return(model.Incident{}, nil)
+	).Return(f.mockIncident, nil)
 
 	//Client Mock
 	clientMock.On(
@@ -50,6 +53,11 @@ func (f *cancelCommandFixture) setup(t *testing.T) {
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("[]slack.MsgOption"),
 	).Return("", nil)
+	clientMock.On(
+		"OpenDialog",
+		f.triggerID,                         //triggerID
+		mock.AnythingOfType("slack.Dialog"), //dialog
+	).Return(nil)
 
 	f.mockLogger = loggerMock
 	f.mockClient = clientMock
@@ -59,11 +67,21 @@ func (f *cancelCommandFixture) setup(t *testing.T) {
 func TestOpenCancelIncidentDiolog(t *testing.T) {
 	table := []cancelCommandFixture{
 		{
-			testName:    "Check error if incident is not open",
-			expectError: false,
-			channelID:   "ABCD",
-			userID:      "ABCD",
-			triggerID:   "ABCD",
+			testName:     "Check error if incident is not open",
+			expectError:  true,
+			errorMessage: "Incident is not open for cancel. The current incident status is resolved",
+			channelID:    "ABCD",
+			userID:       "ABCD",
+			triggerID:    "ABCD",
+			mockIncident: buildIncidentMock(model.StatusResolved),
+		},
+		{
+			testName:     "If incident is open, return nil error",
+			expectError:  false,
+			channelID:    "XYZ",
+			userID:       "XYZ",
+			triggerID:    "XYZ",
+			mockIncident: buildIncidentMock(model.StatusOpen),
 		},
 	}
 	for index, f := range table {
@@ -95,5 +113,37 @@ func TestOpenCancelIncidentDiolog(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func buildIncidentMock(status string) model.Incident {
+	var (
+		startDate          = time.Date(2020, time.March, 19, 12, 00, 00, 00, time.UTC)
+		identificationDate = time.Date(2020, time.March, 19, 14, 20, 00, 00, time.UTC)
+		endDate            = time.Date(2020, time.March, 19, 22, 30, 00, 00, time.UTC)
+	)
+
+	return model.Incident{
+		Id:                      0,
+		Title:                   "Incident Dates Command",
+		StartTimestamp:          &startDate,
+		IdentificationTimestamp: &identificationDate,
+		EndTimestamp:            &endDate,
+		Responsibility:          "Product",
+		Team:                    "shield",
+		Functionality:           "hellper",
+		RootCause:               "PR #00",
+		CustomerImpact:          2300,
+		StatusPageUrl:           "status.io",
+		PostMortemUrl:           "google.com",
+		Status:                  status,
+		Product:                 "RDSM",
+		SeverityLevel:           3,
+		ChannelName:             "inc-dates-command",
+		UpdatedAt:               &endDate,
+		DescriptionStarted:      "An incident ocurred with the dates command",
+		DescriptionCancelled:    "",
+		DescriptionResolved:     "PR was reverted",
+		ChannelId:               "CT50JJGP5",
 	}
 }

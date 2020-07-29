@@ -104,6 +104,7 @@ func CancelIncidentByDialog(
 	repository model.Repository,
 	incidentDetails bot.DialogSubmission,
 ) error {
+	//Refatorar esse log
 	logger.Info(
 		ctx,
 		"command/cancel.CancelIncidentByDialog",
@@ -153,6 +154,7 @@ func CancelIncidentByDialog(
 				ctx,
 				log.Trace(),
 				log.Reason("postAndPinMessage"),
+				log.NewValue("channelID", channelID),
 				log.NewValue("productChannelID", productChannelID),
 				log.NewValue("userID", userID),
 				log.NewValue("attachment", attachment),
@@ -162,8 +164,35 @@ func CancelIncidentByDialog(
 		}
 	}
 
-	repository.CancelIncident(ctx, channelID, description)
-	client.ArchiveConversationContext(ctx, channelID)
+	err = repository.CancelIncident(ctx, channelID, description)
+	if err != nil {
+		logger.Error(
+			ctx,
+			log.Trace(),
+			log.Reason("CancelIncident"),
+			log.NewValue("channelID", channelID),
+			log.NewValue("userID", userID),
+			log.NewValue("description", description),
+			log.NewValue("error", err),
+		)
+
+		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
+		return err
+	}
+
+	err = client.ArchiveConversationContext(ctx, channelID)
+	if err != nil {
+		logger.Error(
+			ctx,
+			log.Trace(),
+			log.Reason("ArchiveConversationContext"),
+			log.NewValue("channelID", channelID),
+			log.NewValue("error", err),
+		)
+
+		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
+		return err
+	}
 
 	return nil
 }

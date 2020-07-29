@@ -99,8 +99,8 @@ func OpenCancelIncidentDialog(
 // CancelIncidentByDialog cancels an incident after receiving data from a Slack dialog
 func CancelIncidentByDialog(
 	ctx context.Context,
-	client bot.Client,
 	logger log.Logger,
+	client bot.Client,
 	repository model.Repository,
 	incidentDetails bot.DialogSubmission,
 ) error {

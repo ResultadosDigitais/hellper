@@ -104,11 +104,11 @@ func CancelIncidentByDialog(
 	repository model.Repository,
 	incidentDetails bot.DialogSubmission,
 ) error {
-	//Refatorar esse log
 	logger.Info(
 		ctx,
-		"command/cancel.CancelIncidentByDialog",
-		log.NewValue("incident_cancel_details", incidentDetails),
+		log.Trace(),
+		log.Action("running"),
+		log.NewValue("cancelIncidentDetails", incidentDetails),
 	)
 
 	var (

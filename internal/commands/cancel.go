@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"errors"
 	"strings"
 
 	"hellper/internal/bot"
@@ -68,7 +69,7 @@ func OpenCancelIncidentDialog(
 			return err
 		}
 
-		return nil
+		return errors.New("Incident is not open for cancel. The current incident status is " + inc.Status)
 	}
 
 	description := &slack.TextInputElement{

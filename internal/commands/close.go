@@ -3,6 +3,7 @@ package commands
 import (
 	"context"
 	"hellper/internal/concurrence"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -253,7 +254,7 @@ func getResponsabilityText(r string) string {
 	return ""
 }
 
-func createCloseChannelAttachment(inc model.Incident, userName, impact string) slack.Attachment {
+func createCloseChannelAttachment(inc model.Incident, incidentID int64, userName, impact string) slack.Attachment {
 	var messageText strings.Builder
 	messageText.WriteString("The Incident <#" + inc.ChannelId + "> has been closed by <@" + userName + ">\n\n")
 	messageText.WriteString("*Team:* <#" + inc.Team + ">\n")
@@ -269,31 +270,35 @@ func createCloseChannelAttachment(inc model.Incident, userName, impact string) s
 		Text:     "",
 		Color:    "#6fff47",
 		Fields: []slack.AttachmentField{
-			slack.AttachmentField{
+			{
+				Title: "Incident ID",
+				Value: strconv.FormatInt(incidentID, 10),
+			},
+			{
 				Title: "Incident",
 				Value: "<#" + inc.ChannelId + ">",
 			},
-			slack.AttachmentField{
+			{
 				Title: "Team",
 				Value: inc.Team,
 			},
-			slack.AttachmentField{
+			{
 				Title: "Feature",
 				Value: inc.Functionality,
 			},
-			slack.AttachmentField{
+			{
 				Title: "Impact",
 				Value: impact,
 			},
-			slack.AttachmentField{
+			{
 				Title: "Severity",
 				Value: getSeverityLevelText(inc.SeverityLevel),
 			},
-			slack.AttachmentField{
+			{
 				Title: "Responsibility",
 				Value: inc.Responsibility,
 			},
-			slack.AttachmentField{
+			{
 				Title: "RootCause",
 				Value: inc.RootCause,
 			},

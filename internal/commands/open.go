@@ -293,6 +293,10 @@ func createOpenAttachment(incident model.Incident, incidentID int64, warRoomURL 
 		Color:    "#FE4D4D",
 		Fields: []slack.AttachmentField{
 			{
+				Title: "Incident ID",
+				Value: strconv.FormatInt(incidentID, 10),
+			},
+			{
 				Title: "Severity",
 				Value: getSeverityLevelText(incident.SeverityLevel),
 			},
@@ -315,10 +319,6 @@ func createOpenAttachment(incident model.Incident, incidentID int64, warRoomURL 
 			{
 				Title: "War Room",
 				Value: warRoomURL,
-			},
-			{
-				Title: "Incident ID",
-				Value: strconv.FormatInt(incidentID, 10),
 			},
 		},
 	}

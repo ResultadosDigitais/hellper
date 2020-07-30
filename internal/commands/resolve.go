@@ -254,7 +254,7 @@ func getCalendarEvent(
 	return calendarEvent, err
 }
 
-func createResolveChannelAttachment(inc model.Incident, userName string, event *model.Event) slack.Attachment {
+func createResolveChannelAttachment(inc model.Incident, incidentID int64, userName string, event *model.Event) slack.Attachment {
 	var (
 		endDateText       = inc.EndTimestamp.Format(time.RFC1123)
 		postMortemMessage string
@@ -279,6 +279,10 @@ func createResolveChannelAttachment(inc model.Incident, userName string, event *
 		Text:     "",
 		Color:    "#1164A3",
 		Fields: []slack.AttachmentField{
+			{
+				Title: "Incident ID",
+				Value: strconv.FormatInt(incidentID, 10),
+			},
 			{
 				Title: "Incident",
 				Value: "<#" + inc.ChannelId + ">",

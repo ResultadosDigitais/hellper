@@ -115,7 +115,7 @@ func TestOpenCancelIncidentDialog(t *testing.T) {
 	}
 }
 
-func TestResolveIncidentByDialog(t *testing.T) {
+func TestCancelIncidentByDialog(t *testing.T) {
 	table := []cancelCommandFixture{
 		{
 			testName:        "Incident canceled and description not null",

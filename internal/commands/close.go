@@ -254,7 +254,7 @@ func getResponsabilityText(r string) string {
 	return ""
 }
 
-func createCloseChannelAttachment(inc model.Incident, incidentID int64, userName, impact string) slack.Attachment {
+func createCloseChannelAttachment(inc model.Incident, IncidentID, userName, impact string) slack.Attachment {
 	var messageText strings.Builder
 	messageText.WriteString("The Incident <#" + inc.ChannelId + "> has been closed by <@" + userName + ">\n\n")
 	messageText.WriteString("*Team:* <#" + inc.Team + ">\n")
@@ -272,7 +272,7 @@ func createCloseChannelAttachment(inc model.Incident, incidentID int64, userName
 		Fields: []slack.AttachmentField{
 			{
 				Title: "Incident ID",
-				Value: strconv.FormatInt(incidentID, 10),
+				Value: strconv.FormatInt(inc.Id, 10),
 			},
 			{
 				Title: "Incident",
@@ -318,7 +318,7 @@ func createClosePrivateAttachment(inc model.Incident) slack.Attachment {
 		Color:    "#FE4D4D",
 		Fields: []slack.AttachmentField{
 			slack.AttachmentField{
-				Title: "Statu.io",
+				Title: "Status.io",
 				Value: "Be sure to close the incident on status.io",
 			},
 		},

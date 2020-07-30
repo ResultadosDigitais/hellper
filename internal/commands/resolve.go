@@ -127,6 +127,16 @@ func ResolveIncidentByDialog(
 		return err
 	}
 
+	inc, err := repository.GetIncident(ctx, channelID)
+	if err != nil {
+		logger.Error(
+			ctx,
+			"command/resolve.getCalendarEvent repository.get_incident error",
+			log.NewValue("error", err),
+		)
+		return err
+	}
+
 	hasPostMortemMeeting, err := strconv.ParseBool(postMortemMeeting)
 	if err != nil {
 		logger.Error(
@@ -149,7 +159,7 @@ func ResolveIncidentByDialog(
 		}
 	}
 
-	channelAttachment := createResolveChannelAttachment(incident, userName, calendarEvent)
+	channelAttachment := createResolveChannelAttachment(incident, inc.Id, userName, calendarEvent)
 	privateAttachment := createResolvePrivateAttachment(incident, calendarEvent)
 	message := "The Incident <#" + incident.ChannelId + "> has been resolved by <@" + userName + ">"
 

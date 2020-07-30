@@ -102,40 +102,42 @@ func CancelIncidentByDialog(ctx context.Context, client bot.Client, logger log.L
 	)
 
 	var (
+		messageText strings.Builder
+
 		supportTeam          = config.Env.SupportTeam
 		notifyOnCancel       = config.Env.NotifyOnCancel
 		productChannelID     = config.Env.ProductChannelID
 		incidentAuthor       = incidentDetails.User.ID
 		channelID            = incidentDetails.Channel.ID
 		descriptionCancelled = incidentDetails.Submission.IncidentDescription
-		messageText          strings.Builder
-		incident             = model.Incident{
+
+		incident = model.Incident{
 			IncidentAuthor:       incidentAuthor,
 			DescriptionCancelled: descriptionCancelled,
 			ChannelId:            channelID,
+		}
+
+		attachment = slack.Attachment{
+			Pretext:  "",
+			Fallback: messageText.String(),
+			Text:     "",
+			Color:    "#EDA248",
+			Fields: []slack.AttachmentField{
+				slack.AttachmentField{
+					Title: "Channel",
+					Value: "<#" + channelID + ">",
+				},
+				slack.AttachmentField{
+					Title: "Description",
+					Value: "```" + descriptionCancelled + "```",
+				},
+			},
 		}
 	)
 
 	messageText.WriteString("An Incident has been canceled by <@" + incidentAuthor + ">\n\n")
 	messageText.WriteString("*Channel:* <#" + channelID + ">\n")
 	messageText.WriteString("*Description:* `" + descriptionCancelled + "`\n\n")
-
-	attachment := slack.Attachment{
-		Pretext:  "",
-		Fallback: messageText.String(),
-		Text:     "",
-		Color:    "#EDA248",
-		Fields: []slack.AttachmentField{
-			slack.AttachmentField{
-				Title: "Channel",
-				Value: "<#" + channelID + ">",
-			},
-			slack.AttachmentField{
-				Title: "Description",
-				Value: "```" + descriptionCancelled + "```",
-			},
-		},
-	}
 
 	message := "An Incident has been canceled by <@" + incidentAuthor + "> *cc:* <!subteam^" + supportTeam + ">"
 

@@ -22,7 +22,7 @@ func CloseIncidentDialog(ctx context.Context, logger log.Logger, client bot.Clie
 		logger.Error(
 			ctx,
 			log.Trace(),
-			log.Reason("GetIncident"),
+			log.Reason("CloseIncidentDialog GetIncident"),
 			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
@@ -205,7 +205,7 @@ func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Lo
 		logger.Error(
 			ctx,
 			log.Trace(),
-			log.Reason("CloseIncident"),
+			log.Reason("CloseIncidentByDialog CloseIncident"),
 			log.NewValue("incident", incident),
 			log.NewValue("error", err),
 		)
@@ -217,7 +217,7 @@ func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Lo
 		logger.Error(
 			ctx,
 			log.Trace(),
-			log.Reason("GetIncident"),
+			log.Reason("CloseIncidentByDialog GetIncident"),
 			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
@@ -255,7 +255,8 @@ func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Lo
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/close.CloseIncidentByDialog ArchiveConversationContext ERROR",
+			log.Trace(),
+			log.Reason("CloseIncidentByDialog ArchiveConversationContext"),
 			log.NewValue("channelID", channelID),
 			log.NewValue("userID", userID),
 			log.NewValue("error", err),

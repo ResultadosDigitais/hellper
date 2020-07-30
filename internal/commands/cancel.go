@@ -3,6 +3,7 @@ package commands
 import (
 	"context"
 	"errors"
+	"strconv"
 	"strings"
 
 	"hellper/internal/bot"
@@ -136,7 +137,19 @@ func CancelIncidentByDialog(
 		return err
 	}
 
-	attachment := createCancelAttachment(channelID, userID, description)
+	inc, err := repository.GetIncident(ctx, channelID)
+	if err != nil {
+		logger.Error(
+			ctx,
+			log.Trace(),
+			log.Reason("CancelIncidentByDialog GetIncident"),
+			log.NewValue("channelID", channelID),
+			log.NewValue("error", err),
+		)
+		return err
+	}
+
+	attachment := createCancelAttachment(inc, inc.Id, channelID, userID, description)
 	message := "An Incident has been canceled by <@" + userID + "> *cc:* <!subteam^" + supportTeam + ">"
 
 	err = postAndPinMessage(
@@ -197,7 +210,7 @@ func CancelIncidentByDialog(
 	return nil
 }
 
-func createCancelAttachment(channelID, userID, description string) slack.Attachment {
+func createCancelAttachment(inc model.Incident, incidentID int64, channelID, userID, description string) slack.Attachment {
 	var messageText strings.Builder
 
 	messageText.WriteString("An Incident has been canceled by <@" + userID + ">\n\n")
@@ -210,6 +223,10 @@ func createCancelAttachment(channelID, userID, description string) slack.Attachm
 		Text:     "",
 		Color:    "#EDA248",
 		Fields: []slack.AttachmentField{
+			{
+				Title: "Incident ID",
+				Value: strconv.FormatInt(incidentID, 10),
+			},
 			{
 				Title: "Channel",
 				Value: "<#" + channelID + ">",

@@ -122,7 +122,7 @@ func ResolveIncidentByDialog(
 		logger.Error(
 			ctx,
 			log.Trace(),
-			log.Reason("ResolveIncident"),
+			log.Reason("ResolveIncidentByDialog ResolveIncident"),
 			log.NewValue("incident", incident),
 			log.NewValue("error", err),
 		)
@@ -134,7 +134,7 @@ func ResolveIncidentByDialog(
 		logger.Error(
 			ctx,
 			log.Trace(),
-			log.Reason("GetIncident"),
+			log.Reason("ResolveIncidentByDialog GetIncident"),
 			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
@@ -145,7 +145,8 @@ func ResolveIncidentByDialog(
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/resolve.ResolveIncidentByDialog strconv.parse_bool error",
+			log.Trace(),
+			log.Reason("ResolveIncidentByDialog strconv.ParseBool"),
 			log.NewValue("error", err),
 		)
 		return err
@@ -156,7 +157,8 @@ func ResolveIncidentByDialog(
 		if err != nil {
 			logger.Error(
 				ctx,
-				"command/resolve.ResolveIncidentByDialog get_calendar_event error",
+				log.Trace(),
+				log.Reason("ResolveIncidentByDialog getCalendarEvent"),
 				log.NewValue("error", err),
 			)
 			return err
@@ -209,7 +211,9 @@ func setMeetingDate(ctx context.Context, logger log.Logger, d *time.Time, postMo
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/resolve.setMeetingDate time.load_location error",
+			log.Trace(),
+			log.Reason("setMeetingDate LoadLocation"),
+			log.NewValue("timezone", timezone),
 			log.NewValue("error", err),
 		)
 		return "", "", err
@@ -237,7 +241,8 @@ func getCalendarEvent(
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/resolve.getCalendarEvent set_meeting_date error",
+			log.Trace(),
+			log.Reason("getCalendarEvent setMeetingDate"),
 			log.NewValue("error", err),
 		)
 		return nil, err
@@ -251,7 +256,7 @@ func getCalendarEvent(
 		logger.Error(
 			ctx,
 			log.Trace(),
-			log.Reason("GetIncident"),
+			log.Reason("getCalendarEvent GetIncident"),
 			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
@@ -262,7 +267,8 @@ func getCalendarEvent(
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/resolve.getCalendarEvent calendar.create_calendar_event error",
+			log.Trace(),
+			log.Reason("getCalendarEvent CreateCalendarEvent"),
 			log.NewValue("error", err),
 		)
 		return nil, err

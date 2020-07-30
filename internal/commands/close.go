@@ -26,7 +26,6 @@ func CloseIncidentDialog(ctx context.Context, logger log.Logger, client bot.Clie
 			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
-		return err
 
 		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
 		return err
@@ -341,7 +340,7 @@ func createClosePrivateAttachment(inc model.Incident) slack.Attachment {
 		Text:     "",
 		Color:    "#FE4D4D",
 		Fields: []slack.AttachmentField{
-			slack.AttachmentField{
+			{
 				Title: "Status.io",
 				Value: "Be sure to close the incident on status.io",
 			},

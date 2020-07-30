@@ -21,10 +21,12 @@ func CloseIncidentDialog(ctx context.Context, logger log.Logger, client bot.Clie
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/dates.UpdateDatesDialog GetIncident ERROR",
+			log.Trace(),
+			log.Reason("GetIncident"),
 			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
+		return err
 
 		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
 		return err
@@ -199,6 +201,30 @@ func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Lo
 		ChannelId:      channelID,
 	}
 
+	err = repository.CloseIncident(ctx, &incident)
+	if err != nil {
+		logger.Error(
+			ctx,
+			log.Trace(),
+			log.Reason("CloseIncident"),
+			log.NewValue("incident", incident),
+			log.NewValue("error", err),
+		)
+		return err
+	}
+
+	inc, err := repository.GetIncident(ctx, channelID)
+	if err != nil {
+		logger.Error(
+			ctx,
+			log.Trace(),
+			log.Reason("GetIncident"),
+			log.NewValue("channelID", channelID),
+			log.NewValue("error", err),
+		)
+		return err
+	}
+
 	channelAttachment := createCloseChannelAttachment(incident, inc.Id, userName, impact)
 	privateAttachment := createClosePrivateAttachment(incident)
 	message := "The Incident <#" + incident.ChannelId + "> has been closed by <@" + userName + ">"
@@ -239,19 +265,7 @@ func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Lo
 		return err
 	}
 
-	repository.CloseIncident(ctx, &incident)
-
 	return nil
-}
-
-inc, err := repository.GetIncident(ctx, channelID)
-if err != nil {
-	logger.Error(
-		ctx,
-		"command/resolve.getCalendarEvent repository.get_incident error",
-		log.NewValue("error", err),
-	)
-	return err
 }
 
 func getResponsabilityText(r string) string {

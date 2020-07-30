@@ -121,7 +121,9 @@ func ResolveIncidentByDialog(
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/resolve.ResolveIncidentByDialog repository.resolve_incident error",
+			log.Trace(),
+			log.Reason("ResolveIncident"),
+			log.NewValue("incident", incident),
 			log.NewValue("error", err),
 		)
 		return err
@@ -131,7 +133,9 @@ func ResolveIncidentByDialog(
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/resolve.getCalendarEvent repository.get_incident error",
+			log.Trace(),
+			log.Reason("GetIncident"),
+			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
 		return err
@@ -246,7 +250,9 @@ func getCalendarEvent(
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/resolve.getCalendarEvent repository.get_incident error",
+			log.Trace(),
+			log.Reason("GetIncident"),
+			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
 		return nil, err

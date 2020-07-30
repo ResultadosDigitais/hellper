@@ -37,22 +37,22 @@ func (mock *RepositoryMock) ListActiveIncidents(ctx context.Context) ([]Incident
 
 func (mock *RepositoryMock) AddPostMortemUrl(ctx context.Context, channelName string, postMortemUrl string) error {
 	args := mock.Called(channelName, postMortemUrl)
-	return args.Error(1)
+	return args.Error(0)
 }
 
 func (mock *RepositoryMock) CancelIncident(ctx context.Context, channelID string, description string) error {
-	args := mock.Called(channelID, description)
-	return args.Error(1)
+	args := mock.Called(ctx, channelID, description)
+	return args.Error(0)
 }
 
 func (mock *RepositoryMock) CloseIncident(ctx context.Context, inc *Incident) error {
 	args := mock.Called(inc)
-	return args.Error(1)
+	return args.Error(0)
 }
 
 func (mock *RepositoryMock) InsertIncident(ctx context.Context, inc *Incident) (int64, error) {
 	args := mock.Called(inc)
-	return args.Get(0).(int64), args.Error(0)
+	return args.Get(0).(int64), args.Error(1)
 }
 
 func (mock *RepositoryMock) ResolveIncident(ctx context.Context, inc *Incident) error {

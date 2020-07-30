@@ -66,7 +66,7 @@ func TestUpdateDatesDialog(t *testing.T) {
 			expectError:  false,
 			channelID:    "CT50JJGP5",
 			userID:       "U0G9QF9C6",
-			mockIncident: buildGetIncidentMock(),
+			mockIncident: buildDatesIncidentMock(),
 		},
 		{
 			testName:         "GetIncident error",
@@ -180,7 +180,7 @@ func TestUpdateDatesByDialog(t *testing.T) {
 	}
 }
 
-func buildGetIncidentMock() model.Incident {
+func buildDatesIncidentMock() model.Incident {
 	var (
 		startDate          = time.Date(2020, time.March, 19, 12, 00, 00, 00, time.UTC)
 		identificationDate = time.Date(2020, time.March, 19, 14, 20, 00, 00, time.UTC)

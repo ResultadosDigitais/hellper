@@ -83,7 +83,7 @@ func (h *handlerInteractive) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "inc-close":
 		err = commands.CloseIncidentByDialog(ctx, h.client, h.logger, h.repository, dialogSubmission)
 	case "inc-cancel":
-		err = commands.CancelIncidentByDialog(ctx, h.client, h.logger, h.repository, dialogSubmission)
+		err = commands.CancelIncidentByDialog(ctx, h.logger, h.client, h.repository, dialogSubmission)
 	case "inc-open":
 		err = commands.StartIncidentByDialog(ctx, h.client, h.logger, h.repository, h.fileStorage, dialogSubmission)
 	case "inc-resolve":

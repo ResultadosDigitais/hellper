@@ -325,26 +325,26 @@ func (r *repository) UpdateIncidentDates(ctx context.Context, inc *model.Inciden
 	return nil
 }
 
-func (r *repository) CancelIncident(ctx context.Context, channelID string, description string) error {
+func (r *repository) CancelIncident(ctx context.Context, inc *model.Incident) error {
 	r.logger.Info(
 		ctx,
 		"postgres/repository.CancelIncident INFO",
-		log.NewValue("channelID", channelID),
-		log.NewValue("descriptionCancel", description),
+		log.NewValue("channelID", inc.ChannelId),
+		log.NewValue("descriptionCancel", inc.DescriptionCancelled),
 	)
 	result, err := r.db.Exec(
-		`UPDATE incident SET status = $1, description = $2 WHERE channel_id = $3`,
+		`UPDATE incident SET status = $1, description_cancelled = $2 WHERE channel_id = $3`,
 		model.StatusCancel,
-		description,
-		channelID,
+		inc.DescriptionCancelled,
+		inc.ChannelId,
 	)
 
 	if err != nil {
 		r.logger.Error(
 			ctx,
 			"postgres/repository.CancelIncident ERROR",
-			log.NewValue("channelID", channelID),
-			log.NewValue("description", description),
+			log.NewValue("channelID", inc.ChannelId),
+			log.NewValue("description", inc.DescriptionCancelled),
 			log.NewValue("error", err),
 		)
 		return err
@@ -356,8 +356,8 @@ func (r *repository) CancelIncident(ctx context.Context, channelID string, descr
 		r.logger.Error(
 			ctx,
 			"postgres/repository.CancelIncident ERROR",
-			log.NewValue("channelID", channelID),
-			log.NewValue("description", description),
+			log.NewValue("channelID", inc.ChannelId),
+			log.NewValue("description", inc.DescriptionCancelled),
 			log.NewValue("error", err),
 		)
 
@@ -369,8 +369,8 @@ func (r *repository) CancelIncident(ctx context.Context, channelID string, descr
 		r.logger.Error(
 			ctx,
 			"postgres/repository.CancelIncident ERROR",
-			log.NewValue("channelID", channelID),
-			log.NewValue("description", description),
+			log.NewValue("channelID", inc.ChannelId),
+			log.NewValue("description", inc.DescriptionCancelled),
 			log.NewValue("error", err),
 		)
 
@@ -380,8 +380,8 @@ func (r *repository) CancelIncident(ctx context.Context, channelID string, descr
 	r.logger.Info(
 		ctx,
 		"postgres/repository.CancelIncident SUCCESS",
-		log.NewValue("channelID", channelID),
-		log.NewValue("descriptionCancel", description),
+		log.NewValue("channelID", inc.ChannelId),
+		log.NewValue("descriptionCancel", inc.DescriptionCancelled),
 	)
 	return nil
 }

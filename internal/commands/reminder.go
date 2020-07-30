@@ -9,6 +9,8 @@ import (
 	"hellper/internal/job"
 	"hellper/internal/log"
 	"hellper/internal/model"
+
+	"github.com/slack-go/slack"
 )
 
 var jobs []job.Job
@@ -123,29 +125,31 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 			return
 		}
 
-		timeMessage, err := convertTimestamp(pin.Message.Msg.Timestamp)
-		if err != nil {
-			logger.Error(
-				ctx,
-				log.Trace(),
-				log.Action("convertTimestamp"),
-				log.NewValue("channelID", incident.ChannelId),
-				log.NewValue("channelName", incident.ChannelName),
-				log.NewValue("error", err),
-			)
-			return
-		}
+		if pin != (slack.Item{}) {
+			timeMessage, err := convertTimestamp(pin.Message.Msg.Timestamp)
+			if err != nil {
+				logger.Error(
+					ctx,
+					log.Trace(),
+					log.Action("convertTimestamp"),
+					log.NewValue("channelID", incident.ChannelId),
+					log.NewValue("channelName", incident.ChannelName),
+					log.NewValue("error", err),
+				)
+				return
+			}
 
-		if timeMessage.After(time.Now().Add(-setRecurrence(incident))) {
-			logger.Info(
-				ctx,
-				log.Trace(),
-				log.Action("do_not_notify"),
-				log.Reason("last_pin_time"),
-				log.NewValue("channelID", incident.ChannelId),
-				log.NewValue("channelName", incident.ChannelName),
-			)
-			return
+			if timeMessage.After(time.Now().Add(-setRecurrence(incident))) {
+				logger.Info(
+					ctx,
+					log.Trace(),
+					log.Action("do_not_notify"),
+					log.Reason("last_pin_time"),
+					log.NewValue("channelID", incident.ChannelId),
+					log.NewValue("channelName", incident.ChannelName),
+				)
+				return
+			}
 		}
 
 		sendNotification(ctx, logger, client, incident)

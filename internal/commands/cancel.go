@@ -108,7 +108,7 @@ func CancelIncidentByDialog(
 		ctx,
 		log.Trace(),
 		log.Action("running"),
-		log.NewValue("cancelIncidentDetails", incidentDetails),
+		log.NewValue("incidentDetails", incidentDetails),
 	)
 
 	var (

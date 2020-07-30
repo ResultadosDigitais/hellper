@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"strconv"
 	"strings"
 
 	"hellper/internal/bot"
@@ -94,7 +95,7 @@ func OpenCancelIncidentDialog(
 }
 
 // CancelIncidentByDialog cancels an incident after receiving data from a Slack dialog
-func CancelIncidentByDialog(ctx context.Context, client bot.Client, logger log.Logger, repository model.Repository, incidentDetails bot.DialogSubmission) error {
+func CancelIncidentByDialog(ctx context.Context, client bot.Client, logger log.Logger, repository model.Repository, incidentDetails bot.DialogSubmission, incident model.Incident, IncidentID int64) error {
 	logger.Info(
 		ctx,
 		"command/cancel.CancelIncidentByDialog",
@@ -124,11 +125,15 @@ func CancelIncidentByDialog(ctx context.Context, client bot.Client, logger log.L
 		Text:     "",
 		Color:    "#EDA248",
 		Fields: []slack.AttachmentField{
-			slack.AttachmentField{
+			{
+				Title: "Incident ID",
+				Value: strconv.FormatInt(IncidentID, 10),
+			},
+			{
 				Title: "Channel",
 				Value: "<#" + channelID + ">",
 			},
-			slack.AttachmentField{
+			{
 				Title: "Description",
 				Value: "```" + description + "```",
 			},
@@ -156,4 +161,14 @@ func CancelIncidentByDialog(ctx context.Context, client bot.Client, logger log.L
 	client.ArchiveConversationContext(ctx, channelID)
 
 	return nil
+}
+
+inc, err := repository.GetIncident(ctx, channelID)
+if err != nil {
+	logger.Error(
+		ctx,
+		"command/resolve.getCalendarEvent repository.get_incident error",
+		log.NewValue("error", err),
+	)
+	return err
 }

@@ -3,6 +3,7 @@ package commands
 import (
 	"context"
 	"hellper/internal/concurrence"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -198,7 +199,7 @@ func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Lo
 		ChannelId:      channelID,
 	}
 
-	channelAttachment := createCloseChannelAttachment(incident, userName, impact)
+	channelAttachment := createCloseChannelAttachment(incident, inc.Id, userName, impact)
 	privateAttachment := createClosePrivateAttachment(incident)
 	message := "The Incident <#" + incident.ChannelId + "> has been closed by <@" + userName + ">"
 
@@ -243,6 +244,16 @@ func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Lo
 	return nil
 }
 
+inc, err := repository.GetIncident(ctx, channelID)
+if err != nil {
+	logger.Error(
+		ctx,
+		"command/resolve.getCalendarEvent repository.get_incident error",
+		log.NewValue("error", err),
+	)
+	return err
+}
+
 func getResponsabilityText(r string) string {
 	switch r {
 	case "0":
@@ -253,7 +264,7 @@ func getResponsabilityText(r string) string {
 	return ""
 }
 
-func createCloseChannelAttachment(inc model.Incident, userName, impact string) slack.Attachment {
+func createCloseChannelAttachment(inc model.Incident, incidentID int64, userName, impact string) slack.Attachment {
 	var messageText strings.Builder
 	messageText.WriteString("The Incident <#" + inc.ChannelId + "> has been closed by <@" + userName + ">\n\n")
 	messageText.WriteString("*Team:* <#" + inc.Team + ">\n")
@@ -269,6 +280,10 @@ func createCloseChannelAttachment(inc model.Incident, userName, impact string) s
 		Text:     "",
 		Color:    "#6fff47",
 		Fields: []slack.AttachmentField{
+			{
+				Title: "Incident ID",
+				Value: strconv.FormatInt(incidentID, 10),
+			},
 			{
 				Title: "Incident",
 				Value: "<#" + inc.ChannelId + ">",
@@ -313,7 +328,7 @@ func createClosePrivateAttachment(inc model.Incident) slack.Attachment {
 		Color:    "#FE4D4D",
 		Fields: []slack.AttachmentField{
 			slack.AttachmentField{
-				Title: "Statu.io",
+				Title: "Status.io",
 				Value: "Be sure to close the incident on status.io",
 			},
 		},

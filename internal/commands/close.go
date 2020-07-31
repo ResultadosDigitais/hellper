@@ -178,7 +178,6 @@ func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Lo
 		rootCause        = submissions.RootCause
 		notifyOnClose    = config.Env.NotifyOnClose
 		productChannelID = config.Env.ProductChannelID
-		customerImpact   sql.NullInt64
 	)
 
 	severityLevelInt64, err := getStringInt64(severityLevel)

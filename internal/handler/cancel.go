@@ -60,7 +60,8 @@ func (h *handlerCancel) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger.Error(
 			ctx,
-			"handler/cancel.cancel_dialog_error",
+			log.Trace(),
+			log.Reason("commands.OpenCancelIncidentDialog"),
 			log.NewValue("error", err),
 		)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

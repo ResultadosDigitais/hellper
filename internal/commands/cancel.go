@@ -3,6 +3,7 @@ package commands
 import (
 	"context"
 	"errors"
+	"strconv"
 	"strings"
 
 	"hellper/internal/bot"
@@ -136,7 +137,19 @@ func CancelIncidentByDialog(
 		return err
 	}
 
-	attachment := createCancelAttachment(channelID, userID, description)
+	inc, err := repository.GetIncident(ctx, channelID)
+	if err != nil {
+		logger.Error(
+			ctx,
+			log.Trace(),
+			log.Reason("GetIncident"),
+			log.NewValue("channelID", channelID),
+			log.NewValue("error", err),
+		)
+		return err
+	}
+
+	attachment := createCancelAttachment(inc, userID)
 	message := "An Incident has been canceled by <@" + userID + "> *cc:* <!subteam^" + supportTeam + ">"
 
 	err = postAndPinMessage(
@@ -197,12 +210,12 @@ func CancelIncidentByDialog(
 	return nil
 }
 
-func createCancelAttachment(channelID, userID, description string) slack.Attachment {
+func createCancelAttachment(inc model.Incident, userID string) slack.Attachment {
 	var messageText strings.Builder
 
 	messageText.WriteString("An Incident has been canceled by <@" + userID + ">\n\n")
-	messageText.WriteString("*Channel:* <#" + channelID + ">\n")
-	messageText.WriteString("*Description:* `" + description + "`\n\n")
+	messageText.WriteString("*Channel:* <#" + inc.ChannelId + ">\n")
+	messageText.WriteString("*Description:* `" + inc.DescriptionCancelled + "`\n\n")
 
 	return slack.Attachment{
 		Pretext:  "",
@@ -210,13 +223,17 @@ func createCancelAttachment(channelID, userID, description string) slack.Attachm
 		Text:     "",
 		Color:    "#EDA248",
 		Fields: []slack.AttachmentField{
-			slack.AttachmentField{
-				Title: "Channel",
-				Value: "<#" + channelID + ">",
+			{
+				Title: "Incident ID",
+				Value: strconv.FormatInt(inc.Id, 10),
 			},
-			slack.AttachmentField{
+			{
+				Title: "Channel",
+				Value: "<#" + inc.ChannelId + ">",
+			},
+			{
 				Title: "Description",
-				Value: "```" + description + "```",
+				Value: "```" + inc.DescriptionCancelled + "```",
 			},
 		},
 	}

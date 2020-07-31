@@ -156,12 +156,14 @@ func TestResolveIncidentByDialog(t *testing.T) {
 			incidentDetails: buildSubmissionMock("true"),
 			channelID:       "CT50JJGP5",
 			mockEvent:       buildEventMock(),
+			mockIncident:    buildResolveIncidentMock(),
 		},
 		{
 			testName:        "Incident Resolved without PM Meeting",
 			expectError:     false,
 			incidentDetails: buildSubmissionMock("false"),
 			channelID:       "CT50JJGP5",
+			mockIncident:    buildResolveIncidentMock(),
 		},
 		{
 			testName:        "Incident Resolved without PM conditional",
@@ -170,6 +172,7 @@ func TestResolveIncidentByDialog(t *testing.T) {
 			incidentDetails: buildSubmissionMock(""),
 			channelID:       "CT50JJGP5",
 			mockEvent:       buildEventMock(),
+			mockIncident:    buildResolveIncidentMock(),
 		},
 	}
 
@@ -195,6 +198,38 @@ func TestResolveIncidentByDialog(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func buildResolveIncidentMock() model.Incident {
+	var (
+		startDate          = time.Date(2020, time.March, 19, 12, 00, 00, 00, time.UTC)
+		identificationDate = time.Date(2020, time.March, 19, 14, 20, 00, 00, time.UTC)
+		endDate            = time.Date(2020, time.March, 19, 22, 30, 00, 00, time.UTC)
+	)
+
+	return model.Incident{
+		Id:                      0,
+		Title:                   "Incident Dates Command",
+		StartTimestamp:          &startDate,
+		IdentificationTimestamp: &identificationDate,
+		EndTimestamp:            &endDate,
+		Responsibility:          "Product",
+		Team:                    "shield",
+		Functionality:           "hellper",
+		RootCause:               "PR #00",
+		CustomerImpact:          2300,
+		StatusPageUrl:           "status.io",
+		PostMortemUrl:           "google.com",
+		Status:                  "open",
+		Product:                 "RDSM",
+		SeverityLevel:           3,
+		ChannelName:             "inc-dates-command",
+		UpdatedAt:               &endDate,
+		DescriptionStarted:      "An incident ocurred with the dates command",
+		DescriptionCancelled:    "",
+		DescriptionResolved:     "PR was reverted",
+		ChannelId:               "CT50JJGP5",
 	}
 }
 

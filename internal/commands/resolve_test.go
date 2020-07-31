@@ -156,12 +156,14 @@ func TestResolveIncidentByDialog(t *testing.T) {
 			incidentDetails: buildSubmissionMock("true"),
 			channelID:       "CT50JJGP5",
 			mockEvent:       buildEventMock(),
+			mockIncident:    buildResolveIncidentMock(),
 		},
 		{
 			testName:        "Incident Resolved without PM Meeting",
 			expectError:     false,
 			incidentDetails: buildSubmissionMock("false"),
 			channelID:       "CT50JJGP5",
+			mockIncident:    buildResolveIncidentMock(),
 		},
 		{
 			testName:        "Incident Resolved without PM conditional",
@@ -170,6 +172,7 @@ func TestResolveIncidentByDialog(t *testing.T) {
 			incidentDetails: buildSubmissionMock(""),
 			channelID:       "CT50JJGP5",
 			mockEvent:       buildEventMock(),
+			mockIncident:    buildResolveIncidentMock(),
 		},
 	}
 
@@ -198,7 +201,7 @@ func TestResolveIncidentByDialog(t *testing.T) {
 	}
 }
 
-func buildResolveIncidentMock(status string) model.Incident {
+func buildResolveIncidentMock() model.Incident {
 	var (
 		startDate          = time.Date(2020, time.March, 19, 12, 00, 00, 00, time.UTC)
 		identificationDate = time.Date(2020, time.March, 19, 14, 20, 00, 00, time.UTC)
@@ -218,7 +221,7 @@ func buildResolveIncidentMock(status string) model.Incident {
 		CustomerImpact:          2300,
 		StatusPageUrl:           "status.io",
 		PostMortemUrl:           "google.com",
-		Status:                  status,
+		Status:                  "open",
 		Product:                 "RDSM",
 		SeverityLevel:           3,
 		ChannelName:             "inc-dates-command",

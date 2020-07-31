@@ -205,7 +205,7 @@ func StartIncidentByDialog(
 		}
 	}
 
-	attachment := createOpenAttachment(incident, warRoomURL, supportTeam)
+	attachment := createOpenAttachment(incident, incidentID, warRoomURL, supportTeam)
 	message := "An Incident has been opened by <@" + incident.IncidentAuthor + ">"
 
 	var waitgroup sync.WaitGroup
@@ -283,7 +283,7 @@ func createPostMortemAndUpdateTopic(ctx context.Context, logger log.Logger, clie
 	}
 }
 
-func createOpenAttachment(incident model.Incident, warRoomURL string, supportTeam string) slack.Attachment {
+func createOpenAttachment(incident model.Incident, incidentID int64, warRoomURL string, supportTeam string) slack.Attachment {
 	var messageText strings.Builder
 	messageText.WriteString("An Incident has been opened by <@" + incident.IncidentAuthor + ">\n\n")
 	messageText.WriteString("*Severity:* " + getSeverityLevelText(incident.SeverityLevel) + "\n\n")
@@ -302,7 +302,7 @@ func createOpenAttachment(incident model.Incident, warRoomURL string, supportTea
 		Fields: []slack.AttachmentField{
 			{
 				Title: "Incident ID",
-				Value: strconv.FormatInt(incident.Id, 10),
+				Value: strconv.FormatInt(incidentID, 10),
 			},
 			{
 				Title: "Severity",

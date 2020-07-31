@@ -142,7 +142,7 @@ func CancelIncidentByDialog(
 		logger.Error(
 			ctx,
 			log.Trace(),
-			log.Reason("CancelIncidentByDialog GetIncident"),
+			log.Reason("GetIncident"),
 			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
@@ -210,12 +210,12 @@ func CancelIncidentByDialog(
 	return nil
 }
 
-func createCancelAttachment(inc model.Incident, incidentID int64, channelID, userID, description string) slack.Attachment {
+func createCancelAttachment(inc model.Incident, userID string) slack.Attachment {
 	var messageText strings.Builder
 
 	messageText.WriteString("An Incident has been canceled by <@" + userID + ">\n\n")
-	messageText.WriteString("*Channel:* <#" + channelID + ">\n")
-	messageText.WriteString("*Description:* `" + description + "`\n\n")
+	messageText.WriteString("*Channel:* <#" + inc.ChannelId + ">\n")
+	messageText.WriteString("*Description:* `" + inc.DescriptionCancelled + "`\n\n")
 
 	return slack.Attachment{
 		Pretext:  "",
@@ -225,15 +225,15 @@ func createCancelAttachment(inc model.Incident, incidentID int64, channelID, use
 		Fields: []slack.AttachmentField{
 			{
 				Title: "Incident ID",
-				Value: strconv.FormatInt(incidentID, 10),
+				Value: strconv.FormatInt(inc.Id, 10),
 			},
 			{
 				Title: "Channel",
-				Value: "<#" + channelID + ">",
+				Value: "<#" + inc.ChannelId + ">",
 			},
 			{
 				Title: "Description",
-				Value: "```" + description + "```",
+				Value: "```" + inc.DescriptionCancelled + "```",
 			},
 		},
 	}

@@ -228,7 +228,7 @@ func StartIncidentByDialog(
 		logger.Error(
 			ctx,
 			log.Trace(),
-			log.Reason("StartIncidentByDialog JoinConversationContext"),
+			log.Reason("JoinConversationContext"),
 			log.NewValue("warning", warning),
 			log.NewValue("meta_warning", metaWarning),
 			log.NewValue("error", err),
@@ -241,7 +241,7 @@ func StartIncidentByDialog(
 		logger.Error(
 			ctx,
 			log.Trace(),
-			log.Reason("StartIncidentByDialog InviteUsersToConversationContext"),
+			log.Reason("InviteUsersToConversationContext"),
 			log.NewValue("channel.ID", channel.ID),
 			log.NewValue("commander", commander),
 			log.NewValue("error", err),
@@ -258,7 +258,7 @@ func createPostMortemAndUpdateTopic(ctx context.Context, logger log.Logger, clie
 		logger.Error(
 			ctx,
 			log.Trace(),
-			log.Reason("createPostMortemAndUpdateTopic createPostMortem"),
+			log.Reason("createPostMortem"),
 			log.NewValue("channel.Name", channel.Name),
 			log.NewValue("error", err),
 		)
@@ -275,7 +275,7 @@ func createPostMortemAndUpdateTopic(ctx context.Context, logger log.Logger, clie
 		logger.Error(
 			ctx,
 			log.Trace(),
-			log.Reason("createPostMortemAndUpdateTopic SetTopicOfConversation"),
+			log.Reason("SetTopicOfConversation"),
 			log.NewValue("channel.ID", channel.ID),
 			log.NewValue("topic.String", topic.String()),
 			log.NewValue("error", err),

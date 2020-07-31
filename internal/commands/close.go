@@ -22,7 +22,7 @@ func CloseIncidentDialog(ctx context.Context, logger log.Logger, client bot.Clie
 		logger.Error(
 			ctx,
 			log.Trace(),
-			log.Reason("CloseIncidentDialog GetIncident"),
+			log.Reason("GetIncident"),
 			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
@@ -205,7 +205,7 @@ func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Lo
 		logger.Error(
 			ctx,
 			log.Trace(),
-			log.Reason("CloseIncidentByDialog CloseIncident"),
+			log.Reason("CloseIncident"),
 			log.NewValue("incident", incident),
 			log.NewValue("error", err),
 		)
@@ -217,16 +217,16 @@ func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Lo
 		logger.Error(
 			ctx,
 			log.Trace(),
-			log.Reason("CloseIncidentByDialog GetIncident"),
+			log.Reason("GetIncident"),
 			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
 		return err
 	}
 
-	channelAttachment := createCloseChannelAttachment(incident, inc.Id, userName, impact)
+	channelAttachment := createCloseChannelAttachment(inc, userName, impact)
 	privateAttachment := createClosePrivateAttachment(incident)
-	message := "The Incident <#" + incident.ChannelId + "> has been closed by <@" + userName + ">"
+	message := "The Incident <#" + inc.ChannelId + "> has been closed by <@" + userName + ">"
 
 	var waitgroup sync.WaitGroup
 	defer waitgroup.Wait()
@@ -256,7 +256,7 @@ func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Lo
 		logger.Error(
 			ctx,
 			log.Trace(),
-			log.Reason("CloseIncidentByDialog ArchiveConversationContext"),
+			log.Reason("ArchiveConversationContext"),
 			log.NewValue("channelID", channelID),
 			log.NewValue("userID", userID),
 			log.NewValue("error", err),
@@ -278,7 +278,7 @@ func getResponsabilityText(r string) string {
 	return ""
 }
 
-func createCloseChannelAttachment(inc model.Incident, incidentID int64, userName, impact string) slack.Attachment {
+func createCloseChannelAttachment(inc model.Incident, userName, impact string) slack.Attachment {
 	var messageText strings.Builder
 	messageText.WriteString("The Incident <#" + inc.ChannelId + "> has been closed by <@" + userName + ">\n\n")
 	messageText.WriteString("*Team:* <#" + inc.Team + ">\n")
@@ -296,7 +296,7 @@ func createCloseChannelAttachment(inc model.Incident, incidentID int64, userName
 		Fields: []slack.AttachmentField{
 			{
 				Title: "Incident ID",
-				Value: strconv.FormatInt(incidentID, 10),
+				Value: strconv.FormatInt(inc.Id, 10),
 			},
 			{
 				Title: "Incident",

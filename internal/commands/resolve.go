@@ -122,7 +122,7 @@ func ResolveIncidentByDialog(
 		logger.Error(
 			ctx,
 			log.Trace(),
-			log.Reason("ResolveIncidentByDialog ResolveIncident"),
+			log.Reason("ResolveIncident"),
 			log.NewValue("incident", incident),
 			log.NewValue("error", err),
 		)
@@ -134,7 +134,7 @@ func ResolveIncidentByDialog(
 		logger.Error(
 			ctx,
 			log.Trace(),
-			log.Reason("ResolveIncidentByDialog GetIncident"),
+			log.Reason("GetIncident"),
 			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
@@ -146,7 +146,7 @@ func ResolveIncidentByDialog(
 		logger.Error(
 			ctx,
 			log.Trace(),
-			log.Reason("ResolveIncidentByDialog strconv.ParseBool"),
+			log.Reason("strconv.ParseBool"),
 			log.NewValue("error", err),
 		)
 		return err
@@ -158,14 +158,14 @@ func ResolveIncidentByDialog(
 			logger.Error(
 				ctx,
 				log.Trace(),
-				log.Reason("ResolveIncidentByDialog getCalendarEvent"),
+				log.Reason("getCalendarEvent"),
 				log.NewValue("error", err),
 			)
 			return err
 		}
 	}
 
-	channelAttachment := createResolveChannelAttachment(incident, inc.Id, userName, calendarEvent)
+	channelAttachment := createResolveChannelAttachment(inc, userName, calendarEvent)
 	privateAttachment := createResolvePrivateAttachment(incident, calendarEvent)
 	message := "The Incident <#" + incident.ChannelId + "> has been resolved by <@" + userName + ">"
 
@@ -212,7 +212,7 @@ func setMeetingDate(ctx context.Context, logger log.Logger, d *time.Time, postMo
 		logger.Error(
 			ctx,
 			log.Trace(),
-			log.Reason("setMeetingDate LoadLocation"),
+			log.Reason("time.LoadLocation"),
 			log.NewValue("timezone", timezone),
 			log.NewValue("error", err),
 		)
@@ -242,7 +242,7 @@ func getCalendarEvent(
 		logger.Error(
 			ctx,
 			log.Trace(),
-			log.Reason("getCalendarEvent setMeetingDate"),
+			log.Reason("setMeetingDate"),
 			log.NewValue("error", err),
 		)
 		return nil, err
@@ -256,7 +256,7 @@ func getCalendarEvent(
 		logger.Error(
 			ctx,
 			log.Trace(),
-			log.Reason("getCalendarEvent GetIncident"),
+			log.Reason("GetIncident"),
 			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
@@ -268,7 +268,7 @@ func getCalendarEvent(
 		logger.Error(
 			ctx,
 			log.Trace(),
-			log.Reason("getCalendarEvent CreateCalendarEvent"),
+			log.Reason("CreateCalendarEvent"),
 			log.NewValue("error", err),
 		)
 		return nil, err
@@ -276,7 +276,7 @@ func getCalendarEvent(
 	return calendarEvent, err
 }
 
-func createResolveChannelAttachment(inc model.Incident, incidentID int64, userName string, event *model.Event) slack.Attachment {
+func createResolveChannelAttachment(inc model.Incident, userName string, event *model.Event) slack.Attachment {
 	var (
 		endDateText       = inc.EndTimestamp.Format(time.RFC1123)
 		postMortemMessage string
@@ -303,7 +303,7 @@ func createResolveChannelAttachment(inc model.Incident, incidentID int64, userNa
 		Fields: []slack.AttachmentField{
 			{
 				Title: "Incident ID",
-				Value: strconv.FormatInt(incidentID, 10),
+				Value: strconv.FormatInt(inc.Id, 10),
 			},
 			{
 				Title: "Incident",

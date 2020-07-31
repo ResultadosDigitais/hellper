@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"database/sql"
 	"hellper/internal/concurrence"
 	"strings"
 	"sync"
@@ -176,6 +177,7 @@ func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Lo
 		rootCause        = submissions.RootCause
 		notifyOnClose    = config.Env.NotifyOnClose
 		productChannelID = config.Env.ProductChannelID
+		customerImpact   sql.NullInt64
 	)
 
 	severityLevelInt64, err := getStringInt64(severityLevel)
@@ -183,7 +185,7 @@ func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Lo
 		return err
 	}
 
-	impactInt64, err := getStringInt64(impact)
+	customerImpact.Int64, err = getStringInt64(impact)
 	if err != nil {
 		return err
 	}
@@ -192,7 +194,7 @@ func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Lo
 		RootCause:      rootCause,
 		Functionality:  feature,
 		Team:           team,
-		CustomerImpact: impactInt64,
+		CustomerImpact: customerImpact,
 		SeverityLevel:  severityLevelInt64,
 		Responsibility: responsibility,
 		ChannelId:      channelID,

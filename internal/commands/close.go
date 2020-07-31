@@ -225,7 +225,7 @@ func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Lo
 	}
 
 	channelAttachment := createCloseChannelAttachment(inc, userName, impact)
-	privateAttachment := createClosePrivateAttachment(incident)
+	privateAttachment := createClosePrivateAttachment(inc)
 	message := "The Incident <#" + inc.ChannelId + "> has been closed by <@" + userName + ">"
 
 	var waitgroup sync.WaitGroup

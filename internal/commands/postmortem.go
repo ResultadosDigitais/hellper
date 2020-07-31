@@ -48,7 +48,7 @@ func createPostMortem(
 		Text:     "",
 		Color:    "#FE4D4D",
 		Fields: []slack.AttachmentField{
-			slack.AttachmentField{
+			{
 				Title: "Post Mortem",
 				Value: postMortemURL,
 			},

@@ -198,6 +198,38 @@ func TestResolveIncidentByDialog(t *testing.T) {
 	}
 }
 
+func buildResolveIncidentMock(status string) model.Incident {
+	var (
+		startDate          = time.Date(2020, time.March, 19, 12, 00, 00, 00, time.UTC)
+		identificationDate = time.Date(2020, time.March, 19, 14, 20, 00, 00, time.UTC)
+		endDate            = time.Date(2020, time.March, 19, 22, 30, 00, 00, time.UTC)
+	)
+
+	return model.Incident{
+		Id:                      0,
+		Title:                   "Incident Dates Command",
+		StartTimestamp:          &startDate,
+		IdentificationTimestamp: &identificationDate,
+		EndTimestamp:            &endDate,
+		Responsibility:          "Product",
+		Team:                    "shield",
+		Functionality:           "hellper",
+		RootCause:               "PR #00",
+		CustomerImpact:          2300,
+		StatusPageUrl:           "status.io",
+		PostMortemUrl:           "google.com",
+		Status:                  status,
+		Product:                 "RDSM",
+		SeverityLevel:           3,
+		ChannelName:             "inc-dates-command",
+		UpdatedAt:               &endDate,
+		DescriptionStarted:      "An incident ocurred with the dates command",
+		DescriptionCancelled:    "",
+		DescriptionResolved:     "PR was reverted",
+		ChannelId:               "CT50JJGP5",
+	}
+}
+
 func buildEventMock() *model.Event {
 	var (
 		startDate = time.Date(2020, time.March, 19, 12, 00, 00, 00, time.UTC)

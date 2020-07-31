@@ -216,7 +216,7 @@ func buildGetIncidentMock() model.Incident {
 		Team:                    "shield",
 		Functionality:           "hellper",
 		RootCause:               "PR #00",
-		CustomerImpact:          sql.NullInt64{Int64: 2300},
+		CustomerImpact:          sql.NullInt64{Int64: 2300, Valid: true},
 		StatusPageUrl:           "status.io",
 		PostMortemUrl:           "google.com",
 		Status:                  "closed",

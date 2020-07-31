@@ -165,6 +165,7 @@ func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Lo
 	)
 
 	var (
+		customerImpact   sql.NullInt64
 		channelID        = incidentDetails.Channel.ID
 		userID           = incidentDetails.User.ID
 		userName         = incidentDetails.User.Name

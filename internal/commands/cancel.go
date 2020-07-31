@@ -149,7 +149,7 @@ func CancelIncidentByDialog(
 		return err
 	}
 
-	attachment := createCancelAttachment(inc, inc.Id, channelID, userID, description)
+	attachment := createCancelAttachment(inc, userID)
 	message := "An Incident has been canceled by <@" + userID + "> *cc:* <!subteam^" + supportTeam + ">"
 
 	err = postAndPinMessage(

@@ -265,7 +265,7 @@ func StartIncidentByDialog(
 }
 
 func createPostMortemAndUpdateTopic(ctx context.Context, logger log.Logger, client bot.Client, fileStorage filestorage.Driver, incident model.Incident, incidentID int64, repository model.Repository, channel *slack.Channel, warRoomURL string) {
-	postMortemURL, err := createPostMortem(ctx, logger, client, fileStorage, incidentID, channel.Name, repository, channel.Name)
+	postMortemURL, err := createPostMortem(ctx, logger, client, fileStorage, incidentID, incident.Title, repository, channel.Name)
 	if err != nil {
 		logger.Error(
 			ctx,

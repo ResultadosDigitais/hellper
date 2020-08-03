@@ -2,6 +2,7 @@ package commands_test
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"hellper/internal/bot"
 	calendar "hellper/internal/calendar"
@@ -218,7 +219,7 @@ func buildResolveIncidentMock() model.Incident {
 		Team:                    "shield",
 		Functionality:           "hellper",
 		RootCause:               "PR #00",
-		CustomerImpact:          2300,
+		CustomerImpact:          sql.NullInt64{Int64: 2300, Valid: true},
 		StatusPageUrl:           "status.io",
 		PostMortemUrl:           "google.com",
 		Status:                  "open",

@@ -34,7 +34,7 @@ func OpenStartIncidentDialog(client bot.Client, triggerID string) error {
 			Label:       "Incident Title",
 			Name:        "incident_title",
 			Type:        "text",
-			Placeholder: "my-incident-title",
+			Placeholder: "My Incident Title",
 		},
 		MaxLength: 22,
 	}

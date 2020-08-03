@@ -66,7 +66,8 @@ func (h *handlerClose) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger.Error(
 			ctx,
-			"handler/close.ServeHTTP CloseIncidentDialog error",
+			log.Trace(),
+			log.Reason("commands.CloseIncidentDialog"),
 			log.NewValue("error", err),
 		)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

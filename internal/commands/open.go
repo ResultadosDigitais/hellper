@@ -227,7 +227,8 @@ func StartIncidentByDialog(
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/open.join_channel_error",
+			log.Trace(),
+			log.Reason("JoinConversationContext"),
 			log.NewValue("warning", warning),
 			log.NewValue("meta_warning", metaWarning),
 			log.NewValue("error", err),
@@ -239,7 +240,10 @@ func StartIncidentByDialog(
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/open.invite_commander_error",
+			log.Trace(),
+			log.Reason("InviteUsersToConversationContext"),
+			log.NewValue("channel.ID", channel.ID),
+			log.NewValue("commander", commander),
 			log.NewValue("error", err),
 		)
 		return err
@@ -253,8 +257,9 @@ func createPostMortemAndUpdateTopic(ctx context.Context, logger log.Logger, clie
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/open.create_post_mortem ERROR",
-			log.NewValue("channel_name", channel.Name),
+			log.Trace(),
+			log.Reason("createPostMortem"),
+			log.NewValue("channel.Name", channel.Name),
 			log.NewValue("error", err),
 		)
 		return
@@ -269,7 +274,10 @@ func createPostMortemAndUpdateTopic(ctx context.Context, logger log.Logger, clie
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/open.set_channel_topic_error",
+			log.Trace(),
+			log.Reason("SetTopicOfConversation"),
+			log.NewValue("channel.ID", channel.ID),
+			log.NewValue("topic.String", topic.String()),
 			log.NewValue("error", err),
 		)
 	}
@@ -293,6 +301,10 @@ func createOpenAttachment(incident model.Incident, incidentID int64, warRoomURL 
 		Color:    "#FE4D4D",
 		Fields: []slack.AttachmentField{
 			{
+				Title: "Incident ID",
+				Value: strconv.FormatInt(incidentID, 10),
+			},
+			{
 				Title: "Severity",
 				Value: getSeverityLevelText(incident.SeverityLevel),
 			},
@@ -315,10 +327,6 @@ func createOpenAttachment(incident model.Incident, incidentID int64, warRoomURL 
 			{
 				Title: "War Room",
 				Value: warRoomURL,
-			},
-			{
-				Title: "Incident ID",
-				Value: strconv.FormatInt(incidentID, 10),
 			},
 		},
 	}

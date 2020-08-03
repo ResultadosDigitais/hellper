@@ -95,7 +95,7 @@ func (f *cancelCommandFixture) setup(t *testing.T) {
 	f.mockRepository = repositoryMock
 
 }
-func TestOpenCancelIncidentDiolog(t *testing.T) {
+func TestOpenCancelIncidentDialog(t *testing.T) {
 	table := []cancelCommandFixture{
 		{
 			testName:     "Check error if incident is not open",

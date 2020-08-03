@@ -2,6 +2,10 @@ package commands_test
 
 import (
 	"context"
+<<<<<<< HEAD
+=======
+	"database/sql"
+>>>>>>> 5fe55c84d0b6b365eece58290a3267e7dfa1cd3b
 	"fmt"
 	"hellper/internal/bot"
 	"hellper/internal/commands"
@@ -10,7 +14,10 @@ import (
 	"testing"
 	"time"
 
+<<<<<<< HEAD
 	"github.com/DATA-DOG/go-sqlmock"
+=======
+>>>>>>> 5fe55c84d0b6b365eece58290a3267e7dfa1cd3b
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -95,7 +102,11 @@ func (f *cancelCommandFixture) setup(t *testing.T) {
 	f.mockRepository = repositoryMock
 
 }
+<<<<<<< HEAD
 func TestOpenCancelIncidentDiolog(t *testing.T) {
+=======
+func TestOpenCancelIncidentDialog(t *testing.T) {
+>>>>>>> 5fe55c84d0b6b365eece58290a3267e7dfa1cd3b
 	table := []cancelCommandFixture{
 		{
 			testName:     "Check error if incident is not open",
@@ -189,6 +200,7 @@ func TestCancelIncidentByDialog(t *testing.T) {
 	}
 }
 
+<<<<<<< HEAD
 func TestCancelIncident(t *testing.T) {
 	table := []cancelCommandFixture{
 		{
@@ -225,6 +237,8 @@ func TestCancelIncident(t *testing.T) {
 	}
 }
 
+=======
+>>>>>>> 5fe55c84d0b6b365eece58290a3267e7dfa1cd3b
 func buildCancelIncidentMock(status string) model.Incident {
 	var (
 		startDate          = time.Date(2020, time.March, 19, 12, 00, 00, 00, time.UTC)
@@ -242,7 +256,11 @@ func buildCancelIncidentMock(status string) model.Incident {
 		Team:                    "shield",
 		Functionality:           "hellper",
 		RootCause:               "PR #00",
+<<<<<<< HEAD
 		CustomerImpact:          2300,
+=======
+		CustomerImpact:          sql.NullInt64{Int64: 2300},
+>>>>>>> 5fe55c84d0b6b365eece58290a3267e7dfa1cd3b
 		StatusPageUrl:           "status.io",
 		PostMortemUrl:           "google.com",
 		Status:                  status,

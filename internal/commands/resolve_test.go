@@ -2,6 +2,7 @@ package commands_test
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"hellper/internal/bot"
 	calendar "hellper/internal/calendar"
@@ -156,12 +157,14 @@ func TestResolveIncidentByDialog(t *testing.T) {
 			incidentDetails: buildSubmissionMock("true"),
 			channelID:       "CT50JJGP5",
 			mockEvent:       buildEventMock(),
+			mockIncident:    buildResolveIncidentMock(),
 		},
 		{
 			testName:        "Incident Resolved without PM Meeting",
 			expectError:     false,
 			incidentDetails: buildSubmissionMock("false"),
 			channelID:       "CT50JJGP5",
+			mockIncident:    buildResolveIncidentMock(),
 		},
 		{
 			testName:        "Incident Resolved without PM conditional",
@@ -170,6 +173,7 @@ func TestResolveIncidentByDialog(t *testing.T) {
 			incidentDetails: buildSubmissionMock(""),
 			channelID:       "CT50JJGP5",
 			mockEvent:       buildEventMock(),
+			mockIncident:    buildResolveIncidentMock(),
 		},
 	}
 
@@ -198,7 +202,7 @@ func TestResolveIncidentByDialog(t *testing.T) {
 	}
 }
 
-func buildGetIncidentMock() model.Incident {
+func buildResolveIncidentMock() model.Incident {
 	var (
 		startDate          = time.Date(2020, time.March, 19, 12, 00, 00, 00, time.UTC)
 		identificationDate = time.Date(2020, time.March, 19, 14, 20, 00, 00, time.UTC)
@@ -215,10 +219,10 @@ func buildGetIncidentMock() model.Incident {
 		Team:                    "shield",
 		Functionality:           "hellper",
 		RootCause:               "PR #00",
-		CustomerImpact:          2300,
+		CustomerImpact:          sql.NullInt64{Int64: 2300, Valid: true},
 		StatusPageUrl:           "status.io",
 		PostMortemUrl:           "google.com",
-		Status:                  "closed",
+		Status:                  "open",
 		Product:                 "RDSM",
 		SeverityLevel:           3,
 		ChannelName:             "inc-dates-command",

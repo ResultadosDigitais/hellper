@@ -121,7 +121,21 @@ func ResolveIncidentByDialog(
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/resolve.ResolveIncidentByDialog repository.resolve_incident error",
+			log.Trace(),
+			log.Reason("ResolveIncident"),
+			log.NewValue("incident", incident),
+			log.NewValue("error", err),
+		)
+		return err
+	}
+
+	inc, err := repository.GetIncident(ctx, channelID)
+	if err != nil {
+		logger.Error(
+			ctx,
+			log.Trace(),
+			log.Reason("GetIncident"),
+			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
 		return err
@@ -131,7 +145,8 @@ func ResolveIncidentByDialog(
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/resolve.ResolveIncidentByDialog strconv.parse_bool error",
+			log.Trace(),
+			log.Reason("strconv.ParseBool"),
 			log.NewValue("error", err),
 		)
 		return err
@@ -142,14 +157,15 @@ func ResolveIncidentByDialog(
 		if err != nil {
 			logger.Error(
 				ctx,
-				"command/resolve.ResolveIncidentByDialog get_calendar_event error",
+				log.Trace(),
+				log.Reason("getCalendarEvent"),
 				log.NewValue("error", err),
 			)
 			return err
 		}
 	}
 
-	channelAttachment := createResolveChannelAttachment(incident, userName, calendarEvent)
+	channelAttachment := createResolveChannelAttachment(inc, userName, calendarEvent)
 	privateAttachment := createResolvePrivateAttachment(incident, calendarEvent)
 	message := "The Incident <#" + incident.ChannelId + "> has been resolved by <@" + userName + ">"
 
@@ -195,7 +211,9 @@ func setMeetingDate(ctx context.Context, logger log.Logger, d *time.Time, postMo
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/resolve.setMeetingDate time.load_location error",
+			log.Trace(),
+			log.Reason("time.LoadLocation"),
+			log.NewValue("timezone", timezone),
 			log.NewValue("error", err),
 		)
 		return "", "", err
@@ -223,7 +241,8 @@ func getCalendarEvent(
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/resolve.getCalendarEvent set_meeting_date error",
+			log.Trace(),
+			log.Reason("setMeetingDate"),
 			log.NewValue("error", err),
 		)
 		return nil, err
@@ -236,7 +255,9 @@ func getCalendarEvent(
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/resolve.getCalendarEvent repository.get_incident error",
+			log.Trace(),
+			log.Reason("GetIncident"),
+			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
 		return nil, err
@@ -246,7 +267,8 @@ func getCalendarEvent(
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/resolve.getCalendarEvent calendar.create_calendar_event error",
+			log.Trace(),
+			log.Reason("CreateCalendarEvent"),
 			log.NewValue("error", err),
 		)
 		return nil, err
@@ -279,6 +301,10 @@ func createResolveChannelAttachment(inc model.Incident, userName string, event *
 		Text:     "",
 		Color:    "#1164A3",
 		Fields: []slack.AttachmentField{
+			{
+				Title: "Incident ID",
+				Value: strconv.FormatInt(inc.Id, 10),
+			},
 			{
 				Title: "Incident",
 				Value: "<#" + inc.ChannelId + ">",

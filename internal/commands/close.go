@@ -2,7 +2,9 @@ package commands
 
 import (
 	"context"
+	"database/sql"
 	"hellper/internal/concurrence"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -20,7 +22,8 @@ func CloseIncidentDialog(ctx context.Context, logger log.Logger, client bot.Clie
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/dates.UpdateDatesDialog GetIncident ERROR",
+			log.Trace(),
+			log.Reason("GetIncident"),
 			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
@@ -164,6 +167,7 @@ func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Lo
 	)
 
 	var (
+		customerImpact   sql.NullInt64
 		channelID        = incidentDetails.Channel.ID
 		userID           = incidentDetails.User.ID
 		userName         = incidentDetails.User.Name
@@ -183,7 +187,7 @@ func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Lo
 		return err
 	}
 
-	impactInt64, err := getStringInt64(impact)
+	customerImpact.Int64, err = getStringInt64(impact)
 	if err != nil {
 		return err
 	}
@@ -192,15 +196,39 @@ func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Lo
 		RootCause:      rootCause,
 		Functionality:  feature,
 		Team:           team,
-		CustomerImpact: impactInt64,
+		CustomerImpact: customerImpact,
 		SeverityLevel:  severityLevelInt64,
 		Responsibility: responsibility,
 		ChannelId:      channelID,
 	}
 
-	channelAttachment := createCloseChannelAttachment(incident, userName, impact)
-	privateAttachment := createClosePrivateAttachment(incident)
-	message := "The Incident <#" + incident.ChannelId + "> has been closed by <@" + userName + ">"
+	err = repository.CloseIncident(ctx, &incident)
+	if err != nil {
+		logger.Error(
+			ctx,
+			log.Trace(),
+			log.Reason("CloseIncident"),
+			log.NewValue("incident", incident),
+			log.NewValue("error", err),
+		)
+		return err
+	}
+
+	inc, err := repository.GetIncident(ctx, channelID)
+	if err != nil {
+		logger.Error(
+			ctx,
+			log.Trace(),
+			log.Reason("GetIncident"),
+			log.NewValue("channelID", channelID),
+			log.NewValue("error", err),
+		)
+		return err
+	}
+
+	channelAttachment := createCloseChannelAttachment(inc, userName, impact)
+	privateAttachment := createClosePrivateAttachment(inc)
+	message := "The Incident <#" + inc.ChannelId + "> has been closed by <@" + userName + ">"
 
 	var waitgroup sync.WaitGroup
 	defer waitgroup.Wait()
@@ -229,7 +257,8 @@ func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Lo
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/close.CloseIncidentByDialog ArchiveConversationContext ERROR",
+			log.Trace(),
+			log.Reason("ArchiveConversationContext"),
 			log.NewValue("channelID", channelID),
 			log.NewValue("userID", userID),
 			log.NewValue("error", err),
@@ -237,8 +266,6 @@ func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Lo
 		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
 		return err
 	}
-
-	repository.CloseIncident(ctx, &incident)
 
 	return nil
 }
@@ -269,31 +296,35 @@ func createCloseChannelAttachment(inc model.Incident, userName, impact string) s
 		Text:     "",
 		Color:    "#6fff47",
 		Fields: []slack.AttachmentField{
-			slack.AttachmentField{
+			{
+				Title: "Incident ID",
+				Value: strconv.FormatInt(inc.Id, 10),
+			},
+			{
 				Title: "Incident",
 				Value: "<#" + inc.ChannelId + ">",
 			},
-			slack.AttachmentField{
+			{
 				Title: "Team",
 				Value: inc.Team,
 			},
-			slack.AttachmentField{
+			{
 				Title: "Feature",
 				Value: inc.Functionality,
 			},
-			slack.AttachmentField{
+			{
 				Title: "Impact",
 				Value: impact,
 			},
-			slack.AttachmentField{
+			{
 				Title: "Severity",
 				Value: getSeverityLevelText(inc.SeverityLevel),
 			},
-			slack.AttachmentField{
+			{
 				Title: "Responsibility",
 				Value: inc.Responsibility,
 			},
-			slack.AttachmentField{
+			{
 				Title: "RootCause",
 				Value: inc.RootCause,
 			},
@@ -312,8 +343,8 @@ func createClosePrivateAttachment(inc model.Incident) slack.Attachment {
 		Text:     "",
 		Color:    "#FE4D4D",
 		Fields: []slack.AttachmentField{
-			slack.AttachmentField{
-				Title: "Statu.io",
+			{
+				Title: "Status.io",
 				Value: "Be sure to close the incident on status.io",
 			},
 		},

@@ -407,7 +407,7 @@ func (r *repository) CloseIncident(ctx context.Context, inc *model.Incident) err
 		inc.RootCause,
 		inc.Functionality,
 		inc.Team,
-		inc.CustomerImpact,
+		inc.CustomerImpact.Int64,
 		inc.SeverityLevel,
 		model.StatusClosed,
 		inc.Responsibility,

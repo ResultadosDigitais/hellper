@@ -29,6 +29,16 @@ func OpenStartIncidentDialog(client bot.Client, triggerID string) error {
 		})
 	}
 
+	incidentTitle := &slack.TextInputElement{
+		DialogInput: slack.DialogInput{
+			Label:       "Incident Title",
+			Name:        "incident_title",
+			Type:        "text",
+			Placeholder: "my-incident-title",
+		},
+		MaxLength: 22,
+	}
+
 	channelName := &slack.TextInputElement{
 		DialogInput: slack.DialogInput{
 			Label:       "Channel name",
@@ -119,6 +129,7 @@ func OpenStartIncidentDialog(client bot.Client, triggerID string) error {
 		SubmitLabel:    "Start",
 		NotifyOnCancel: false,
 		Elements: []slack.DialogElement{
+			incidentTitle,
 			channelName,
 			meeting,
 			severityLevel,
@@ -150,6 +161,7 @@ func StartIncidentByDialog(
 		now              = time.Now().UTC()
 		incidentAuthor   = incidentDetails.User.ID
 		submission       = incidentDetails.Submission
+		incidentTitle    = submission.IncidentTitle
 		channelName      = submission.ChannelName
 		warRoomURL       = submission.WarRoomURL
 		severityLevel    = submission.SeverityLevel
@@ -181,7 +193,7 @@ func StartIncidentByDialog(
 	incident := model.Incident{
 		ChannelName:             channelName,
 		ChannelId:               channel.ID,
-		Title:                   channelName,
+		Title:                   incidentTitle,
 		Product:                 product,
 		DescriptionStarted:      description,
 		Status:                  model.StatusOpen,

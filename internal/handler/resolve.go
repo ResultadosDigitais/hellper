@@ -64,7 +64,9 @@ func (h *handlerResolve) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger.Error(
 			ctx,
-			"handler/resolve.ServeHTTP ResolveIncidentDialog error",
+			log.Trace(),
+			log.Reason("ResolveIncidentDialog"),
+			log.NewValue("triggerID", triggerID),
 			log.NewValue("error", err),
 		)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

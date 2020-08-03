@@ -2,6 +2,7 @@ package commands_test
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"hellper/internal/bot"
 	"hellper/internal/commands"
@@ -94,7 +95,7 @@ func (f *cancelCommandFixture) setup(t *testing.T) {
 	f.mockRepository = repositoryMock
 
 }
-func TestOpenCancelIncidentDiolog(t *testing.T) {
+func TestOpenCancelIncidentDialog(t *testing.T) {
 	table := []cancelCommandFixture{
 		{
 			testName:     "Check error if incident is not open",
@@ -205,7 +206,7 @@ func buildCancelIncidentMock(status string) model.Incident {
 		Team:                    "shield",
 		Functionality:           "hellper",
 		RootCause:               "PR #00",
-		CustomerImpact:          2300,
+		CustomerImpact:          sql.NullInt64{Int64: 2300},
 		StatusPageUrl:           "status.io",
 		PostMortemUrl:           "google.com",
 		Status:                  status,

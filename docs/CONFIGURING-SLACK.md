@@ -16,14 +16,9 @@
  - channels:join
  - channels:manage
  - channels:read
- - channels:history
  - chat:write.public
  - chat:write
  - commands
- - groups:read
- - files:read
- - links:read
- - mpim:write
  - pins:read
  - pins:write
  - usergroups:read
@@ -34,13 +29,6 @@
 ### User Token Scopes
 ```
 - channels:read
-- channels:write
-- chat:write
-- mpim:write
-- pins:read
-- pins:write
-- users:read
-- users:read.email
 ```
 
 ## Install the app to workspace

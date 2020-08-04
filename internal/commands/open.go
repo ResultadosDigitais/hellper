@@ -29,6 +29,16 @@ func OpenStartIncidentDialog(client bot.Client, triggerID string) error {
 		})
 	}
 
+	incidentTitle := &slack.TextInputElement{
+		DialogInput: slack.DialogInput{
+			Label:       "Incident Title",
+			Name:        "incident_title",
+			Type:        "text",
+			Placeholder: "My Incident Title",
+		},
+		MaxLength: 22,
+	}
+
 	channelName := &slack.TextInputElement{
 		DialogInput: slack.DialogInput{
 			Label:       "Channel name",
@@ -119,6 +129,7 @@ func OpenStartIncidentDialog(client bot.Client, triggerID string) error {
 		SubmitLabel:    "Start",
 		NotifyOnCancel: false,
 		Elements: []slack.DialogElement{
+			incidentTitle,
 			channelName,
 			meeting,
 			severityLevel,
@@ -150,6 +161,7 @@ func StartIncidentByDialog(
 		now              = time.Now().UTC()
 		incidentAuthor   = incidentDetails.User.ID
 		submission       = incidentDetails.Submission
+		incidentTitle    = submission.IncidentTitle
 		channelName      = submission.ChannelName
 		warRoomURL       = submission.WarRoomURL
 		severityLevel    = submission.SeverityLevel
@@ -181,7 +193,7 @@ func StartIncidentByDialog(
 	incident := model.Incident{
 		ChannelName:             channelName,
 		ChannelId:               channel.ID,
-		Title:                   channelName,
+		Title:                   incidentTitle,
 		Product:                 product,
 		DescriptionStarted:      description,
 		Status:                  model.StatusOpen,
@@ -253,7 +265,7 @@ func StartIncidentByDialog(
 }
 
 func createPostMortemAndUpdateTopic(ctx context.Context, logger log.Logger, client bot.Client, fileStorage filestorage.Driver, incident model.Incident, incidentID int64, repository model.Repository, channel *slack.Channel, warRoomURL string) {
-	postMortemURL, err := createPostMortem(ctx, logger, client, fileStorage, incidentID, channel.Name, repository, channel.Name)
+	postMortemURL, err := createPostMortem(ctx, logger, client, fileStorage, incidentID, incident.Title, repository, channel.Name)
 	if err != nil {
 		logger.Error(
 			ctx,

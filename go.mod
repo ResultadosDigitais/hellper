@@ -6,7 +6,7 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.4.1
 	github.com/google/uuid v1.1.1
 	github.com/hashicorp/hcl v1.0.0 // indirect
-	github.com/lib/pq v1.7.0
+	github.com/lib/pq v1.8.0
 	github.com/paked/configure v0.0.0-20190218140148-28f9c3f21a44
 	github.com/slack-go/slack v0.6.5
 	github.com/stretchr/objx v0.1.1 // indirect
@@ -14,5 +14,5 @@ require (
 	go.uber.org/zap v1.15.0
 	golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	google.golang.org/api v0.28.0
+	google.golang.org/api v0.29.0
 )

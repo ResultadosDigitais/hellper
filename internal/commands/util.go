@@ -65,7 +65,7 @@ func PostErrorAttachment(ctx context.Context, client bot.Client, logger log.Logg
 		Text:     "",
 		Color:    "#FE4D4D",
 		Fields: []slack.AttachmentField{
-			slack.AttachmentField{
+			{
 				Title: "Error",
 				Value: text,
 			},
@@ -94,7 +94,7 @@ func PostInfoAttachment(ctx context.Context, client bot.Client, channelID string
 		Text:     "",
 		Color:    "#4DA6FE",
 		Fields: []slack.AttachmentField{
-			slack.AttachmentField{
+			{
 				Title: title,
 				Value: message,
 			},

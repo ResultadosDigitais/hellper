@@ -64,7 +64,9 @@ func (h *handlerOpen) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger.Error(
 			ctx,
-			"handler/open.ServeHTTP OpenStartIncidentDialog error",
+			log.Trace(),
+			log.Reason("OpenStartIncidentDialog"),
+			log.NewValue("triggerID", triggerID),
 			log.NewValue("error", err),
 		)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

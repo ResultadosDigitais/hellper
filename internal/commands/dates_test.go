@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"hellper/internal/bot"
@@ -66,7 +67,7 @@ func TestUpdateDatesDialog(t *testing.T) {
 			expectError:  false,
 			channelID:    "CT50JJGP5",
 			userID:       "U0G9QF9C6",
-			mockIncident: buildGetIncidentMock(),
+			mockIncident: buildDatesIncidentMock(),
 		},
 		{
 			testName:         "GetIncident error",
@@ -180,7 +181,7 @@ func TestUpdateDatesByDialog(t *testing.T) {
 	}
 }
 
-func buildGetIncidentMock() model.Incident {
+func buildDatesIncidentMock() model.Incident {
 	var (
 		startDate          = time.Date(2020, time.March, 19, 12, 00, 00, 00, time.UTC)
 		identificationDate = time.Date(2020, time.March, 19, 14, 20, 00, 00, time.UTC)
@@ -197,7 +198,7 @@ func buildGetIncidentMock() model.Incident {
 		Team:                    "shield",
 		Functionality:           "hellper",
 		RootCause:               "PR #00",
-		CustomerImpact:          2300,
+		CustomerImpact:          sql.NullInt64{Int64: 2300, Valid: true},
 		StatusPageUrl:           "status.io",
 		PostMortemUrl:           "google.com",
 		Status:                  "closed",

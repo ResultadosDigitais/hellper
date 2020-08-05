@@ -119,9 +119,13 @@ func CancelIncidentByDialog(
 		userID           = incidentDetails.User.ID
 		channelID        = incidentDetails.Channel.ID
 		description      = incidentDetails.Submission.IncidentDescription
+		requestCancel    = model.Incident{
+			ChannelId:            channelID,
+			DescriptionCancelled: description,
+		}
 	)
 
-	err := repository.CancelIncident(ctx, channelID, description)
+	err := repository.CancelIncident(ctx, &requestCancel)
 	if err != nil {
 		logger.Error(
 			ctx,

@@ -40,8 +40,8 @@ func (mock *RepositoryMock) AddPostMortemUrl(ctx context.Context, channelName st
 	return args.Error(0)
 }
 
-func (mock *RepositoryMock) CancelIncident(ctx context.Context, channelID string, description string) error {
-	args := mock.Called(ctx, channelID, description)
+func (mock *RepositoryMock) CancelIncident(ctx context.Context, inc *Incident) error {
+	args := mock.Called(ctx, inc.ChannelId, inc.DescriptionCancelled)
 	return args.Error(0)
 }
 

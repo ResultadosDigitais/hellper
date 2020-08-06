@@ -115,7 +115,7 @@ func CloseIncidentDialog(ctx context.Context, logger log.Logger, client bot.Clie
 			Label:       "Owner team",
 			Name:        "owner_team",
 			Type:        "text",
-			Placeholder: "Team",
+			Placeholder: "Team (i.e. Mushin, Hydra, POPE)",
 			Optional:    false,
 		},
 	}

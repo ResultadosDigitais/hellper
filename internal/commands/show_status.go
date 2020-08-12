@@ -117,6 +117,11 @@ func createStatusAttachment(ctx context.Context, client bot.Client, logger log.L
 			}
 
 			if item.Message.User != "" {
+				logger.Info(
+					ctx,
+					"TESTE",
+					log.NewValue("message", item.Message),
+				)
 				user, err := client.GetUserInfoContext(ctx, item.Message.User)
 				if err != nil {
 					logger.Error(

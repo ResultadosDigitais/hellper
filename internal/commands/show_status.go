@@ -225,15 +225,14 @@ func ShowStatus(
 	return nil
 }
 
-func regex(text string) (myText string) {
+func regex(text string) string {
 	re := regexp.MustCompile(`<@(\w+)>`)
-	a := "Confirmando aqui ... <@U6XT7JB19> <@UD4DWRPMH>"
-	x := re.FindAllStringSubmatch(a, -1)
+	x := re.FindAllStringSubmatch(text, -1)
 
 	x[0][1] = "@glofonseca"
 	x[1][1] = "@veronez"
 
-	myText = strings.Replace(a, x[0][0], x[0][1], -1)
-	myText = strings.Replace(myText, x[1][0], x[1][1], -1)
-	return myText
+	text = strings.Replace(text, x[0][0], x[0][1], -1)
+	text = strings.Replace(text, x[1][0], x[1][1], -1)
+	return text
 }

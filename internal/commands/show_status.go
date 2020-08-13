@@ -2,7 +2,9 @@ package commands
 
 import (
 	"context"
+	"regexp"
 	"sort"
+	"strings"
 	"time"
 
 	"hellper/internal/bot"
@@ -133,7 +135,7 @@ func createStatusAttachment(ctx context.Context, client bot.Client, logger log.L
 
 					return slack.Attachment{}, err
 				}
-				attachText = item.Message.Text + " - @" + user.Name
+				attachText = regex(item.Message.Text) + " - @" + user.Name
 			} else {
 				attachText = item.Message.Attachments[0].Pretext + " - @Hellper"
 			}
@@ -221,4 +223,17 @@ func ShowStatus(
 
 	postMessage(client, channelID, "", attachDates, attachStatus)
 	return nil
+}
+
+func regex(text string) (myText string) {
+	re := regexp.MustCompile(`<@(\w+)>`)
+	a := "Confirmando aqui ... <@U6XT7JB19> <@UD4DWRPMH>"
+	x := re.FindAllStringSubmatch(a, -1)
+
+	x[0][1] = "@glofonseca"
+	x[1][1] = "@veronez"
+
+	myText = strings.Replace(a, x[0][0], x[0][1], -1)
+	myText = strings.Replace(myText, x[1][0], x[1][1], -1)
+	return myText
 }

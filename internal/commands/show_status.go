@@ -135,7 +135,10 @@ func createStatusAttachment(ctx context.Context, client bot.Client, logger log.L
 
 					return slack.Attachment{}, err
 				}
-				attachText = regex(item.Message.Text) + " - @" + user.Name
+
+				msg := treatMessage(ctx, client, logger, item.Message.Text)
+
+				attachText = msg + " - @" + user.Name
 			} else {
 				attachText = item.Message.Attachments[0].Pretext + " - @Hellper"
 			}
@@ -172,6 +175,19 @@ func createStatusAttachment(ctx context.Context, client bot.Client, logger log.L
 		}
 	}
 	return attach, nil
+}
+
+func treatMessage(ctx context.Context, client bot.Client, logger log.Logger, msg string) string {
+	re := regexp.MustCompile(`<@(\w+)>`)
+	x := re.FindAllStringSubmatch(msg, -1)
+
+	for _, y := range x {
+		_, _ = getSlackUserInfo(ctx, client, logger, y[1])
+		y[1] = "USER"
+		msg = strings.Replace(msg, y[0], y[1], -1)
+	}
+
+	return msg
 }
 
 // ShowStatus posts an attachment on the channel, with each pinned message from it
@@ -223,16 +239,4 @@ func ShowStatus(
 
 	postMessage(client, channelID, "", attachDates, attachStatus)
 	return nil
-}
-
-func regex(text string) string {
-	re := regexp.MustCompile(`<@(\w+)>`)
-	x := re.FindAllStringSubmatch(text, -1)
-
-	for _, y := range x {
-		y[1] = "USER"
-		text = strings.Replace(text, y[0], y[1], -1)
-	}
-
-	return text
 }

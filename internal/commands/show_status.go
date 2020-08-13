@@ -229,10 +229,10 @@ func regex(text string) string {
 	re := regexp.MustCompile(`<@(\w+)>`)
 	x := re.FindAllStringSubmatch(text, -1)
 
-	x[0][1] = "@glofonseca"
-	x[1][1] = "@veronez"
+	for _, y := range x {
+		y[1] = "USER"
+		text = strings.Replace(text, y[0], y[1], -1)
+	}
 
-	text = strings.Replace(text, x[0][0], x[0][1], -1)
-	text = strings.Replace(text, x[1][0], x[1][1], -1)
 	return text
 }

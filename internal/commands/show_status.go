@@ -182,7 +182,7 @@ func treatMessage(ctx context.Context, client bot.Client, logger log.Logger, msg
 	x := re.FindAllStringSubmatch(msg, -1)
 
 	for _, y := range x {
-		user, _ := getSlackUserInfo(ctx, client, logger, y[1])
+		user, _ := client.GetUserInfoContext(ctx, y[1])
 		msg = strings.Replace(msg, y[0], user.Name, -1)
 	}
 

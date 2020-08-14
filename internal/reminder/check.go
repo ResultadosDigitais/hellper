@@ -31,21 +31,21 @@ func CanSendNotify(ctx context.Context, client bot.Client, logger log.Logger, re
 		status:       incident.Status,
 	}
 
-	return checkRules(rules)
+	return rules.checkRules()
 }
 
-func checkRules(rules notifyRules) bool {
+func (rules notifyRules) checkRules() bool {
 	switch rules.status {
 	case model.StatusOpen:
-		return rulesInOpenStatus(rules)
+		return rules.rulesInOpenStatus()
 	case model.StatusResolved:
-		return rulesInResolvedStatus(rules)
+		return rules.rulesInResolvedStatus()
 	default:
 		return false
 	}
 }
 
-func rulesInOpenStatus(rules notifyRules) bool {
+func (rules notifyRules) rulesInOpenStatus() bool {
 	if rules.snoozedUntil {
 		return false
 	}
@@ -57,7 +57,7 @@ func rulesInOpenStatus(rules notifyRules) bool {
 	return true
 }
 
-func rulesInResolvedStatus(rules notifyRules) bool {
+func (rules notifyRules) rulesInResolvedStatus() bool {
 	if rules.snoozedUntil {
 		return false
 	}

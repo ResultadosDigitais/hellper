@@ -136,7 +136,10 @@ func createStatusAttachment(ctx context.Context, client bot.Client, logger log.L
 					return slack.Attachment{}, err
 				}
 
-				msg := treatMessage(ctx, client, logger, item.Message.Text)
+				msg, err := treatMessage(ctx, client, logger, item.Message.Text)
+				if err != nil {
+					return slack.Attachment{}, err
+				}
 
 				attachText = msg + " - @" + user.Name
 			} else {
@@ -177,16 +180,50 @@ func createStatusAttachment(ctx context.Context, client bot.Client, logger log.L
 	return attach, nil
 }
 
-func treatMessage(ctx context.Context, client bot.Client, logger log.Logger, msg string) string {
-	re := regexp.MustCompile(`<@(\w+)>`)
-	x := re.FindAllStringSubmatch(msg, -1)
+func treatMessage(ctx context.Context, client bot.Client, logger log.Logger, msg string) (string, error) {
+	msg = treatHere(msg)
+	msg, err := treatUsersMentions(ctx, client, logger, msg)
+	if err != nil {
+		return "", err
+	}
 
-	for _, y := range x {
-		user, _ := client.GetUserInfoContext(ctx, y[1])
-		msg = strings.Replace(msg, y[0], user.Name, -1)
+	return msg, nil
+}
+
+func treatHere(msg string) string {
+	x := []string{
+		"here",
+		"channel",
+	}
+
+	for _, w := range x {
+		msg = strings.Replace(msg, "<!"+w+">", "@"+w, -1)
 	}
 
 	return msg
+}
+
+func treatUsersMentions(ctx context.Context, client bot.Client, logger log.Logger, msg string) (string, error) {
+	re := regexp.MustCompile(`<@(\w+)>`)
+	userIDs := re.FindAllStringSubmatch(msg, -1)
+
+	for _, id := range userIDs {
+		user, err := client.GetUserInfoContext(ctx, id[1])
+		if err != nil {
+			logger.Error(
+				ctx,
+				log.Trace(),
+				log.Reason("GetUserInfoContext"),
+				log.NewValue("message", msg),
+				log.NewValue("error", err),
+			)
+			return "", err
+		}
+
+		msg = strings.Replace(msg, id[0], "@"+user.Name, -1)
+	}
+
+	return msg, nil
 }
 
 // ShowStatus posts an attachment on the channel, with each pinned message from it

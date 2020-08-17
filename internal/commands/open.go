@@ -36,7 +36,7 @@ func OpenStartIncidentDialog(client bot.Client, triggerID string) error {
 			Type:        "text",
 			Placeholder: "My Incident Title",
 		},
-		MaxLength: 22,
+		MaxLength: 100,
 	}
 
 	channelName := &slack.TextInputElement{
@@ -46,7 +46,7 @@ func OpenStartIncidentDialog(client bot.Client, triggerID string) error {
 			Type:        "text",
 			Placeholder: "inc-my-incident",
 		},
-		MaxLength: 22,
+		MaxLength: 30,
 	}
 
 	meeting := &slack.TextInputElement{

@@ -3,15 +3,14 @@ package notify
 import (
 	"context"
 	"errors"
-	"hellper/internal"
 	"hellper/internal/log"
+	"hellper/internal/model"
+	"hellper/internal/reminder"
 )
 
 func channelsNotify(ctx context.Context) {
 
-	var (
-		to, msg string
-	)
+	var msg string
 
 	logger.Info(ctx, log.Trace(), log.Action("running"))
 
@@ -25,20 +24,12 @@ func channelsNotify(ctx context.Context) {
 		return
 	}
 
-	repository := internal.NewRepository(logger)
-
 	incidents, err := repository.ListActiveIncidents(ctx)
 	if err != nil {
 		logger.Error(ctx, log.Trace(), log.NewValue("error", err))
 	}
 
 	for _, incident := range incidents {
-
-		if arg.toFlag != "" {
-			to = arg.toFlag
-		} else {
-			to = incident.ChannelId
-		}
 
 		if arg.msgFlag != "" {
 			msg = arg.msgFlag
@@ -47,12 +38,18 @@ func channelsNotify(ctx context.Context) {
 		}
 
 		if arg.statusFlag == incident.Status || arg.statusFlag == "all" {
-			logger.Info(ctx, log.Trace(), log.Action("notify_job"), log.NewValue("incident", incident))
-			err = send(to, msg)
-			if err != nil {
-				logger.Error(ctx, log.Trace(), log.NewValue("error", err))
-			}
+			notifyChannels(ctx, incident, msg)
 		}
 	}
 
+}
+
+func notifyChannels(ctx context.Context, incident model.Incident, msg string) {
+	if reminder.CanSendNotify(ctx, client, logger, repository, incident) {
+		logger.Info(ctx, log.Trace(), log.Action("notify_job"), log.NewValue("incident", incident))
+		err := send(incident.ChannelId, msg)
+		if err != nil {
+			logger.Error(ctx, log.Trace(), log.NewValue("error", err))
+		}
+	}
 }

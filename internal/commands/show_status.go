@@ -56,7 +56,8 @@ func createDatesAttachment(ctx context.Context, logger log.Logger, repository mo
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/show_status.createDatesAttachment GetIncident error",
+			log.Trace(),
+			log.Reason("GetIncident"),
 			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
@@ -87,7 +88,8 @@ func createStatusAttachment(ctx context.Context, client bot.Client, logger log.L
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/show_status.createStatusAttachment ListPins error",
+			log.Trace(),
+			log.Reason("ListPins"),
 			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
@@ -110,7 +112,8 @@ func createStatusAttachment(ctx context.Context, client bot.Client, logger log.L
 			if err != nil {
 				logger.Error(
 					ctx,
-					"command/show_status.createStatusAttachment convertTimestamp error",
+					log.Trace(),
+					log.Reason("convertTimestamp"),
 					log.NewValue("channelID", channelID),
 					log.NewValue("error", err),
 				)
@@ -119,16 +122,12 @@ func createStatusAttachment(ctx context.Context, client bot.Client, logger log.L
 			}
 
 			if item.Message.User != "" {
-				logger.Info(
-					ctx,
-					"TESTE",
-					log.NewValue("message", item.Message),
-				)
 				user, err := client.GetUserInfoContext(ctx, item.Message.User)
 				if err != nil {
 					logger.Error(
 						ctx,
-						"command/show_status.createStatusAttachment GetUserInfoContext error",
+						log.Trace(),
+						log.Reason("GetUserInfoContext"),
 						log.NewValue("channelID", channelID),
 						log.NewValue("error", err),
 					)
@@ -243,32 +242,18 @@ func ShowStatus(
 
 	logger.Info(
 		ctx,
-		"command/show_status.ShowStatus",
+		log.Trace(),
 		log.NewValue("channelID", channelID),
 	)
 
 	attachDates, err := createDatesAttachment(ctx, logger, repository, channelID)
 	if err != nil {
-		logger.Error(
-			ctx,
-			"command/show_status.ShowStatus createDatesAttachment error",
-			log.NewValue("channelID", channelID),
-			log.NewValue("error", err),
-		)
-
 		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
 		return err
 	}
 
 	attachStatus, err = createStatusAttachment(ctx, client, logger, channelID)
 	if err != nil {
-		logger.Error(
-			ctx,
-			"command/show_status.ShowStatus createStatusAttachment error",
-			log.NewValue("channelID", channelID),
-			log.NewValue("error", err),
-		)
-
 		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
 		return err
 	}

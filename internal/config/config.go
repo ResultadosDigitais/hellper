@@ -11,7 +11,6 @@ var Env = newEnvironment()
 
 type environment struct {
 	OAuthToken                    string
-	VerificationToken             string
 	SlackSigningSecret            string
 	ProductChannelID              string
 	ProductList                   string
@@ -61,7 +60,6 @@ func newEnvironment() environment {
 	vars.StringVar(&env.MatrixHost, "hellper_matrix_host", "", "Matrix host")
 	vars.StringVar(&env.SupportTeam, "hellper_support_team", "", "Support team identifier")
 	vars.StringVar(&env.OAuthToken, "hellper_oauth_token", "", "Token to execute oauth actions")
-	vars.StringVar(&env.VerificationToken, "hellper_verification_token", "", "Token to verify external requests")
 	vars.StringVar(&env.SlackSigningSecret, "hellper_slack_signing_secret", "", "Slack signs the requests confirm that each request comes from Slack by verifying its unique signature")
 	vars.StringVar(&env.ProductChannelID, "hellper_product_channel_id", "", "The Product channel id")
 	vars.StringVar(&env.ProductList, "hellper_product_list", "Product A;Product B;Product C;Product D", "List of all products splitted by semicolon")

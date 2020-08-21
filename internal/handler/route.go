@@ -37,14 +37,6 @@ func init() {
 	commands.StartAllReminderJobs(logger, client, repository)
 }
 
-func authenticateRequest(token string) bool {
-	if token != config.Env.VerificationToken {
-		return false
-	}
-
-	return true
-}
-
 // NewHandlerRoute handles the http requests received and calls the correct handler.
 func NewHandlerRoute() func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {

@@ -3,12 +3,12 @@ module hellper
 go 1.13
 
 require (
-	github.com/DATA-DOG/go-sqlmock v1.4.1
+	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/google/uuid v1.1.1
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/lib/pq v1.8.0
 	github.com/paked/configure v0.0.0-20190218140148-28f9c3f21a44
-	github.com/slack-go/slack v0.6.5
+	github.com/slack-go/slack v0.6.6
 	github.com/stretchr/objx v0.1.1 // indirect
 	github.com/stretchr/testify v1.6.1
 	go.uber.org/zap v1.15.0

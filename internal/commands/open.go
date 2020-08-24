@@ -233,7 +233,7 @@ func StartIncidentByDialog(
 	//We need run that without wait because the modal need close in only 3s
 	go createPostMortemAndUpdateTopic(ctx, logger, client, fileStorage, incident, incidentID, repository, channel, warRoomURL)
 
-	startReminderStatusJob(ctx, logger, client, repository, incident)
+	// startReminderStatusJob(ctx, logger, client, repository, incident)
 
 	_, warning, metaWarning, err := client.JoinConversationContext(ctx, channel.ID)
 	if err != nil {

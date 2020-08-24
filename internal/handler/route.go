@@ -7,7 +7,6 @@ import (
 
 	"hellper/internal"
 	"hellper/internal/bot"
-	"hellper/internal/commands"
 	"hellper/internal/config"
 )
 
@@ -34,7 +33,7 @@ func init() {
 	cancelHandler = newHandlerCancel(logger, client, repository)
 	resolveHandler = newHandlerResolve(logger, client, repository)
 	pauseNotifyHandler = newHandlerPauseNotify(logger, client, repository)
-	commands.StartAllReminderJobs(logger, client, repository)
+	// commands.StartAllReminderJobs(logger, client, repository)
 }
 
 // NewHandlerRoute handles the http requests received and calls the correct handler.

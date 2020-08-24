@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	"hellper/internal/bot"
-	"hellper/internal/config"
 	"hellper/internal/log"
 	"hellper/internal/model"
 
@@ -51,9 +50,7 @@ func (h *handlerEvents) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	event, err := slackevents.ParseEvent(
 		json.RawMessage(body),
-		slackevents.OptionVerifyToken(
-			&slackevents.TokenComparator{VerificationToken: config.Env.VerificationToken},
-		),
+		slackevents.OptionNoVerifyToken(),
 	)
 	if err != nil {
 		logger.Error(

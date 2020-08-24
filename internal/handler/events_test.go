@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"hellper/internal/bot"
-	"hellper/internal/config"
 	"hellper/internal/log/zap"
 	"hellper/internal/model"
 
@@ -39,7 +38,6 @@ func newTestHandler(name, body string, responseStatus int) testHandler {
 
 func (scenario *testHandler) setup(*testing.T) {
 	msgsCache = map[string]struct{}{}
-	config.Env.VerificationToken = "7WV2asfPzOnZyh9JnBwBiUKu"
 	slackMock := bot.NewClientMock()
 	slackMock.On("PostMessage",
 		mock.AnythingOfType("string"),

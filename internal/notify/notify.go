@@ -13,8 +13,9 @@ import (
 )
 
 var (
-	logger = internal.NewLogger()
-	client = internal.NewClient(logger)
+	logger     = internal.NewLogger()
+	client     = internal.NewClient(logger)
+	repository = internal.NewRepository(logger)
 
 	arg opt
 )

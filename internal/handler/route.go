@@ -6,6 +6,7 @@ import (
 	"path"
 
 	"hellper/internal"
+	"hellper/internal/bot"
 	"hellper/internal/commands"
 	"hellper/internal/config"
 )
@@ -36,14 +37,6 @@ func init() {
 	commands.StartAllReminderJobs(logger, client, repository)
 }
 
-func authenticateRequest(token string) bool {
-	if token != config.Env.VerificationToken {
-		return false
-	}
-
-	return true
-}
-
 // NewHandlerRoute handles the http requests received and calls the correct handler.
 func NewHandlerRoute() func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -57,23 +50,23 @@ func NewHandlerRoute() func(http.ResponseWriter, *http.Request) {
 		case "envtest":
 			fmt.Fprintf(w, "%+v\n", config.Env.Messages)
 		case "events":
-			eventsHandler.ServeHTTP(w, r)
+			bot.VerifyRequests(r, w, eventsHandler)
 		case "open":
-			openHandler.ServeHTTP(w, r)
+			bot.VerifyRequests(r, w, openHandler)
 		case "interactive":
-			interactiveHandler.ServeHTTP(w, r)
+			bot.VerifyRequests(r, w, interactiveHandler)
 		case "status":
-			statusHandler.ServeHTTP(w, r)
+			bot.VerifyRequests(r, w, statusHandler)
 		case "dates":
-			datesHandler.ServeHTTP(w, r)
+			bot.VerifyRequests(r, w, datesHandler)
 		case "close":
-			closeHandler.ServeHTTP(w, r)
+			bot.VerifyRequests(r, w, closeHandler)
 		case "cancel":
-			cancelHandler.ServeHTTP(w, r)
+			bot.VerifyRequests(r, w, cancelHandler)
 		case "resolve":
-			resolveHandler.ServeHTTP(w, r)
+			bot.VerifyRequests(r, w, resolveHandler)
 		case "pause-notify":
-			pauseNotifyHandler.ServeHTTP(w, r)
+			bot.VerifyRequests(r, w, pauseNotifyHandler)
 		default:
 			fmt.Fprintf(w, "invalid path, %s!", lastPath)
 			w.WriteHeader(http.StatusBadRequest)

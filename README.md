@@ -20,6 +20,7 @@
 ---
 
 ## Contents
+
 - [Contents](#contents)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
@@ -36,34 +37,40 @@
 - [How to use](#how-to-use)
   - [Commands](#commands)
   - [Metrics](#metrics)
+  - [Alerts](#alerts)
 - [Contributing](#contributing)
 - [Code of Conduct](#code-of-conduct)
 - [Need help?](#need-help)
 - [License](#license)
 
-
 ## Getting Started
+
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See [deployment](#deployment) for notes on how to deploy the project on a live system.
 
 ### Prerequisites
+
 1. [Docker Compose](https://github.com/docker/compose/releases)
 2. [Slack Account](https://slack.com/)
 3. [G Suite Account](https://gsuite.google.com/)
 
 ### Installing
+
 1. Clone this repo
-```
+
+```shell
 git clone git@github.com:ResultadosDigitais/hellper.git
 ```
 
 2. [Configure Slack](/docs/CONFIGURING-SLACK.md)
 3. [Configure Google](/docs/CONFIGURING-GOOGLE.md)
 4. Make a copy from configuration example
-```
+
+```shell
 cp development.env.example development.env
 ```
 
 #### Variables explanation
+
 | Variable | Explanation | Default value |
 | --- | --- | --- |
 |**HELLPER_LANGUAGE**|Hellper languague|`pt-br`|
@@ -88,55 +95,61 @@ cp development.env.example development.env
 |**HELLPER_REMINDER_RESOLVED_STATUS_SECONDS**|Contains the time for the stat reminder to be triggered in resolved incidents, by default the time is 24 hours if there is no variable| `86400` |
 |**HELLPER_REMINDER_OPEN_NOTIFY_MSG**|Notify message when status is open| `Incident Status: Open - Update the status of this incident, just pin a message with status on the channel.` |
 |**HELLPER_REMINDER_RESOLVED_NOTIFY_MSG**|Notify message when status is resolved| `Incident Status: Resolved - Update the status of this incident, just pin a message with status on the channel.` |
-|**HELLPER_OAUTH_TOKEN**|[Slack token](/docs/CONFIGURING-SLACK.md#User-Token-Scopes) to exeucte bot user actions| --- |
-|**HELLPER_VERIFICATION_TOKEN**|[Slack token](/docs/CONFIGURING-SLACK.md#User-Token-Scopes) to verify external requests| --- |
+|**HELLPER_OAUTH_TOKEN**|[Slack token](/docs/CONFIGURING-SLACK.md#OAuth-Access-Token) to exeucte bot user actions| --- |
+|**HELLPER_SLACK_SIGNING_SECRET**|[Slack token](/docs/CONFIGURING-SLACK.md#Signing-Secret) to verify external requests| --- |
 |**FILE_STORAGE**|Hellper file storage for postmortem document| `google_drive` |
 |**TIMEZONE**|Timezone for Post Mortem Meeting| `America/Sao_Paulo` |
 |**HELLPER_SLA_HOURS_TO_CLOSE**|Number of hours between the incident resolution and Hellper reminder to close the incident.| `168` |
 
 ## Running the Tests
+
 1. `make test`
 
 ## Running the application
+
 2. `make run`
 
 ## Deployment
+
 [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
 
 ### Setup database
 
-* Run this command and copy the address:
+- Run this command and copy the address:
 
 `heroku config:get DATABASE_URL`
 
-* Run this command and past it on the YOUR_DATABASE_URL:
+- Run this command and past it on the YOUR_DATABASE_URL:
 
 `heroku config:set HELLPER_DSN=YOUR_DATABASE_URL`
 
-* Import the scheema changing `YOUR_HEROKU_APP_NAME` by your application name:
+- Import the scheema changing `YOUR_HEROKU_APP_NAME` by your application name:
 
 `heroku pg:psql --app YOUR_HEROKU_APP_NAME < internal/model/sql/postgres/schema/hellper.sql`
 
-* Configure yours [environment variables](#Variables-explanation)
+- Configure your [environment variables](#Variables-explanation)
 
 ## Optional Setup
 
 ### Ngrok (To receive events from Slack)
-- Download Ngrok https://ngrok.com/ and create account
+
+- Download Ngrok <https://ngrok.com/> and create an account
 - `sudo cp ngrok /usr/local/bin`
 - `ngrok http 8080`
 - Copy your public address. You'll need this to [Configure Slack API](/docs/CONFIGURING-SLACK.md)
 
 ### Golang
+
 - Install [golang](https://golang.org/doc/install)
 
 OR
 
 1. Install [gvm](https://github.com/moovweb/gvm)
 2. Follow gvm post install instructions
-3. Install go 1.13 as default
+3. Install go 1.14 as default
 
 ### Database
+
 ```shell
 psql $HELLPER_DSN -f "./internal/model/sql/postgres/schema/hellper.sql"
 ```
@@ -144,6 +157,7 @@ psql $HELLPER_DSN -f "./internal/model/sql/postgres/schema/hellper.sql"
 ## How to use
 
 ### Commands
+
 After [Configuring Slack](/docs/CONFIGURING-SLACK.md) you can use the commands created. The commands are as it follows:
 
 | Command  | Short Description |
@@ -161,6 +175,7 @@ The first command `/hellper_incident` can be use at any channel and/or conversat
 The remaining commands must be used only on the Incident's channel since they act on the specific incident that is open.
 
 ### Metrics
+
 This metrics came from `metrics` view table, they are calculated by the following formulas:
 
 | Metric | Description | Formula |
@@ -175,14 +190,44 @@ This metrics came from `metrics` view table, they are calculated by the followin
 | **MTTS** | Mean Time To Solution | `total solutiontime` / `total incidents` |
 | **MTTR** | Mean Time To Recovery | `total downtime` / `total incidents` |
 
+### Alerts
+
+Alerts are useful for notifying the status of incidents. Notifications can be used in different situations, such as requesting an update of the incident status or finalizing the post-mortem. For this you can use the CLI `notify` on your CronJob service.
+
+To use the CLI you need to build the binary file:
+
+```shell
+go build -o notify cmd/notify/main.go
+```
+
+#### Example of use
+
+```shell
+SHELL=/bin/bash
+BASH_ENV=/app/.env
+
+# At 16:30 on every week-day, from Monday through Friday, it sends a report to a selected channel with all incidents not closed
+30 16 * * 1-5 root /app/notify --type=report --to=YOUR_SLACK_CHANNEL_ID --status=all
+
+#  Every 30th minute it sends a status update request alert for all open incidents
+0/30 * * * * root /app/notify --type=channels --status=open
+
+# At 13:30 on every week-day, from Monday through Friday, sends a post-mortem request alert for all resolved incidents
+30 13 * * 1-5 root /app/notify --type=channels --status=resolved
+```
+
 ## Contributing
+
 Thanks for being interested in contributing! We’re so glad you want to help! Please take a little bit of your time and look at our [contributing guidelines](/docs/CONTRIBUTING.md). All type of contributions are welcome, such as bug fixes, issues or feature requests.
 
 ## Code of Conduct
+
 Everyone interacting in the Hellper project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](/docs/CODE_OF_CONDUCT.md).
 
 ## Need help?
+
 If you need help with Hellper, feel free to open an issue with a description of the problem you're facing.
 
 ## License
+
 The Hellper is available as open source under the terms of the [MIT License](LICENSE).

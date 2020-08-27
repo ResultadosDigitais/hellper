@@ -100,9 +100,9 @@
       "description": "List of all products splitted by semicolon",
       "value": "Your Product X;Your Product Y;Your Product Z"
     },
-    "HELLPER_VERIFICATION_TOKEN": {
-      "description": "Slack Token to verify external requests",
-      "value": "YOUR_SLACK_VERIFICATION_TOKEN"
+    "HELLPER_SLACK_SIGNING_SECRET": {
+      "description": "Slack signs the requests confirming that each request comes from Slack by verifying its unique signature.",
+      "value": "YOUR_SLACK_SIGNING_SECRET"
     },
     "FILE_STORAGE": {
       "description": "Hellper file storage for postmortem document",

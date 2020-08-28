@@ -14,7 +14,7 @@ func NewFileStorageMock() *FileStorageMock {
 	return new(FileStorageMock)
 }
 
-func (mock *FileStorageMock) CreatePostMortemDocument(ctx context.Context, postMortemName string) string {
+func (mock *FileStorageMock) CreatePostMortemDocument(ctx context.Context, postMortemName string) (string, error) {
 	args := mock.Called(ctx, postMortemName)
-	return args.Get(0).(string)
+	return args.Get(0).(string), args.Error(1)
 }

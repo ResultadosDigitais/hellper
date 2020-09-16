@@ -298,6 +298,7 @@ func createPostMortemAndUpdateTopic(ctx context.Context, logger log.Logger, clie
 func createOpenAttachment(incident model.Incident, incidentID int64, warRoomURL string, supportTeam string) slack.Attachment {
 	var messageText strings.Builder
 	messageText.WriteString("An Incident has been opened by <@" + incident.IncidentAuthor + ">\n\n")
+	messageText.WriteString("*Title:* " + incident.Title + "\n")
 	messageText.WriteString("*Severity:* " + getSeverityLevelText(incident.SeverityLevel) + "\n\n")
 	messageText.WriteString("*Product:* " + incident.Product + "\n")
 	messageText.WriteString("*Channel:* <#" + incident.ChannelId + ">\n")
@@ -317,16 +318,20 @@ func createOpenAttachment(incident model.Incident, incidentID int64, warRoomURL 
 				Value: strconv.FormatInt(incidentID, 10),
 			},
 			{
+				Title: "Incident Channel",
+				Value: "<#" + incident.ChannelId + ">",
+			},
+			{
+				Title: "Incident Title",
+				Value: incident.Title,
+			},
+			{
 				Title: "Severity",
 				Value: getSeverityLevelText(incident.SeverityLevel),
 			},
 			{
 				Title: "Product",
 				Value: incident.Product,
-			},
-			{
-				Title: "Channel",
-				Value: "<#" + incident.ChannelId + ">",
 			},
 			{
 				Title: "Commander",

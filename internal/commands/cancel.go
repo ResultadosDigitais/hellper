@@ -232,8 +232,12 @@ func createCancelAttachment(inc model.Incident, userID string) slack.Attachment 
 				Value: strconv.FormatInt(inc.Id, 10),
 			},
 			{
-				Title: "Channel",
+				Title: "Incident Channel",
 				Value: "<#" + inc.ChannelId + ">",
+			},
+			{
+				Title: "Incident Title",
+				Value: inc.Title,
 			},
 			{
 				Title: "Description",

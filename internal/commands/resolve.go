@@ -311,7 +311,7 @@ func createResolveChannelAttachment(inc model.Incident, userName string, event *
 			},
 			{
 				Title: "Incident Title",
-				Value: "<#" + inc.Title + ">",
+				Value: inc.Title,
 			},
 			{
 				Title: "End date",

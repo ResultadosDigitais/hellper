@@ -302,7 +302,7 @@ func createCloseChannelAttachment(inc model.Incident, userName, impact string) s
 			},
 			{
 				Title: "Incident Channel",
-				Value: "<#" + inc.ChannelId + ">",
+				Value: inc.ChannelId,
 			},
 			{
 				Title: "Incident Title",

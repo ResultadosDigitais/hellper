@@ -306,8 +306,12 @@ func createResolveChannelAttachment(inc model.Incident, userName string, event *
 				Value: strconv.FormatInt(inc.Id, 10),
 			},
 			{
-				Title: "Incident",
+				Title: "Incident Channel",
 				Value: "<#" + inc.ChannelId + ">",
+			},
+			{
+				Title: "Incident Title",
+				Value: "<#" + inc.Title + ">",
 			},
 			{
 				Title: "End date",

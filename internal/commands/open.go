@@ -123,6 +123,29 @@ func OpenStartIncidentDialog(client bot.Client, triggerID string) error {
 		MaxLength: 500,
 	}
 
+	silentIncident := &slack.DialogInputSelect{
+		DialogInput: slack.DialogInput{
+			Label:       "This is a silent incident?",
+			Name:        "silent_incident",
+			Type:        "select",
+			Placeholder: "Silent Incident",
+			Optional:    false,
+		},
+		Value: "false",
+		Options: []slack.DialogSelectOption{
+			{
+				Label: "Yes",
+				Value: "true",
+			},
+			{
+				Label: "No",
+				Value: "false",
+			},
+		},
+		OptionGroups: []slack.DialogOptionGroup{},
+		Hint:         "A silent incident is characterized by having a private channel and not notifying the main channel of incident when it opens.",
+	}
+
 	dialog := slack.Dialog{
 		CallbackID:     "inc-open",
 		Title:          "Start an Incident",
@@ -136,6 +159,7 @@ func OpenStartIncidentDialog(client bot.Client, triggerID string) error {
 			product,
 			commander,
 			description,
+			silentIncident,
 		},
 	}
 
@@ -168,6 +192,7 @@ func StartIncidentByDialog(
 		product          = submission.Product
 		commander        = submission.IncidentCommander
 		description      = submission.IncidentDescription
+		silentIncident   = submission.SilentIncident
 		environment      = config.Env.Environment
 		matrixURL        = config.Env.MatrixHost
 		supportTeam      = config.Env.SupportTeam
@@ -180,7 +205,17 @@ func StartIncidentByDialog(
 		return fmt.Errorf("commands.StartIncidentByDialog.get_slack_user_info: incident=%v commanderId=%v error=%v", channelName, commander, err)
 	}
 
-	channel, err := client.CreateConversationContext(ctx, channelName, false)
+	hasSilentIncident, err := strconv.ParseBool(silentIncident)
+	if err != nil {
+		logger.Error(
+			ctx,
+			log.Trace(),
+			log.Reason("strconv.ParseBool"),
+			log.NewValue("error", err),
+		)
+	}
+
+	channel, err := client.CreateConversationContext(ctx, channelName, hasSilentIncident)
 	if err != nil {
 		return fmt.Errorf("commands.StartIncidentByDialog.create_conversation_context: incident=%v error=%v", channelName, err)
 	}
@@ -226,9 +261,12 @@ func StartIncidentByDialog(
 	concurrence.WithWaitGroup(&waitgroup, func() {
 		postAndPinMessage(client, channel.ID, message, attachment)
 	})
-	concurrence.WithWaitGroup(&waitgroup, func() {
-		postAndPinMessage(client, productChannelID, message, attachment)
-	})
+
+	if !hasSilentIncident {
+		concurrence.WithWaitGroup(&waitgroup, func() {
+			postAndPinMessage(client, productChannelID, message, attachment)
+		})
+	}
 
 	//We need run that without wait because the modal need close in only 3s
 	go createPostMortemAndUpdateTopic(ctx, logger, client, fileStorage, incident, incidentID, repository, channel, warRoomURL)

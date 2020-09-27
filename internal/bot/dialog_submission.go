@@ -49,4 +49,5 @@ type Submission struct {
 	PostMortemMeeting   string `json:"post_mortem_meeting"`
 	PauseNotifyTime     string `json:"pause_notify_time"`
 	PauseNotifyReason   string `json:"pause_notify_reason"`
+	SilentIncident      string `json:"silent_incident"`
 }

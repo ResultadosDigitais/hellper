@@ -266,25 +266,25 @@ func StartIncidentByDialog(
 		concurrence.WithWaitGroup(&waitgroup, func() {
 			postAndPinMessage(client, productChannelID, message, attachment)
 		})
+
+		_, warning, metaWarning, err := client.JoinConversationContext(ctx, channel.ID)
+		if err != nil {
+			logger.Error(
+				ctx,
+				log.Trace(),
+				log.Reason("JoinConversationContext"),
+				log.NewValue("warning", warning),
+				log.NewValue("meta_warning", metaWarning),
+				log.NewValue("error", err),
+			)
+			return err
+		}
 	}
 
 	//We need run that without wait because the modal need close in only 3s
 	go createPostMortemAndUpdateTopic(ctx, logger, client, fileStorage, incident, incidentID, repository, channel, warRoomURL)
 
 	// startReminderStatusJob(ctx, logger, client, repository, incident)
-
-	_, warning, metaWarning, err := client.JoinConversationContext(ctx, channel.ID)
-	if err != nil {
-		logger.Error(
-			ctx,
-			log.Trace(),
-			log.Reason("JoinConversationContext"),
-			log.NewValue("warning", warning),
-			log.NewValue("meta_warning", metaWarning),
-			log.NewValue("error", err),
-		)
-		return err
-	}
 
 	_, err = client.InviteUsersToConversationContext(ctx, channel.ID, commander)
 	if err != nil {

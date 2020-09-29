@@ -175,7 +175,7 @@ func CancelIncidentByDialog(
 		return err
 	}
 
-	if notifyOnCancel {
+	if notifyOnCancel && inc.Type == model.TypePublic {
 		err := postAndPinMessage(
 			client,
 			productChannelID,

@@ -237,6 +237,11 @@ func StartIncidentByDialog(
 		IncidentAuthor:          incidentAuthor,
 		CommanderId:             user.SlackID,
 		CommanderEmail:          user.Email,
+		Type:                    model.TypePublic,
+	}
+
+	if hasSilentIncident {
+		incident.Type = model.TypePrivate
 	}
 
 	incidentID, err := repository.InsertIncident(ctx, &incident)
@@ -262,7 +267,7 @@ func StartIncidentByDialog(
 		postAndPinMessage(client, channel.ID, message, attachment)
 	})
 
-	if !hasSilentIncident {
+	if incident.Type == model.TypePublic {
 		concurrence.WithWaitGroup(&waitgroup, func() {
 			postAndPinMessage(client, productChannelID, message, attachment)
 		})

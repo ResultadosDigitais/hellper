@@ -166,6 +166,7 @@ func ResolveIncidentByDialog(
 	}
 
 	channelAttachment := createResolveChannelAttachment(inc, userName, calendarEvent)
+	privateAttachment := createResolvePrivateAttachment(incident, calendarEvent)
 	message := "The Incident <#" + incident.ChannelId + "> has been resolved by <@" + userName + ">"
 
 	var waitgroup sync.WaitGroup
@@ -190,7 +191,6 @@ func ResolveIncidentByDialog(
 		})
 	}
 
-	privateAttachment := createResolvePrivateAttachment(incident, calendarEvent)
 	postMessage(client, userID, "", privateAttachment)
 
 	return nil

@@ -10,6 +10,8 @@ const (
 	StatusCancel   = "canceled"
 	StatusResolved = "resolved"
 	StatusClosed   = "closed"
+	TypePrivate    = "private"
+	TypePublic     = "public"
 )
 
 type Incident struct {
@@ -38,4 +40,5 @@ type Incident struct {
 	IncidentAuthor          string        `db:"incident_author_id,omitempty"`
 	CommanderId             string        `db:"commander_id,omitempty"`
 	CommanderEmail          string        `db:"commander_email,omitempty"`
+	Type                    string        `db:"type,omitempty"`
 }

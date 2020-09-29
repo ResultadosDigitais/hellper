@@ -166,7 +166,6 @@ func ResolveIncidentByDialog(
 	}
 
 	channelAttachment := createResolveChannelAttachment(inc, userName, calendarEvent)
-	privateAttachment := createResolvePrivateAttachment(incident, calendarEvent)
 	message := "The Incident <#" + incident.ChannelId + "> has been resolved by <@" + userName + ">"
 
 	var waitgroup sync.WaitGroup
@@ -180,7 +179,7 @@ func ResolveIncidentByDialog(
 			channelAttachment,
 		)
 	})
-	if notifyOnResolve {
+	if notifyOnResolve && inc.Type == model.TypePublic {
 		concurrence.WithWaitGroup(&waitgroup, func() {
 			postAndPinMessage(
 				client,
@@ -190,6 +189,8 @@ func ResolveIncidentByDialog(
 			)
 		})
 	}
+
+	privateAttachment := createResolvePrivateAttachment(incident, calendarEvent)
 	postMessage(client, userID, "", privateAttachment)
 
 	return nil

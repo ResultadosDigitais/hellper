@@ -48,6 +48,7 @@ func incidentLogValues(inc *model.Incident) []log.Value {
 		log.NewValue("channelID", inc.ChannelId),
 		log.NewValue("commanderID", inc.CommanderId),
 		log.NewValue("commanderEmail", inc.CommanderEmail),
+		log.NewValue("type", inc.Type),
 	}
 }
 
@@ -78,8 +79,9 @@ func (r *repository) InsertIncident(ctx context.Context, inc *model.Incident) (i
 		, channel_name
 		, channel_id
 		, commander_id
-		, commander_email)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
+		, commander_email
+		, type )
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
 	RETURNING id`
 
 	id := int64(0)
@@ -105,7 +107,8 @@ func (r *repository) InsertIncident(ctx context.Context, inc *model.Incident) (i
 		inc.ChannelName,
 		inc.ChannelId,
 		inc.CommanderId,
-		inc.CommanderEmail)
+		inc.CommanderEmail,
+		inc.Type)
 
 	switch err := idResult.Scan(&id); err {
 	case nil:
@@ -221,6 +224,7 @@ func (r *repository) GetIncident(ctx context.Context, channelID string) (inc mod
 		&inc.ChannelId,
 		&inc.CommanderId,
 		&inc.CommanderEmail,
+		&inc.Type,
 	)
 
 	r.logger.Info(
@@ -241,8 +245,8 @@ func GetIncidentByChannelID() string {
 		, start_ts
 		, end_ts
 		, identification_ts
-    , snoozed_until
-    , responsibility
+		, snoozed_until
+		, responsibility
 		, functionality
 		, root_cause
 		, customer_impact
@@ -255,6 +259,7 @@ func GetIncidentByChannelID() string {
 		, CASE WHEN channel_id IS NULL THEN '' ELSE channel_id END AS channel_id
 		, CASE WHEN commander_id IS NULL THEN '' ELSE commander_id END commander_id
 		, CASE WHEN commander_email IS NULL THEN '' ELSE commander_email END commander_email
+		, type
 	FROM incident
 	WHERE channel_id = $1
 	LIMIT 1`
@@ -547,6 +552,7 @@ func (r *repository) ListActiveIncidents(ctx context.Context) ([]model.Incident,
 		GetIncidentStatusFilterQuery(),
 		model.StatusOpen,
 		model.StatusResolved,
+		model.TypePrivate,
 	)
 	if err != nil {
 		r.logger.Error(
@@ -619,7 +625,7 @@ func GetIncidentStatusFilterQuery() string {
 		, start_ts
 		, end_ts
 		, identification_ts
-    , snoozed_until
+    	, snoozed_until
 		, responsibility
 		, functionality
 		, root_cause
@@ -635,6 +641,7 @@ func GetIncidentStatusFilterQuery() string {
 		, CASE WHEN commander_email IS NULL THEN '' ELSE commander_email END commander_email
 	FROM incident
 	WHERE status IN ($1, $2)
+	AND type <> ($3)
 	LIMIT 100`
 }
 

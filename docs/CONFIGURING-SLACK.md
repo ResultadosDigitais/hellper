@@ -31,6 +31,7 @@
  - usergroups:read
  - users:read
  - users:read.email
+ - groups:write
 ```
 
 ## Slash Commands

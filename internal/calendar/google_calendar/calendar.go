@@ -32,23 +32,13 @@ func NewCalendar(
 
 	gClient, err := googleauth.Struct.GetGClient(ctx, logger, calendarTokenBytes, gCalendar.CalendarScope)
 	if err != nil {
-		logger.Error(
-			ctx,
-			"googlecalendar/calendar.NewCalendar GetGClient ERROR",
-			log.NewValue("error", err),
-		)
-
+		logger.Error(ctx, log.Trace(), log.Action("GetGClient"), log.Reason(err.Error()))
 		return nil, err
 	}
 
 	calendarService, err := google.NewCalendarService(gClient)
 	if err != nil {
-		logger.Error(
-			ctx,
-			"googlecalendar/calendar.NewCalendar gCalendar.New ERROR",
-			log.NewValue("error", err),
-		)
-
+		logger.Error(ctx, log.Trace(), log.Action("NewCalendarService"), log.Reason(err.Error()))
 		return nil, err
 	}
 
@@ -107,11 +97,7 @@ func (gc *googleCalendar) insertEvent(ctx context.Context, event *gCalendar.Even
 	call := gc.eventsService.Insert(gc.calendarID, event)
 	gcEvent, err := gc.handleInsertEvent(ctx, call)
 	if err != nil {
-		gc.logger.Error(
-			ctx,
-			"googlecalendar/calendar.insertEvent ERROR",
-			log.NewValue("error", err),
-		)
+		gc.logger.Error(ctx, log.Trace(), log.Action("gc.handleInsertEvent"), log.Reason(err.Error()))
 		return nil, err
 	}
 
@@ -124,11 +110,7 @@ func (gc *googleCalendar) handleInsertEvent(ctx context.Context, insertCall goog
 
 	gcEvent, err := insertCall.Do()
 	if err != nil {
-		gc.logger.Error(
-			ctx,
-			"googlecalendar/calendar.handleInsertEvent ERROR",
-			log.NewValue("error", err),
-		)
+		gc.logger.Error(ctx, log.Trace(), log.Action("insertCall.Do"), log.Reason(err.Error()))
 		return nil, err
 	}
 
@@ -163,31 +145,19 @@ func (gc *googleCalendar) CreateCalendarEvent(ctx context.Context, start, end, s
 	e := event(start, end, summary, commander, emails)
 	googleEvent, err := gc.insertEvent(ctx, e)
 	if err != nil {
-		gc.logger.Error(
-			ctx,
-			"googlecalendar/calendar.CreateCalendarEvent ERROR",
-			log.NewValue("error", err),
-		)
+		gc.logger.Error(ctx, log.Trace(), log.Action("gc.insertEvent"), log.Reason(err.Error()))
 		return nil, err
 	}
 
 	eventStart, err := time.Parse(time.RFC3339, googleEvent.Start.DateTime)
 	if err != nil {
-		gc.logger.Error(
-			ctx,
-			"googlecalendar/calendar.CreateCalendarEvent time.Parse ERROR",
-			log.NewValue("error", err),
-		)
+		gc.logger.Error(ctx, log.Trace(), log.Action("time.Parse Start"), log.Reason(err.Error()))
 		return nil, err
 	}
 
 	eventEnd, err := time.Parse(time.RFC3339, googleEvent.End.DateTime)
 	if err != nil {
-		gc.logger.Error(
-			ctx,
-			"googlecalendar/calendar.CreateCalendarEvent time.Parse ERROR",
-			log.NewValue("error", err),
-		)
+		gc.logger.Error(ctx, log.Trace(), log.Action("time.Parse End"), log.Reason(err.Error()))
 		return nil, err
 	}
 

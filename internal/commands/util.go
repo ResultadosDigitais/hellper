@@ -19,9 +19,10 @@ func ping(ctx context.Context, client bot.Client, logger log.Logger, channelID s
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/util.ping postMessage error",
+			log.Trace(),
+			log.Action("postMessage"),
+			log.Reason(err.Error()),
 			log.NewValue("channelID", channelID),
-			log.NewValue("error", err),
 		)
 	}
 }
@@ -31,9 +32,10 @@ func help(ctx context.Context, client bot.Client, logger log.Logger, channelID s
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/util.help postMessage error",
+			log.Trace(),
+			log.Action("postMessage"),
+			log.Reason(err.Error()),
 			log.NewValue("channelID", channelID),
-			log.NewValue("error", err),
 		)
 	}
 }
@@ -76,11 +78,12 @@ func PostErrorAttachment(ctx context.Context, client bot.Client, logger log.Logg
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/util.PostErrorAttachment postMessage error",
+			log.Trace(),
+			log.Action("client.PostEphemeralContext"),
+			log.Reason(err.Error()),
 			log.NewValue("channelID", channelID),
 			log.NewValue("userID", userID),
 			log.NewValue("text", text),
-			log.NewValue("error", err),
 		)
 		return
 	}

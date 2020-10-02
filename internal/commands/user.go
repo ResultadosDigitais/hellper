@@ -21,9 +21,10 @@ func getSlackUserInfo(
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/user.getSlackUserInfo error",
+			log.Trace(),
+			log.Action("client.GetUserInfoContext"),
+			log.Reason(err.Error()),
 			log.NewValue("userID", userID),
-			log.NewValue("error", err),
 		)
 
 		return nil, err
@@ -46,7 +47,7 @@ func getUsersIDsInConversation(
 ) (*[]string, error) {
 	logger.Info(
 		ctx,
-		"command/user.getUsersInConversation",
+		log.Trace(),
 		log.NewValue("params", channelID),
 	)
 
@@ -61,9 +62,10 @@ func getUsersIDsInConversation(
 		if err != nil {
 			logger.Error(
 				ctx,
-				"command/user.getUsersIDsInConversation",
+				log.Trace(),
+				log.Action("client.GetUsersInConversationContext"),
+				log.Reason(err.Error()),
 				log.NewValue("channelID", channelID),
-				log.NewValue("error", err),
 			)
 			return nil, err
 		}
@@ -90,9 +92,10 @@ func getUsersInConversation(
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/user.getUsersInConversation",
+			log.Trace(),
+			log.Action("getUsersIDsInConversation"),
+			log.Reason(err.Error()),
 			log.NewValue("channel_id", channelID),
-			log.NewValue("error", err),
 		)
 		return nil, err
 	}
@@ -102,9 +105,10 @@ func getUsersInConversation(
 		if err != nil {
 			logger.Error(
 				ctx,
-				"command/user.getUsersInConversation",
+				log.Trace(),
+				log.Action("getSlackUserInfo"),
+				log.Reason(err.Error()),
 				log.NewValue("user_id", id),
-				log.NewValue("error", err),
 			)
 			return nil, err
 		}
@@ -126,9 +130,10 @@ func getUsersEmailsInConversation(
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/user.getUsersEmailsInConversation",
+			log.Trace(),
+			log.Action("getUsersInConversation"),
+			log.Reason(err.Error()),
 			log.NewValue("channel_id", channelID),
-			log.NewValue("error", err),
 		)
 		return nil, err
 	}

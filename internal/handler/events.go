@@ -44,7 +44,7 @@ func (h *handlerEvents) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	body := buf.String()
 	logger.Info(
 		ctx,
-		"handler/events.ServeHTTP",
+		log.Trace(),
 		log.NewValue("requestbody", body),
 	)
 
@@ -55,8 +55,10 @@ func (h *handlerEvents) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger.Error(
 			ctx,
-			"handler/events.ServeHTTP ParseEvent error",
-			log.NewValue("error", err))
+			log.Trace(),
+			log.Action("slackevents.ParseEvent"),
+			log.Reason(err.Error()),
+		)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -65,7 +67,7 @@ func (h *handlerEvents) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case slackevents.CallbackEvent:
 		logger.Info(
 			ctx,
-			"handler/events.ParseEvent CallbackEvent",
+			log.Trace(),
 			log.NewValue("event", event),
 		)
 
@@ -73,7 +75,7 @@ func (h *handlerEvents) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if _, exists := msgsCache[stringSha1(body)]; exists {
 			logger.Info(
 				ctx,
-				"handler/events.ParseEvent duplicated_message",
+				log.Trace(),
 				log.NewValue("event", event),
 				log.NewValue("message", msgsCache),
 			)
@@ -82,7 +84,7 @@ func (h *handlerEvents) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		msgsCache[stringSha1(body)] = struct{}{}
 		logger.Info(
 			ctx,
-			"handler/events.ParseEvent deduplication_message_added",
+			log.Trace(),
 			log.NewValue("event", event),
 			log.NewValue("message", msgsCache),
 		)
@@ -91,9 +93,10 @@ func (h *handlerEvents) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			logger.Error(
 				ctx,
-				"handler/events.ParseEvent callback_event_error",
+				log.Trace(),
+				log.Action("replyCallbackEvent"),
+				log.Reason(err.Error()),
 				log.NewValue("event", event),
-				log.NewValue("error", err),
 			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -103,7 +106,7 @@ func (h *handlerEvents) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case slackevents.URLVerification:
 		logger.Info(
 			ctx,
-			"handler/events.ParseEvent URLVerification",
+			log.Trace(),
 			log.NewValue("event", event),
 		)
 
@@ -112,9 +115,10 @@ func (h *handlerEvents) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			logger.Error(
 				ctx,
-				"handler/events.ParseEvent Decode error",
+				log.Trace(),
+				log.Action("json.NewDecoder"),
+				log.Reason(err.Error()),
 				log.NewValue("event", event),
-				log.NewValue("error", err),
 			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -125,7 +129,7 @@ func (h *handlerEvents) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		logger.Info(
 			ctx,
-			"handler/events.ParseEvent challenge",
+			log.Trace(),
 			log.NewValue("event", event),
 			log.NewValue("challenge", resp.Challenge),
 		)

@@ -68,12 +68,7 @@ func NewCalendar(ctx context.Context, logger log.Logger) calendar.Calendar {
 	)
 	calendar, err := googlecalendar.NewCalendar(ctx, logger, calendarToken, calendarID)
 	if err != nil {
-		logger.Error(
-			ctx,
-			"internal.NewCalendar ERROR",
-			log.NewValue("error", err),
-		)
-
+		logger.Error(ctx, log.Trace(), log.Action("NewCalendar"), log.Reason(err.Error()))
 		return nil
 	}
 

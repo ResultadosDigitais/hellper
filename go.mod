@@ -3,6 +3,7 @@ module hellper
 go 1.13
 
 require (
+	github.com/Arkweid/lefthook v0.7.2 // indirect
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/google/uuid v1.1.2
 	github.com/hashicorp/hcl v1.0.0 // indirect

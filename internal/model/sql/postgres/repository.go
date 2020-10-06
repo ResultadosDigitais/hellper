@@ -48,7 +48,7 @@ func incidentLogValues(inc *model.Incident) []log.Value {
 		log.NewValue("channelID", inc.ChannelId),
 		log.NewValue("commanderID", inc.CommanderId),
 		log.NewValue("commanderEmail", inc.CommanderEmail),
-		log.NewValue("type", inc.Type),
+		log.NewValue("channelType", inc.ChannelType),
 	}
 }
 
@@ -80,7 +80,7 @@ func (r *repository) InsertIncident(ctx context.Context, inc *model.Incident) (i
 		, channel_id
 		, commander_id
 		, commander_email
-		, type )
+		, channel_type )
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
 	RETURNING id`
 
@@ -108,7 +108,7 @@ func (r *repository) InsertIncident(ctx context.Context, inc *model.Incident) (i
 		inc.ChannelId,
 		inc.CommanderId,
 		inc.CommanderEmail,
-		inc.Type)
+		inc.ChannelType)
 
 	switch err := idResult.Scan(&id); err {
 	case nil:
@@ -224,7 +224,7 @@ func (r *repository) GetIncident(ctx context.Context, channelID string) (inc mod
 		&inc.ChannelId,
 		&inc.CommanderId,
 		&inc.CommanderEmail,
-		&inc.Type,
+		&inc.ChannelType,
 	)
 
 	r.logger.Info(
@@ -259,7 +259,7 @@ func GetIncidentByChannelID() string {
 		, CASE WHEN channel_id IS NULL THEN '' ELSE channel_id END AS channel_id
 		, CASE WHEN commander_id IS NULL THEN '' ELSE commander_id END commander_id
 		, CASE WHEN commander_email IS NULL THEN '' ELSE commander_email END commander_email
-		, type
+		, channel_type
 	FROM incident
 	WHERE channel_id = $1
 	LIMIT 1`
@@ -641,7 +641,7 @@ func GetIncidentStatusFilterQuery() string {
 		, CASE WHEN commander_email IS NULL THEN '' ELSE commander_email END commander_email
 	FROM incident
 	WHERE status IN ($1, $2)
-	AND type <> ($3)
+	AND channel_type <> ($3)
 	LIMIT 100`
 }
 

@@ -233,7 +233,7 @@ func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Lo
 	var waitgroup sync.WaitGroup
 	defer waitgroup.Wait()
 
-	if notifyOnClose && inc.Type == model.TypePublic {
+	if notifyOnClose && inc.ChannelType == model.TypePublic {
 		concurrence.WithWaitGroup(&waitgroup, func() {
 			postAndPinMessage(
 				client,

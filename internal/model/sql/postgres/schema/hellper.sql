@@ -26,7 +26,7 @@ CREATE TABLE public.incident (
 	channel_id varchar(50) NULL,
   commander_id text NULL,
   commander_email text NULL,
-  type varchar(50) NULL,
+  channel_type varchar(50) NULL,
 	CONSTRAINT firstkey PRIMARY KEY (id)
 );
 

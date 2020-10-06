@@ -180,7 +180,7 @@ func ResolveIncidentByDialog(
 			channelAttachment,
 		)
 	})
-	if notifyOnResolve && inc.Type == model.TypePublic {
+	if notifyOnResolve && inc.ChannelType == model.TypePublic {
 		concurrence.WithWaitGroup(&waitgroup, func() {
 			postAndPinMessage(
 				client,

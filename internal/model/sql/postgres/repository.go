@@ -625,7 +625,7 @@ func GetIncidentStatusFilterQuery() string {
 		, start_ts
 		, end_ts
 		, identification_ts
-    	, snoozed_until
+    , snoozed_until
 		, responsibility
 		, functionality
 		, root_cause

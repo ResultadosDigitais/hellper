@@ -8,14 +8,14 @@ import (
 var Env = newEnvironment()
 
 type environment struct {
-	OAuthToken                    string
-	SlackSigningSecret            string
-	ProductChannelID              string
-	ProductList                   string
-	Language                      string
-	MatrixHost                    string
-	SupportTeam                   string
-	Messages                      messages
+	OAuthToken         string
+	SlackSigningSecret string
+	ProductChannelID   string
+	ProductList        string
+	Language           string
+	MatrixHost         string
+	SupportTeam        string
+
 	BindAddress                   string
 	Database                      string
 	DSN                           string
@@ -36,15 +36,6 @@ type environment struct {
 	NotifyOnCancel                bool
 	Timezone                      string
 	SLAHoursToClose               int
-}
-
-type messages struct {
-	IncidentClosed         string
-	NoListOpenIncidents    string
-	NoTimelineItems        string
-	AnswerAnIncident       string
-	IncidentChannelCreated string
-	BotHelp                string
 }
 
 func newEnvironment() environment {
@@ -82,22 +73,4 @@ func newEnvironment() environment {
 
 	vars.Parse()
 	return env
-}
-func newMessages() messages {
-	return messages{
-		IncidentClosed:         "Incident <#%s> closed.",
-		NoListOpenIncidents:    "No active incidents!",
-		NoTimelineItems:        "No timeline items",
-		AnswerAnIncident:       "Response to incident: %s",
-		IncidentChannelCreated: "Channel of incident: <#%s>",
-		BotHelp: `
-	hellper
-	A bot to help the incident treatment
-	Available commands:
-	 help      Show this help
-	 ping      Test bot connectivity
-	 list      List all active incidents
-	 state     Show incident state and timeline
-	`,
-	}
 }

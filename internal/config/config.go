@@ -83,3 +83,21 @@ func newEnvironment() environment {
 	vars.Parse()
 	return env
 }
+func newMessages() messages {
+	return messages{
+		IncidentClosed:         "Incident <#%s> closed.",
+		NoListOpenIncidents:    "No active incidents!",
+		NoTimelineItems:        "No timeline items",
+		AnswerAnIncident:       "Response to incident: %s",
+		IncidentChannelCreated: "Channel of incident: <#%s>",
+		BotHelp: `
+	hellper
+	A bot to help the incident treatment
+	Available commands:
+	 help      Show this help
+	 ping      Test bot connectivity
+	 list      List all active incidents
+	 state     Show incident state and timeline
+	`,
+	}
+}

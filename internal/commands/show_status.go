@@ -161,6 +161,25 @@ func createStatusAttachment(ctx context.Context, client bot.Client, logger log.L
 			Color:    "#f2b12e",
 			Fields:   fields,
 		}
+	} else {
+		field := slack.AttachmentField{
+			Title: "Incident Timeline is empty",
+		}
+		fields = append(fields, field)
+
+		attach = slack.Attachment{
+			Pretext:  "Incident Status:",
+			Fallback: "Incident Status",
+			Text:     "",
+			Color:    "#999999",
+			Fields:   fields,
+		}
+		logger.Info(
+			ctx,
+			log.Trace(),
+			log.Reason("AttachmentField"),
+			log.NewValue("channelID", channelID),
+		)
 	}
 	return attach, nil
 }

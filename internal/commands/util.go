@@ -26,7 +26,15 @@ func ping(ctx context.Context, client bot.Client, logger log.Logger, channelID s
 }
 
 func help(ctx context.Context, client bot.Client, logger log.Logger, channelID string) {
-	err := postMessage(client, channelID, "pong")
+	err := postMessage(client, channelID, `
+	hellper
+	A bot to help the incident treatment
+	Available commands:
+ 	help      Show this help
+ 	ping      Test bot connectivity
+ 	list      List all active incidents
+ 	state     Show incident state and timeline
+`)
 	if err != nil {
 		logger.Error(
 			ctx,

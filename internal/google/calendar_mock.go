@@ -35,11 +35,6 @@ func NewCalendarEventsInsertCallMock() *CalendarEventsInsertCallMock {
 	return new(CalendarEventsInsertCallMock)
 }
 
-// func (mock *CalendarEventsInsertCallMock) Context(ctx context.Context) *calendar.EventsInsertCall {
-// 	args := mock.Called(ctx)
-// 	return args.Get(0).(*calendar.EventsInsertCall)
-// }
-
 func (mock *CalendarEventsInsertCallMock) Do(opts ...googleapi.CallOption) (*calendar.Event, error) {
 	var (
 		args   = mock.Called()

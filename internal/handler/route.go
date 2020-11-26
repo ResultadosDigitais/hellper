@@ -7,7 +7,6 @@ import (
 
 	"hellper/internal"
 	"hellper/internal/bot"
-	"hellper/internal/config"
 )
 
 var (
@@ -33,7 +32,6 @@ func init() {
 	cancelHandler = newHandlerCancel(logger, client, repository)
 	resolveHandler = newHandlerResolve(logger, client, repository)
 	pauseNotifyHandler = newHandlerPauseNotify(logger, client, repository)
-	// commands.StartAllReminderJobs(logger, client, repository)
 }
 
 // NewHandlerRoute handles the http requests received and calls the correct handler.
@@ -46,8 +44,6 @@ func NewHandlerRoute() func(http.ResponseWriter, *http.Request) {
 		switch lastPath {
 		case "healthz":
 			fmt.Fprintf(w, "I'm working!!")
-		case "envtest":
-			fmt.Fprintf(w, "%+v\n", config.Env.Messages)
 		case "events":
 			bot.VerifyRequests(r, w, eventsHandler)
 		case "open":

@@ -73,7 +73,6 @@ cp development.env.example development.env
 
 | Variable | Explanation | Default value |
 | --- | --- | --- |
-|**HELLPER_LANGUAGE**|Hellper languague|`pt-br`|
 |**HELLPER_BIND_ADDRESS**|Hellper local bind address|`:8080`|
 |**HELLPER_DATABASE**|Database provider (supported values: postgres)| `postgres` |
 |**HELLPER_DSN**|Your Data Source Name| --- |

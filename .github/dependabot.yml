@@ -10,6 +10,6 @@ updates:
     separator: "-"
   open-pull-requests-limit: 10
   reviewers:
-  - @hydra
+  - hydra
   labels:
   - dependabot

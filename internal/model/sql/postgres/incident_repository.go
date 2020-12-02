@@ -232,7 +232,6 @@ func (r *incidentRepository) GetIncident(ctx context.Context, channelID string) 
 }
 
 func GetIncidentByChannelID() string {
-	F
 	return `SELECT
 		id
 		, title

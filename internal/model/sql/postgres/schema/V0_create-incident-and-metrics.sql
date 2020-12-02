@@ -1,7 +1,7 @@
 -- public.incident definition
 -- Drop table
 -- DROP TABLE public.incident;
-CREATE TABLE public.incident (
+CREATE TABLE IF NOT EXISTS public.incident (
 	id serial NOT NULL,
 	title text NULL,
 	start_ts timestamptz NULL,

@@ -3,15 +3,19 @@ services:
   hellper_db:
     image: postgres:latest
     environment:
-      POSTGRES_USER: "hellper_dev"
-      POSTGRES_PASSWORD: "hellper_dev"
-      POSTGRES_DB: "hellper_dev"
+      POSTGRES_USER: "hellper"
+      POSTGRES_PASSWORD: "hellper"
+      POSTGRES_DB: "hellper"
     ports:
       - "5432:5432"
-    volumes:
-      - ./internal/model/sql/postgres/schema:/docker-entrypoint-initdb.d
     networks:
       - hellper
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hellper"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   hellper:
     image: golang:1.13
     volumes:
@@ -23,10 +27,10 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - hellper_db
+      hellper_db:
+        condition: service_healthy
     networks:
       - hellper
+
 networks:
     hellper:
-
-

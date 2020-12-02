@@ -149,8 +149,9 @@ OR
 
 ### Database
 
-```shell
-psql $HELLPER_DSN -f "./internal/model/sql/postgres/schema/hellper.sql"
+Execute the following command inside the container:
+```sh
+go run ./cmd/migrations -v
 ```
 
 ## How to use

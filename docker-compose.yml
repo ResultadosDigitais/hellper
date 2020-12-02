@@ -10,6 +10,8 @@ services:
       - "5432:5432"
     volumes:
       - ./internal/model/sql/postgres/schema:/docker-entrypoint-initdb.d
+    networks:
+      - hellper
   hellper:
     image: golang:1.13
     volumes:
@@ -22,8 +24,9 @@ services:
       - "8080:8080"
     depends_on:
       - hellper_db
+    networks:
+      - hellper
 networks:
-  default:
-    driver: bridge
+    hellper:
 
 

@@ -37,7 +37,7 @@ func newTestCommand(t *testing.T, name, cmd string, trigger TriggerEvent) testCo
 func (scenario *testCommand) setup(t *testing.T) {
 	var (
 		slackMock      = bot.NewClientMock()
-		repositoryMock = model.NewRepositoryMock()
+		repositoryMock = model.NewIncidentRepositoryMock()
 		mockChannel    = slack.Channel{}
 	)
 	scenario.ctx = context.Background()

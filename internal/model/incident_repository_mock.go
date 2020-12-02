@@ -10,7 +10,7 @@ type IncidentRepositoryMock struct {
 	mock.Mock
 }
 
-func NewRepositoryMock() *IncidentRepositoryMock {
+func NewIncidentRepositoryMock() *IncidentRepositoryMock {
 	return new(IncidentRepositoryMock)
 }
 

@@ -32,7 +32,7 @@ func (f *openCommandFixture) setup(t *testing.T) {
 	var (
 		loggerMock      = log.NewLoggerMock()
 		clientMock      = bot.NewClientMock()
-		repositoryMock  = model.NewRepositoryMock()
+		repositoryMock  = model.NewIncidentRepositoryMock()
 		filestorageMock = filestorage.NewFileStorageMock()
 	)
 

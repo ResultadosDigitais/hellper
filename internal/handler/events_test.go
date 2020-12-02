@@ -54,7 +54,7 @@ func (scenario *testHandler) setup(*testing.T) {
 		nil,
 	)
 
-	repositoryMock := model.NewRepositoryMock()
+	repositoryMock := model.NewIncidentRepositoryMock()
 	repositoryMock.On(
 		"SetIncident", mock.AnythingOfType("*model.Incident"),
 	).Return(nil).Once()

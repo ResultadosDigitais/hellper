@@ -40,7 +40,7 @@ func (f *datesCommandFixture) setup(t *testing.T) {
 	var (
 		loggerMock     = log.NewLoggerMock()
 		clientMock     = bot.NewClientMock()
-		repositoryMock = model.NewRepositoryMock()
+		repositoryMock = model.NewIncidentRepositoryMock()
 	)
 
 	f.ctx = context.Background()

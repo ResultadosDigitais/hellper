@@ -19,7 +19,7 @@ func OpenCancelIncidentDialog(
 	ctx context.Context,
 	logger log.Logger,
 	client bot.Client,
-	repository model.Repository,
+	repository model.IncidentRepository,
 	channelID string,
 	userID string,
 	triggerID string,
@@ -102,7 +102,7 @@ func CancelIncidentByDialog(
 	ctx context.Context,
 	logger log.Logger,
 	client bot.Client,
-	repository model.Repository,
+	repository model.IncidentRepository,
 	incidentDetails bot.DialogSubmission,
 ) error {
 	logger.Info(

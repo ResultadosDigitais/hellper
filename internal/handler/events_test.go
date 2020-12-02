@@ -21,7 +21,7 @@ type testHandler struct {
 	name           string
 	body           string
 	mockClient     *bot.ClientMock
-	mockRepository *model.RepositoryMock
+	mockRepository *model.IncidentRepositoryMock
 	handler        *handlerEvents
 	responseStatus int
 	request        *http.Request
@@ -54,7 +54,7 @@ func (scenario *testHandler) setup(*testing.T) {
 		nil,
 	)
 
-	repositoryMock := model.NewRepositoryMock()
+	repositoryMock := model.NewIncidentRepositoryMock()
 	repositoryMock.On(
 		"SetIncident", mock.AnythingOfType("*model.Incident"),
 	).Return(nil).Once()

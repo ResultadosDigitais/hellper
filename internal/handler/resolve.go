@@ -13,10 +13,10 @@ import (
 type handlerResolve struct {
 	logger     log.Logger
 	client     bot.Client
-	repository model.Repository
+	repository model.IncidentRepository
 }
 
-func newHandlerResolve(logger log.Logger, client bot.Client, repository model.Repository) *handlerResolve {
+func newHandlerResolve(logger log.Logger, client bot.Client, repository model.IncidentRepository) *handlerResolve {
 	return &handlerResolve{
 		logger:     logger,
 		client:     client,

@@ -15,7 +15,7 @@ type notifyRules struct {
 }
 
 // CanSendNotify checks the notification rules
-func CanSendNotify(ctx context.Context, client bot.Client, logger log.Logger, repository model.Repository, incident model.Incident) bool {
+func CanSendNotify(ctx context.Context, client bot.Client, logger log.Logger, repository model.IncidentRepository, incident model.Incident) bool {
 	logger.Info(
 		ctx,
 		log.Trace(),

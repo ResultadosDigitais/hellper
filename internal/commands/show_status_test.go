@@ -22,7 +22,7 @@ type statusCommandFixture struct {
 	ctx            context.Context
 	mockClient     bot.Client
 	mockLogger     log.Logger
-	mockRepository model.Repository
+	mockRepository model.IncidentRepository
 
 	channelID string
 	userID    string
@@ -32,7 +32,7 @@ func (f *statusCommandFixture) setup(t *testing.T) {
 	var (
 		loggerMock     = log.NewLoggerMock()
 		clientMock     = bot.NewClientMock()
-		repositoryMock = model.NewRepositoryMock()
+		repositoryMock = model.NewIncidentRepositoryMock()
 	)
 	f.ctx = context.Background()
 

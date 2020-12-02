@@ -12,7 +12,7 @@ import (
 )
 
 func replyCallbackEvent(
-	ctx context.Context, logger log.Logger, client bot.Client, repository model.Repository, event slackevents.EventsAPIEvent,
+	ctx context.Context, logger log.Logger, client bot.Client, repository model.IncidentRepository, event slackevents.EventsAPIEvent,
 ) error {
 	var (
 		innerEvent = event.InnerEvent

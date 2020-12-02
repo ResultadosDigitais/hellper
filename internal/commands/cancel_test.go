@@ -23,7 +23,7 @@ type cancelCommandFixture struct {
 	ctx            context.Context
 	mockLogger     log.Logger
 	mockClient     bot.Client
-	mockRepository model.Repository
+	mockRepository model.IncidentRepository
 
 	channelID   string
 	userID      string
@@ -37,7 +37,7 @@ func (f *cancelCommandFixture) setup(t *testing.T) {
 	var (
 		loggerMock     = log.NewLoggerMock()
 		clientMock     = bot.NewClientMock()
-		repositoryMock = model.NewRepositoryMock()
+		repositoryMock = model.NewIncidentRepositoryMock()
 	)
 	f.ctx = context.Background()
 

@@ -14,7 +14,7 @@ import (
 type eventInvoker struct {
 	logger     log.Logger
 	client     bot.Client
-	repository model.Repository
+	repository model.IncidentRepository
 }
 
 var (
@@ -39,7 +39,7 @@ func parseCommandLine(cmdLine string) (string, string, error) {
 }
 
 func newEventInvoker(
-	logger log.Logger, client bot.Client, repository model.Repository,
+	logger log.Logger, client bot.Client, repository model.IncidentRepository,
 ) *eventInvoker {
 	return &eventInvoker{
 		logger:     logger,

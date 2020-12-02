@@ -12,11 +12,11 @@ import (
 type EventExecutor struct {
 	logger     log.Logger
 	client     bot.Client
-	repository model.Repository
+	repository model.IncidentRepository
 }
 
 // NewEventExecutor initialize a new EventExecutor type
-func NewEventExecutor(logger log.Logger, client bot.Client, repository model.Repository) *EventExecutor {
+func NewEventExecutor(logger log.Logger, client bot.Client, repository model.IncidentRepository) *EventExecutor {
 	return &EventExecutor{
 		logger:     logger,
 		client:     client,

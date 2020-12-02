@@ -2,7 +2,8 @@ package model
 
 import "context"
 
-type Repository interface {
+// IncidentRepository wraps all database operations related to incidents
+type IncidentRepository interface {
 	AddPostMortemUrl(context.Context, string, string) error
 	InsertIncident(context.Context, *Incident) (int64, error)
 	GetIncident(context.Context, string) (Incident, error)

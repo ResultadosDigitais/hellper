@@ -11,7 +11,7 @@ import (
 )
 
 //ListOpenIncidents get the currently opened incidents and return the channel_name of each one of them.
-func ListOpenIncidents(ctx context.Context, client bot.Client, logger log.Logger, repository model.Repository, event TriggerEvent) {
+func ListOpenIncidents(ctx context.Context, client bot.Client, logger log.Logger, repository model.IncidentRepository, event TriggerEvent) {
 
 	incidents, err := repository.ListActiveIncidents(ctx)
 	if err != nil {

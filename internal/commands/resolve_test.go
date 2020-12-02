@@ -25,7 +25,7 @@ type resolveCommandFixture struct {
 	ctx            context.Context
 	mockLogger     log.Logger
 	mockClient     bot.Client
-	mockRepository model.Repository
+	mockRepository model.IncidentRepository
 	mockCalendar   calendar.Calendar
 
 	triggerID       string
@@ -39,7 +39,7 @@ func (f *resolveCommandFixture) setup(t *testing.T) {
 	var (
 		loggerMock     = log.NewLoggerMock()
 		clientMock     = bot.NewClientMock()
-		repositoryMock = model.NewRepositoryMock()
+		repositoryMock = model.NewIncidentRepositoryMock()
 		calendarMock   = calendar.NewCalendarMock()
 		mockUser       = slack.User{}
 	)

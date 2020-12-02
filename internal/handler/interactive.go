@@ -16,12 +16,12 @@ import (
 type handlerInteractive struct {
 	logger      log.Logger
 	client      bot.Client
-	repository  model.Repository
+	repository  model.IncidentRepository
 	fileStorage filestorage.Driver
 	calendar    calendar.Calendar
 }
 
-func newHandlerInteractive(logger log.Logger, client bot.Client, repository model.Repository, fileStorage filestorage.Driver, calendar calendar.Calendar) *handlerInteractive {
+func newHandlerInteractive(logger log.Logger, client bot.Client, repository model.IncidentRepository, fileStorage filestorage.Driver, calendar calendar.Calendar) *handlerInteractive {
 	return &handlerInteractive{
 		logger:      logger,
 		client:      client,

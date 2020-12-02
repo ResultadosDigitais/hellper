@@ -17,7 +17,7 @@ import (
 )
 
 // CloseIncidentDialog opens a dialog on Slack, so the user can close an incident
-func CloseIncidentDialog(ctx context.Context, logger log.Logger, client bot.Client, repository model.Repository, channelID, userID, triggerID string) error {
+func CloseIncidentDialog(ctx context.Context, logger log.Logger, client bot.Client, repository model.IncidentRepository, channelID, userID, triggerID string) error {
 	inc, err := repository.GetIncident(ctx, channelID)
 	if err != nil {
 		logger.Error(
@@ -159,7 +159,7 @@ func CloseIncidentDialog(ctx context.Context, logger log.Logger, client bot.Clie
 }
 
 // CloseIncidentByDialog closes an incident after receiving data from a Slack dialog
-func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Logger, repository model.Repository, incidentDetails bot.DialogSubmission) error {
+func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Logger, repository model.IncidentRepository, incidentDetails bot.DialogSubmission) error {
 	logger.Info(
 		ctx,
 		"command/close.CloseIncidentByDialog",

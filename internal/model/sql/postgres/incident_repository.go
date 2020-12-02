@@ -12,13 +12,13 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type repository struct {
+type incidentRepository struct {
 	logger log.Logger
 	db     sql.DB
 }
 
-func NewRepository(logger log.Logger, db sql.DB) model.Repository {
-	return &repository{
+func NewIncidentRepository(logger log.Logger, db sql.DB) model.IncidentRepository {
+	return &incidentRepository{
 		logger: logger,
 		db:     db,
 	}
@@ -51,7 +51,7 @@ func incidentLogValues(inc *model.Incident) []log.Value {
 	}
 }
 
-func (r *repository) InsertIncident(ctx context.Context, inc *model.Incident) (int64, error) {
+func (r *incidentRepository) InsertIncident(ctx context.Context, inc *model.Incident) (int64, error) {
 	r.logger.Info(
 		ctx,
 		"postgres/repository.InsertIncident INFO",
@@ -128,7 +128,7 @@ func (r *repository) InsertIncident(ctx context.Context, inc *model.Incident) (i
 	}
 }
 
-func (r *repository) AddPostMortemUrl(ctx context.Context, channelName string, postMortemUrl string) error {
+func (r *incidentRepository) AddPostMortemUrl(ctx context.Context, channelName string, postMortemUrl string) error {
 	r.logger.Info(
 		ctx,
 		"postgres/repository.AddPostMortemUrl INFO",
@@ -163,7 +163,7 @@ func (r *repository) AddPostMortemUrl(ctx context.Context, channelName string, p
 	return err
 }
 
-func (r *repository) GetIncident(ctx context.Context, channelID string) (inc model.Incident, err error) {
+func (r *incidentRepository) GetIncident(ctx context.Context, channelID string) (inc model.Incident, err error) {
 	r.logger.Info(
 		ctx,
 		"postgres/repository.GetIncident INFO",
@@ -260,7 +260,7 @@ func GetIncidentByChannelID() string {
 	LIMIT 1`
 }
 
-func (r *repository) UpdateIncidentDates(ctx context.Context, inc *model.Incident) error {
+func (r *incidentRepository) UpdateIncidentDates(ctx context.Context, inc *model.Incident) error {
 	r.logger.Info(
 		ctx,
 		"postgres/repository.UpdateIncidentDates INFO",
@@ -325,7 +325,7 @@ func (r *repository) UpdateIncidentDates(ctx context.Context, inc *model.Inciden
 	return nil
 }
 
-func (r *repository) CancelIncident(ctx context.Context, inc *model.Incident) error {
+func (r *incidentRepository) CancelIncident(ctx context.Context, inc *model.Incident) error {
 	r.logger.Info(
 		ctx,
 		"postgres/repository.CancelIncident INFO",
@@ -386,7 +386,7 @@ func (r *repository) CancelIncident(ctx context.Context, inc *model.Incident) er
 	return nil
 }
 
-func (r *repository) CloseIncident(ctx context.Context, inc *model.Incident) error {
+func (r *incidentRepository) CloseIncident(ctx context.Context, inc *model.Incident) error {
 	//TODO: implement team
 	r.logger.Info(
 		ctx,
@@ -461,7 +461,7 @@ func (r *repository) CloseIncident(ctx context.Context, inc *model.Incident) err
 	return nil
 }
 
-func (r *repository) ResolveIncident(ctx context.Context, inc *model.Incident) error {
+func (r *incidentRepository) ResolveIncident(ctx context.Context, inc *model.Incident) error {
 	//TODO: implement team
 	r.logger.Info(
 		ctx,
@@ -533,7 +533,7 @@ func (r *repository) ResolveIncident(ctx context.Context, inc *model.Incident) e
 	return nil
 }
 
-func (r *repository) ListActiveIncidents(ctx context.Context) ([]model.Incident, error) {
+func (r *incidentRepository) ListActiveIncidents(ctx context.Context) ([]model.Incident, error) {
 	r.logger.Info(
 		ctx,
 		"postgres/repository.ListActiveIncidents",
@@ -638,7 +638,7 @@ func GetIncidentStatusFilterQuery() string {
 	LIMIT 100`
 }
 
-func (r *repository) PauseNotifyIncident(ctx context.Context, inc *model.Incident) error {
+func (r *incidentRepository) PauseNotifyIncident(ctx context.Context, inc *model.Incident) error {
 	r.logger.Info(
 		ctx,
 		"postgres/repository.PauseNotifyIncident INFO",

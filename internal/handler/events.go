@@ -19,14 +19,14 @@ var msgsCache = map[string]struct{}{}
 type handlerEvents struct {
 	logger     log.Logger
 	client     bot.Client
-	repository model.Repository
+	repository model.IncidentRepository
 }
 
 func stringSha1(v string) string {
 	return fmt.Sprintf("%x", sha1.Sum([]byte(v)))
 }
 
-func newHandlerEvents(logger log.Logger, client bot.Client, repository model.Repository) *handlerEvents {
+func newHandlerEvents(logger log.Logger, client bot.Client, repository model.IncidentRepository) *handlerEvents {
 	return &handlerEvents{
 		logger:     logger,
 		client:     client,

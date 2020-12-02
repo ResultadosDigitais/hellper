@@ -13,10 +13,10 @@ import (
 type handlerPauseNotify struct {
 	logger     log.Logger
 	client     bot.Client
-	repository model.Repository
+	repository model.IncidentRepository
 }
 
-func newHandlerPauseNotify(logger log.Logger, client bot.Client, repository model.Repository) *handlerPauseNotify {
+func newHandlerPauseNotify(logger log.Logger, client bot.Client, repository model.IncidentRepository) *handlerPauseNotify {
 	return &handlerPauseNotify{
 		logger:     logger,
 		client:     client,

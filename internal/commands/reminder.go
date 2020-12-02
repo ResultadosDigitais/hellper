@@ -19,7 +19,7 @@ func canStopReminder(incident model.Incident) bool {
 	return incident.Status == model.StatusClosed || incident.Status == model.StatusCancel
 }
 
-func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, repository model.Repository, jobIncident model.Incident) func(j job.Job) {
+func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, repository model.IncidentRepository, jobIncident model.Incident) func(j job.Job) {
 	return func(j job.Job) {
 		incident, err := repository.GetIncident(ctx, jobIncident.ChannelId)
 		if err != nil {
@@ -156,7 +156,7 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 	}
 }
 
-func startReminderStatusJob(ctx context.Context, logger log.Logger, client bot.Client, repository model.Repository, incident model.Incident) {
+func startReminderStatusJob(ctx context.Context, logger log.Logger, client bot.Client, repository model.IncidentRepository, incident model.Incident) {
 	logger.Info(
 		ctx,
 		log.Trace(),
@@ -173,7 +173,7 @@ func startReminderStatusJob(ctx context.Context, logger log.Logger, client bot.C
 
 // StartAllReminderJobs starts a job for each current active incident. This job posts a reminder in the channel, asking for a incident status update.
 // This function is called only once, in the inicialization of the aplication. For new incidents, the startReminderStatusJob is called specifically for that incident.
-func StartAllReminderJobs(logger log.Logger, client bot.Client, repository model.Repository) {
+func StartAllReminderJobs(logger log.Logger, client bot.Client, repository model.IncidentRepository) {
 	ctx := context.Background()
 	logger.Info(ctx, log.Trace())
 

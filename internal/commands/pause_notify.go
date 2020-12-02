@@ -13,7 +13,7 @@ import (
 )
 
 // PauseNotifyIncidentDialog opens a dialog on Slack, so the user can pause notify
-func PauseNotifyIncidentDialog(ctx context.Context, logger log.Logger, client bot.Client, repository model.Repository, channelID string, userID string, triggerID string) error {
+func PauseNotifyIncidentDialog(ctx context.Context, logger log.Logger, client bot.Client, repository model.IncidentRepository, channelID string, userID string, triggerID string) error {
 
 	inc, err := repository.GetIncident(ctx, channelID)
 	if err != nil {
@@ -73,7 +73,7 @@ func PauseNotifyIncidentByDialog(
 	ctx context.Context,
 	client bot.Client,
 	logger log.Logger,
-	repository model.Repository,
+	repository model.IncidentRepository,
 	incidentDetails bot.DialogSubmission,
 ) error {
 

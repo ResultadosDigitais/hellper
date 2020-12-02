@@ -3,15 +3,13 @@ updates:
 - package-ecosystem: gomod
   directory: "/"
   schedule:
-    interval: daily
+    interval: weekly
     time: "06:00"
     timezone: Etc/UCT
   pull-request-branch-name:
     separator: "-"
   open-pull-requests-limit: 10
   reviewers:
-  - GLOFonseca
-  - NFavareto
+  - @hydra
   labels:
   - dependabot
-  - dependencies

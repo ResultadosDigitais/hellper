@@ -13,10 +13,10 @@ import (
 type handlerCancel struct {
 	logger     log.Logger
 	client     bot.Client
-	repository model.Repository
+	repository model.IncidentRepository
 }
 
-func newHandlerCancel(logger log.Logger, client bot.Client, repository model.Repository) *handlerCancel {
+func newHandlerCancel(logger log.Logger, client bot.Client, repository model.IncidentRepository) *handlerCancel {
 	return &handlerCancel{
 		logger:     logger,
 		client:     client,

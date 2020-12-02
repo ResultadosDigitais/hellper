@@ -24,7 +24,7 @@ type datesCommandFixture struct {
 	ctx            context.Context
 	mockLogger     log.Logger
 	mockClient     bot.Client
-	mockrepository model.Repository
+	mockrepository model.IncidentRepository
 
 	mockIncident             model.Incident
 	getIncidentError         error

@@ -24,7 +24,7 @@ type checkReminderFixture struct {
 	ctx            context.Context
 	mockLogger     log.Logger
 	mockClient     bot.Client
-	mockRepository model.Repository
+	mockRepository model.IncidentRepository
 	mockIncident   model.Incident
 
 	channelID     string

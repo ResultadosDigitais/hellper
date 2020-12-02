@@ -17,7 +17,7 @@ type repository struct {
 	db     sql.DB
 }
 
-func NewRepository(logger log.Logger, db sql.DB) model.Repository {
+func NewIncidentRepository(logger log.Logger, db sql.DB) model.IncidentRepository {
 	return &repository{
 		logger: logger,
 		db:     db,

@@ -21,7 +21,7 @@ type testHandler struct {
 	name           string
 	body           string
 	mockClient     *bot.ClientMock
-	mockRepository *model.RepositoryMock
+	mockRepository *model.IncidentRepositoryMock
 	handler        *handlerEvents
 	responseStatus int
 	request        *http.Request

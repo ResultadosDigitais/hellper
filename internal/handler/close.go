@@ -13,10 +13,10 @@ import (
 type handlerClose struct {
 	logger     log.Logger
 	client     bot.Client
-	repository model.Repository
+	repository model.IncidentRepository
 }
 
-func newHandlerClose(logger log.Logger, client bot.Client, repository model.Repository) *handlerClose {
+func newHandlerClose(logger log.Logger, client bot.Client, repository model.IncidentRepository) *handlerClose {
 	return &handlerClose{
 		logger:     logger,
 		client:     client,

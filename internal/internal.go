@@ -18,7 +18,7 @@ import (
 	"hellper/internal/model/sql/postgres"
 )
 
-func New() (log.Logger, bot.Client, model.Repository, filestorage.Driver, calendar.Calendar) {
+func New() (log.Logger, bot.Client, model.IncidentRepository, filestorage.Driver, calendar.Calendar) {
 	ctx := context.Background()
 	logger := NewLogger()
 	return logger, NewClient(logger), NewRepository(logger), NewFileStorage(logger), NewCalendar(ctx, logger)
@@ -32,12 +32,12 @@ func NewClient(logger log.Logger) bot.Client {
 	return slack.NewClient(config.Env.OAuthToken)
 }
 
-func NewRepository(logger log.Logger) model.Repository {
+func NewRepository(logger log.Logger) model.IncidentRepository {
 	fmt.Printf("Configured database: %s", config.Env.Database)
 	switch config.Env.Database {
 	case "postgres":
 		db := sql.NewDBWithDSN(config.Env.Database, config.Env.DSN)
-		return postgres.NewRepository(logger, db)
+		return postgres.NewIncidentRepository(logger, db)
 	default:
 		panic(fmt.Sprintf(
 			"invalid database option: option=%s valid_options=[postgres]",

@@ -13,7 +13,7 @@ import (
 )
 
 // UpdateDatesDialog opens a dialog on Slack, so the user can update the dates of an incident
-func UpdateDatesDialog(ctx context.Context, logger log.Logger, client bot.Client, repository model.Repository, channelID string, userID string, triggerID string) error {
+func UpdateDatesDialog(ctx context.Context, logger log.Logger, client bot.Client, repository model.IncidentRepository, channelID string, userID string, triggerID string) error {
 	var (
 		dateLayout          = "02/01/2006 15:04:05"
 		initValue           = ""
@@ -128,7 +128,7 @@ func UpdateDatesDialog(ctx context.Context, logger log.Logger, client bot.Client
 }
 
 // UpdateDatesByDialog updates the dates of an incident after receiving data from a Slack dialog
-func UpdateDatesByDialog(ctx context.Context, client bot.Client, logger log.Logger, repository model.Repository, incidentDetails bot.DialogSubmission) error {
+func UpdateDatesByDialog(ctx context.Context, client bot.Client, logger log.Logger, repository model.IncidentRepository, incidentDetails bot.DialogSubmission) error {
 	logger.Info(
 		ctx,
 		"command/close.CloseIncidentByDialog INFO",

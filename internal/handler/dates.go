@@ -13,10 +13,10 @@ import (
 type handlerDates struct {
 	logger     log.Logger
 	client     bot.Client
-	repository model.Repository
+	repository model.IncidentRepository
 }
 
-func newHandlerDates(logger log.Logger, client bot.Client, repository model.Repository) *handlerDates {
+func newHandlerDates(logger log.Logger, client bot.Client, repository model.IncidentRepository) *handlerDates {
 	return &handlerDates{
 		logger:     logger,
 		client:     client,

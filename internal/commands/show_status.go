@@ -50,7 +50,7 @@ func createDateFields(inc model.Incident) (fields []slack.AttachmentField) {
 	return fields
 }
 
-func createDatesAttachment(ctx context.Context, logger log.Logger, repository model.Repository, channelID string) (slack.Attachment, error) {
+func createDatesAttachment(ctx context.Context, logger log.Logger, repository model.IncidentRepository, channelID string) (slack.Attachment, error) {
 	inc, err := repository.GetIncident(ctx, channelID)
 	if err != nil {
 		logger.Error(
@@ -235,7 +235,7 @@ func ShowStatus(
 	ctx context.Context,
 	client bot.Client,
 	logger log.Logger,
-	repository model.Repository,
+	repository model.IncidentRepository,
 	channelID string,
 	userID string,
 ) error {

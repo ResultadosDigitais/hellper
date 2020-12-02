@@ -84,7 +84,7 @@ func ResolveIncidentByDialog(
 	ctx context.Context,
 	client bot.Client,
 	logger log.Logger,
-	repository model.Repository,
+	repository model.IncidentRepository,
 	calendar calendar.Calendar,
 	incidentDetails bot.DialogSubmission,
 ) error {
@@ -231,7 +231,7 @@ func getCalendarEvent(
 	ctx context.Context,
 	client bot.Client,
 	logger log.Logger,
-	repository model.Repository,
+	repository model.IncidentRepository,
 	calendar calendar.Calendar,
 	t *time.Time,
 	channelName string,

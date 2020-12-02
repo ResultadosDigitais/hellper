@@ -22,7 +22,7 @@ type openCommandFixture struct {
 	ctx                  context.Context
 	mockLogger           log.Logger
 	mockClient           bot.Client
-	mockRepository       model.Repository
+	mockRepository       model.IncidentRepository
 	mockFilestorage      filestorage.Driver
 	triggerID            string
 	mockDialogSubmission bot.DialogSubmission

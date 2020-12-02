@@ -20,7 +20,7 @@ func createPostMortem(
 	fileStorage filestorage.Driver,
 	incidentID int64,
 	incidentName string,
-	repository model.Repository,
+	repository model.IncidentRepository,
 	channelName string,
 ) (string, error) {
 
@@ -59,7 +59,7 @@ func createPostMortem(
 	return postMortemURL, nil
 }
 
-func addPostMortemURLToDB(ctx context.Context, logger log.Logger, repository model.Repository, channelName string, postMortemURL string) {
+func addPostMortemURLToDB(ctx context.Context, logger log.Logger, repository model.IncidentRepository, channelName string, postMortemURL string) {
 	err := repository.AddPostMortemUrl(ctx, channelName, postMortemURL)
 	if err != nil {
 		logger.Info(

@@ -25,7 +25,7 @@ type resolveCommandFixture struct {
 	ctx            context.Context
 	mockLogger     log.Logger
 	mockClient     bot.Client
-	mockRepository model.Repository
+	mockRepository model.IncidentRepository
 	mockCalendar   calendar.Calendar
 
 	triggerID       string

@@ -23,7 +23,7 @@ type testCommand struct {
 	trigger        TriggerEvent
 	mockLogger     log.Logger
 	mockClient     bot.Client
-	mockRepository model.Repository
+	mockRepository model.IncidentRepository
 }
 
 func newTestCommand(t *testing.T, name, cmd string, trigger TriggerEvent) testCommand {

@@ -134,7 +134,7 @@ func OpenStartIncidentDialog(ctx context.Context, client bot.Client, serviceRepo
 			Label:       "Incident description",
 			Name:        "incident_description",
 			Type:        "textarea",
-			Placeholder: "Incident description eg. We're having issues with the Produc X or Service Y",
+			Placeholder: "Incident description eg. We're having issues with the Product X or Service Y",
 			Optional:    false,
 		},
 		MaxLength: 500,

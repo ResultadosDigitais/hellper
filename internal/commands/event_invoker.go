@@ -62,7 +62,7 @@ func (e *eventInvoker) eventInvoker(ctx context.Context, cmdLine string, event T
 
 	logger.Info(
 		ctx,
-		"command/event_invoker.eventInvoker",
+		log.Trace(),
 		log.NewValue("command", cmd),
 		log.NewValue("args", args),
 		log.NewValue("event", event),

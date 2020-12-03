@@ -39,7 +39,7 @@ func (h *handlerCancel) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	body := buf.String()
 	logger.Info(
 		ctx,
-		"handler/cancel.ServeHTTP",
+		log.Trace(),
 		log.NewValue("requestbody", body),
 	)
 
@@ -48,7 +48,7 @@ func (h *handlerCancel) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	logger.Info(
 		ctx,
-		"handler/cancel.ServeHTTP Form",
+		log.Trace(),
 		formValues...,
 	)
 

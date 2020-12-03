@@ -9,7 +9,7 @@ GIT ?= git
 GITDIFF ?= $(GIT) diff
 
 help: ## Show this help.
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {sub("\\\\n",sprintf("\n%22c"," "), $$2);printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {sub("\\\\n",sprintf("\n%22c"," "), $$2);printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST) | sort
 
 all: lint vet test build ## Run the tests and build the binary.
 
@@ -30,6 +30,9 @@ install: ## Install application on local machine or container
 
 run: ## Run application
 	docker-compose up
+
+run-local: ## Run application locally (without docker)
+	go run ./cmd/http -v
 
 migrate: ## Migrate the database
 	docker-compose exec hellper sh -c "go run ./cmd/migrations -v"

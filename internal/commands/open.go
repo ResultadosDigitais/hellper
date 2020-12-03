@@ -13,6 +13,7 @@ import (
 	"hellper/internal/config"
 	filestorage "hellper/internal/file_storage"
 	"hellper/internal/log"
+	"hellper/internal/meeting"
 	"hellper/internal/model"
 
 	"github.com/slack-go/slack"
@@ -185,10 +186,8 @@ func StartIncidentByDialog(
 		commander        = submission.IncidentCommander
 		description      = submission.IncidentDescription
 		environment      = config.Env.Environment
-		matrixURL        = config.Env.MatrixHost
 		supportTeam      = config.Env.SupportTeam
 		productChannelID = config.Env.ProductChannelID
-		stagingRoom      = "dc82e346-639c-44ee-a470-63f7545ae8e4"
 	)
 
 	user, err := getSlackUserInfo(ctx, client, logger, commander)
@@ -226,11 +225,27 @@ func StartIncidentByDialog(
 	}
 
 	if warRoomURL == "" {
-		if environment == "production" {
-			warRoomURL = matrixURL + "/new?roomId=" + channelName + "&roomName=" + channelName
-		} else if environment == "staging" {
-			warRoomURL = matrixURL + "/new?roomId=" + stagingRoom + "&roomName=hellper-staging"
+		options := map[string]string{
+			"channel":     channelName,
+			"environment": environment,
 		}
+
+		url, err := meeting.CreateMeetingURL(options)
+
+		if err != nil {
+			logger.Error(
+				ctx,
+				log.Trace(),
+				log.Reason("CreateMeetingURL"),
+				log.NewValue("error", err),
+			)
+
+			fmt.Println("-----------------------------------------------------------")
+			fmt.Println(err)
+			fmt.Println("-----------------------------------------------------------")
+		}
+
+		warRoomURL = url
 	}
 
 	attachment := createOpenAttachment(incident, incidentID, warRoomURL, supportTeam)

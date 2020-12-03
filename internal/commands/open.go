@@ -18,14 +18,30 @@ import (
 	"github.com/slack-go/slack"
 )
 
-// OpenStartIncidentDialog opens a dialog on Slack, so the user can start an incident
-func OpenStartIncidentDialog(client bot.Client, triggerID string) error {
-	productList := []slack.DialogSelectOption{}
+const minimumNumberServices = 4
 
-	for _, product := range strings.Split(config.Env.ProductList, ";") {
-		productList = append(productList, slack.DialogSelectOption{
-			Label: product,
-			Value: product,
+// OpenStartIncidentDialog opens a dialog on Slack, so the user can start an incident
+func OpenStartIncidentDialog(ctx context.Context, client bot.Client, serviceRepository model.ServiceRepository, triggerID string) error {
+	serviceList := []slack.DialogSelectOption{}
+
+	services, err := serviceRepository.ListServiceInstances(ctx)
+	if err != nil {
+		return err
+	}
+
+	// Slack asks for at least 4 entries in the option panel. So I populate dumby options here, otherwise
+	// the open command will fail and will give no feedback whatsoever for the user.
+	for len(services) < minimumNumberServices {
+		services = append(services, &model.ServiceInstance{
+			ID:   0,
+			Name: "-",
+		})
+	}
+
+	for _, service := range services {
+		serviceList = append(serviceList, slack.DialogSelectOption{
+			Label: service.Name,
+			Value: fmt.Sprintf("%d", service.ID),
 		})
 	}
 
@@ -96,7 +112,7 @@ func OpenStartIncidentDialog(client bot.Client, triggerID string) error {
 			Placeholder: "Set the product",
 			Optional:    false,
 		},
-		Options:      productList,
+		Options:      serviceList,
 		OptionGroups: []slack.DialogOptionGroup{},
 	}
 

@@ -80,7 +80,6 @@ func newEnvironment() environment {
 	vars.BoolVar(&env.NotifyOnResolve, "hellper_notify_on_resolve", true, "Notify the Product channel when resolve the incident")
 	vars.BoolVar(&env.NotifyOnClose, "hellper_notify_on_close", true, "Notify the Product channel when close the incident")
 	vars.BoolVar(&env.NotifyOnCancel, "hellper_notify_on_cancel", true, "Notify the Product channel when cancel the incident")
-	vars.StringVar(&env.ProductList, "hellper_product_list", "Product A;Product B;Product C;Product D", "List of all products splitted by semicolon")
 	vars.StringVar(&env.Timezone, "hellper_timezone", "America/Sao_Paulo", "The local time of a region or a country used to create a event.")
 
 	vars.Parse()

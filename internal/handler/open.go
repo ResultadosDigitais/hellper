@@ -11,16 +11,23 @@ import (
 )
 
 type handlerOpen struct {
-	logger     log.Logger
-	client     bot.Client
-	repository model.IncidentRepository
+	logger            log.Logger
+	client            bot.Client
+	repository        model.IncidentRepository
+	serviceRepository model.ServiceRepository
 }
 
-func newHandlerOpen(logger log.Logger, client bot.Client, repository model.IncidentRepository) *handlerOpen {
+func newHandlerOpen(
+	logger log.Logger,
+	client bot.Client,
+	repository model.IncidentRepository,
+	serviceRepository model.ServiceRepository,
+) *handlerOpen {
 	return &handlerOpen{
-		logger:     logger,
-		client:     client,
-		repository: repository,
+		logger:            logger,
+		client:            client,
+		repository:        repository,
+		serviceRepository: serviceRepository,
 	}
 }
 
@@ -53,7 +60,7 @@ func (h *handlerOpen) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	triggerID := r.FormValue("trigger_id")
 
-	err := commands.OpenStartIncidentDialog(h.client, triggerID)
+	err := commands.OpenStartIncidentDialog(ctx, h.client, h.serviceRepository, triggerID)
 	if err != nil {
 		logger.Error(
 			ctx,

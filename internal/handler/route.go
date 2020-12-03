@@ -23,7 +23,7 @@ var (
 
 func init() {
 	dependencies := internal.New()
-	openHandler = newHandlerOpen(dependencies.Logger, dependencies.Client, dependencies.IncidentRepository)
+	openHandler = newHandlerOpen(dependencies.Logger, dependencies.Client, dependencies.IncidentRepository, dependencies.ServiceRepository)
 	eventsHandler = newHandlerEvents(dependencies.Logger, dependencies.Client, dependencies.IncidentRepository)
 	interactiveHandler = newHandlerInteractive(dependencies.Logger, dependencies.Client, dependencies.IncidentRepository,
 		dependencies.FileStorage, dependencies.Calendar)

@@ -21,6 +21,7 @@ type MainInternal struct {
 	Logger             log.Logger
 	Client             bot.Client
 	IncidentRepository model.IncidentRepository
+	ServiceRepository  model.ServiceRepository
 	FileStorage        filestorage.Driver
 	Calendar           calendar.Calendar
 }
@@ -32,6 +33,7 @@ func New() MainInternal {
 		Logger:             logger,
 		Client:             NewClient(ctx, logger),
 		IncidentRepository: NewIncidentRepository(ctx, logger),
+		ServiceRepository:  NewServiceRepository(ctx, logger),
 		FileStorage:        NewFileStorage(ctx, logger),
 		Calendar:           NewCalendar(ctx, logger),
 	}
@@ -80,6 +82,24 @@ func NewIncidentRepository(ctx context.Context, logger log.Logger) model.Inciden
 	default:
 		panic(fmt.Sprintf(
 			"internal.NewIncidentRepository invalid database option: option=%s valid_options=[%s]\n",
+			configuredDatabase, DatabasePostgres,
+		))
+	}
+}
+
+// NewServiceRepository creates a new connection with the database for services
+func NewServiceRepository(ctx context.Context, logger log.Logger) model.ServiceRepository {
+	configuredDatabase := config.Env.Database
+	logger.Info(ctx, fmt.Sprintf(
+		"internal.NewServiceRepository initializing service database connection: %s", configuredDatabase,
+	))
+	switch configuredDatabase {
+	case DatabasePostgres:
+		db := sql.NewDBWithDSN(config.Env.Database, config.Env.DSN)
+		return postgres.NewServiceRepository(logger, db)
+	default:
+		panic(fmt.Sprintf(
+			"internal.NewServiceRepository invalid database option: option=%s valid_options=[%s]\n",
 			configuredDatabase, DatabasePostgres,
 		))
 	}

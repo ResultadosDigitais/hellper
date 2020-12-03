@@ -7,6 +7,8 @@ import (
 	"net/http"
 )
 
+const ZoomApiBaseURL = "https://api.zoom.us/v2"
+
 type zoomProvider struct {
 	jwtToken    string
 	userID      string
@@ -25,13 +27,12 @@ func getZoomMeetingProvider(config, additionalConfig map[string]string) zoomProv
 
 func (provider zoomProvider) CreateMeeting() (string, error) {
 	var (
-		apiBaseURL = "https://api.zoom.us/v2"
-		userID     = provider.userID
-		channel    = provider.channel
+		userID  = provider.userID
+		channel = provider.channel
 	)
 
-	url := fmt.Sprintf("%s/users/%s/meetings", apiBaseURL, userID)
-	postData := provider.createMeetingInput(channel)
+	url := fmt.Sprintf("%s/users/%s/meetings", ZoomApiBaseURL, userID)
+	postData := provider.createMeetingRequestBody(channel)
 
 	req, err := http.NewRequest("POST", url, postData)
 

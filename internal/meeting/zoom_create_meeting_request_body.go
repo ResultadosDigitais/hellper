@@ -22,7 +22,7 @@ type zoomCreateMeetingInputPayload struct {
 	Settings zoomCreateMeetingInputSettingsPayload `json:"settings"`
 }
 
-func (provider zoomProvider) createMeetingInput(channel string) *bytes.Buffer {
+func (provider zoomProvider) createMeetingRequestBody(channel string) *bytes.Buffer {
 	postData := zoomCreateMeetingInputPayload{
 		Topic:  fmt.Sprintf("Incident reported on #%s", channel),
 		Agenda: fmt.Sprintf("Meeting for incident resolution reported on #%s", channel),

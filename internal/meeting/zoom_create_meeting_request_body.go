@@ -6,6 +6,9 @@ import (
 	"fmt"
 )
 
+const InstantMeetingType = 1
+const NoRegistrationRequired = 2
+
 type zoomCreateMeetingInputSettingsPayload struct {
 	HostVideo        bool `json:"host_video"`
 	ParticipantVideo bool `json:"participant_video"`
@@ -26,13 +29,13 @@ func (provider zoomProvider) createMeetingRequestBody(channel string) *bytes.Buf
 	postData := zoomCreateMeetingInputPayload{
 		Topic:  fmt.Sprintf("Incident reported on #%s", channel),
 		Agenda: fmt.Sprintf("Meeting for incident resolution reported on #%s", channel),
-		Type:   1, // Instant meeting
+		Type:   InstantMeetingType,
 		Settings: zoomCreateMeetingInputSettingsPayload{
 			HostVideo:        false,
 			ParticipantVideo: false,
 			JoinBeforeHost:   true,
 			MuteUponEntry:    true,
-			ApprovalType:     2, // No registration required
+			ApprovalType:     NoRegistrationRequired,
 			WaitingRoom:      false,
 		},
 	}

@@ -28,10 +28,11 @@ func (s *storage) copyFile(ctx context.Context, d *drive.Service, fileID string,
 	if err != nil {
 		s.logger.Error(
 			ctx,
-			"googleDrive/google_drive.copyFile Copy error",
+			log.Trace(),
+			log.Action("d.Files.Copy"),
+			log.Reason(err.Error()),
 			log.NewValue("fileID", fileID),
 			log.NewValue("title", title),
-			log.NewValue("error", err),
 		)
 		return nil, err
 	}
@@ -42,7 +43,7 @@ func (s *storage) copyFile(ctx context.Context, d *drive.Service, fileID string,
 func (s *storage) CreatePostMortemDocument(ctx context.Context, postMortemName string) (string, error) {
 	s.logger.Info(
 		ctx,
-		"googleDrive/google_drive.CreatePostMortemDocument",
+		log.Trace(),
 		log.NewValue("postMortemName", postMortemName),
 	)
 
@@ -52,9 +53,10 @@ func (s *storage) CreatePostMortemDocument(ctx context.Context, postMortemName s
 	if err != nil {
 		s.logger.Error(
 			ctx,
-			"googleDrive/google_drive.CreatePostMortemDocument GetGClient error",
+			log.Trace(),
+			log.Action("googleauth.Struct.GetGClient"),
+			log.Reason(err.Error()),
 			log.NewValue("postMortemName", postMortemName),
-			log.NewValue("error", err),
 		)
 
 		return "", err
@@ -64,9 +66,10 @@ func (s *storage) CreatePostMortemDocument(ctx context.Context, postMortemName s
 	if err != nil {
 		s.logger.Error(
 			ctx,
-			"googleDrive/google_drive.CreatePostMortemDocument driveService error",
+			log.Trace(),
+			log.Action("drive.New"),
+			log.Reason(err.Error()),
 			log.NewValue("postMortemName", postMortemName),
-			log.NewValue("error", err),
 		)
 
 		return "", err
@@ -76,9 +79,10 @@ func (s *storage) CreatePostMortemDocument(ctx context.Context, postMortemName s
 	if err != nil {
 		s.logger.Error(
 			ctx,
-			"googleDrive/google_drive.CreatePostMortemDocument copyFile error",
+			log.Trace(),
+			log.Action("s.copyFile"),
+			log.Reason(err.Error()),
 			log.NewValue("postMortemName", postMortemName),
-			log.NewValue("error", err),
 		)
 
 		return "", err
@@ -87,7 +91,7 @@ func (s *storage) CreatePostMortemDocument(ctx context.Context, postMortemName s
 	if file != nil {
 		s.logger.Info(
 			ctx,
-			"googleDrive/google_drive.CreatePostMortemDocument file",
+			log.Trace(),
 			log.NewValue("postMortemName", postMortemName),
 			log.NewValue("file", "https://docs.google.com/document/d/"+file.Id+"/edit"),
 		)

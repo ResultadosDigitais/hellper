@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"hellper/internal/bot"
-	"hellper/internal/config"
 	"hellper/internal/log"
 	"hellper/internal/model"
 
@@ -164,7 +163,7 @@ func createStatusAttachment(ctx context.Context, client bot.Client, logger log.L
 		}
 	} else {
 		field := slack.AttachmentField{
-			Title: config.Env.Messages.NoTimelineItems,
+			Title: "Incident Timeline is empty",
 		}
 		fields = append(fields, field)
 
@@ -175,6 +174,12 @@ func createStatusAttachment(ctx context.Context, client bot.Client, logger log.L
 			Color:    "#999999",
 			Fields:   fields,
 		}
+		logger.Info(
+			ctx,
+			log.Trace(),
+			log.Reason("AttachmentField"),
+			log.NewValue("channelID", channelID),
+		)
 	}
 	return attach, nil
 }

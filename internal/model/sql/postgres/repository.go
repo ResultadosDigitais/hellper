@@ -55,7 +55,7 @@ func incidentLogValues(inc *model.Incident) []log.Value {
 func (r *repository) InsertIncident(ctx context.Context, inc *model.Incident) (int64, error) {
 	r.logger.Info(
 		ctx,
-		"postgres/repository.InsertIncident INFO",
+		log.Trace(),
 		incidentLogValues(inc)...,
 	)
 
@@ -114,14 +114,14 @@ func (r *repository) InsertIncident(ctx context.Context, inc *model.Incident) (i
 	case nil:
 		r.logger.Info(
 			ctx,
-			"postgres/repository.InsertIncident SUCCESS",
+			log.Trace(),
 			incidentLogValues(inc)...,
 		)
 		return id, nil
 	default:
 		r.logger.Error(
 			ctx,
-			"postgres/repository.InsertIncident ERROR",
+			log.Trace(),
 			append(
 				incidentLogValues(inc),
 				log.NewValue("error", err),
@@ -134,7 +134,7 @@ func (r *repository) InsertIncident(ctx context.Context, inc *model.Incident) (i
 func (r *repository) AddPostMortemUrl(ctx context.Context, channelName string, postMortemUrl string) error {
 	r.logger.Info(
 		ctx,
-		"postgres/repository.AddPostMortemUrl INFO",
+		log.Trace(),
 		log.NewValue("channelName", channelName),
 		log.NewValue("postMortemURL", postMortemUrl),
 	)
@@ -149,15 +149,16 @@ func (r *repository) AddPostMortemUrl(ctx context.Context, channelName string, p
 	if err != nil {
 		r.logger.Error(
 			ctx,
-			"postgres/repository.AddPostMortemUrl ERROR",
+			log.Trace(),
+			log.Action("r.db.Exec"),
+			log.Reason(err.Error()),
 			log.NewValue("channelName", channelName),
 			log.NewValue("postMortemURL", postMortemUrl),
-			log.NewValue("error", err),
 		)
 	} else {
 		r.logger.Info(
 			ctx,
-			"postgres/repository.AddPostMortemUrl SUCCESS",
+			log.Trace(),
 			log.NewValue("channelName", channelName),
 			log.NewValue("postMortemURL", postMortemUrl),
 		)
@@ -169,7 +170,7 @@ func (r *repository) AddPostMortemUrl(ctx context.Context, channelName string, p
 func (r *repository) GetIncident(ctx context.Context, channelID string) (inc model.Incident, err error) {
 	r.logger.Info(
 		ctx,
-		"postgres/repository.GetIncident INFO",
+		log.Trace(),
 		log.NewValue("channelID", channelID),
 	)
 
@@ -180,9 +181,10 @@ func (r *repository) GetIncident(ctx context.Context, channelID string) (inc mod
 	if err != nil {
 		r.logger.Error(
 			ctx,
-			"postgres/repository.GetIncident Query ERROR",
+			log.Trace(),
+			log.Action("r.db.Query"),
+			log.Reason(err.Error()),
 			log.NewValue("channelID", channelID),
-			log.NewValue("error", err),
 		)
 
 		return model.Incident{}, err
@@ -193,9 +195,10 @@ func (r *repository) GetIncident(ctx context.Context, channelID string) (inc mod
 		err = errors.New("Incident " + channelID + "not found")
 		r.logger.Error(
 			ctx,
-			"postgres/repository.GetIncident ERROR",
+			log.Trace(),
+			log.Action("rows.Next"),
+			log.Reason(err.Error()),
 			log.NewValue("channelID", channelID),
-			log.NewValue("error", err),
 		)
 
 		return model.Incident{}, err
@@ -229,7 +232,7 @@ func (r *repository) GetIncident(ctx context.Context, channelID string) (inc mod
 
 	r.logger.Info(
 		ctx,
-		"postgres/repository.GetIncident SUCCESS",
+		log.Trace(),
 		log.NewValue("channelID", channelID),
 	)
 	return inc, nil
@@ -268,7 +271,7 @@ func GetIncidentByChannelID() string {
 func (r *repository) UpdateIncidentDates(ctx context.Context, inc *model.Incident) error {
 	r.logger.Info(
 		ctx,
-		"postgres/repository.UpdateIncidentDates INFO",
+		log.Trace(),
 		incidentLogValues(inc)...,
 	)
 
@@ -286,7 +289,7 @@ func (r *repository) UpdateIncidentDates(ctx context.Context, inc *model.Inciden
 	if err != nil {
 		r.logger.Error(
 			ctx,
-			"postgres/repository.UpdateIncidentDates Exec ERROR",
+			log.Trace(),
 			append(
 				incidentLogValues(inc),
 				log.NewValue("error", err),
@@ -299,7 +302,7 @@ func (r *repository) UpdateIncidentDates(ctx context.Context, inc *model.Inciden
 	if err != nil {
 		r.logger.Error(
 			ctx,
-			"postgres/repository.UpdateIncidentDates RowsAffected ERROR",
+			log.Trace(),
 			append(
 				incidentLogValues(inc),
 				log.NewValue("error", err),
@@ -312,7 +315,7 @@ func (r *repository) UpdateIncidentDates(ctx context.Context, inc *model.Inciden
 		err = errors.New("rows not affected")
 		r.logger.Error(
 			ctx,
-			"postgres/repository.UpdateIncidentDates ERROR",
+			log.Trace(),
 			append(
 				incidentLogValues(inc),
 				log.NewValue("error", err),
@@ -323,7 +326,7 @@ func (r *repository) UpdateIncidentDates(ctx context.Context, inc *model.Inciden
 
 	r.logger.Info(
 		ctx,
-		"postgres/repository.UpdateIncidentDates SUCCESS",
+		log.Trace(),
 		incidentLogValues(inc)...,
 	)
 
@@ -333,7 +336,7 @@ func (r *repository) UpdateIncidentDates(ctx context.Context, inc *model.Inciden
 func (r *repository) CancelIncident(ctx context.Context, inc *model.Incident) error {
 	r.logger.Info(
 		ctx,
-		"postgres/repository.CancelIncident INFO",
+		log.Trace(),
 		log.NewValue("channelID", inc.ChannelId),
 		log.NewValue("descriptionCancel", inc.DescriptionCancelled),
 	)
@@ -347,10 +350,11 @@ func (r *repository) CancelIncident(ctx context.Context, inc *model.Incident) er
 	if err != nil {
 		r.logger.Error(
 			ctx,
-			"postgres/repository.CancelIncident ERROR",
+			log.Trace(),
+			log.Action("r.db.Exec"),
+			log.Reason(err.Error()),
 			log.NewValue("channelID", inc.ChannelId),
 			log.NewValue("description", inc.DescriptionCancelled),
-			log.NewValue("error", err),
 		)
 		return err
 	}
@@ -360,9 +364,10 @@ func (r *repository) CancelIncident(ctx context.Context, inc *model.Incident) er
 	if err != nil {
 		r.logger.Error(
 			ctx,
-			"postgres/repository.CancelIncident ERROR",
+			log.Trace(),
+			log.Action("result.RowsAffected"),
+			log.Reason(err.Error()),
 			log.NewValue("channelID", inc.ChannelId),
-			log.NewValue("description", inc.DescriptionCancelled),
 			log.NewValue("error", err),
 		)
 
@@ -373,10 +378,11 @@ func (r *repository) CancelIncident(ctx context.Context, inc *model.Incident) er
 		err = errors.New("rows not affected")
 		r.logger.Error(
 			ctx,
-			"postgres/repository.CancelIncident ERROR",
+			log.Trace(),
+			log.Action("rowsAffected"),
+			log.Reason(err.Error()),
 			log.NewValue("channelID", inc.ChannelId),
 			log.NewValue("description", inc.DescriptionCancelled),
-			log.NewValue("error", err),
 		)
 
 		return err
@@ -384,7 +390,7 @@ func (r *repository) CancelIncident(ctx context.Context, inc *model.Incident) er
 
 	r.logger.Info(
 		ctx,
-		"postgres/repository.CancelIncident SUCCESS",
+		log.Trace(),
 		log.NewValue("channelID", inc.ChannelId),
 		log.NewValue("descriptionCancel", inc.DescriptionCancelled),
 	)
@@ -395,7 +401,7 @@ func (r *repository) CloseIncident(ctx context.Context, inc *model.Incident) err
 	//TODO: implement team
 	r.logger.Info(
 		ctx,
-		"postgres/repository.CloseIncident INFO",
+		log.Trace(),
 		incidentLogValues(inc)...,
 	)
 
@@ -422,7 +428,7 @@ func (r *repository) CloseIncident(ctx context.Context, inc *model.Incident) err
 	if err != nil {
 		r.logger.Error(
 			ctx,
-			"postgres/repository.CloseIncident ERROR",
+			log.Trace(),
 			append(
 				incidentLogValues(inc),
 				log.NewValue("error", err),
@@ -436,7 +442,7 @@ func (r *repository) CloseIncident(ctx context.Context, inc *model.Incident) err
 	if err != nil {
 		r.logger.Error(
 			ctx,
-			"postgres/repository.CloseIncident ERROR",
+			log.Trace(),
 			append(
 				incidentLogValues(inc),
 				log.NewValue("error", err),
@@ -449,7 +455,7 @@ func (r *repository) CloseIncident(ctx context.Context, inc *model.Incident) err
 		err = errors.New("rows not affected")
 		r.logger.Error(
 			ctx,
-			"postgres/repository.CloseIncident ERROR",
+			log.Trace(),
 			append(
 				incidentLogValues(inc),
 				log.NewValue("error", err),
@@ -459,7 +465,7 @@ func (r *repository) CloseIncident(ctx context.Context, inc *model.Incident) err
 	}
 	r.logger.Info(
 		ctx,
-		"postgres/repository.CloseIncident SUCCESS",
+		log.Trace(),
 		incidentLogValues(inc)...,
 	)
 
@@ -470,7 +476,7 @@ func (r *repository) ResolveIncident(ctx context.Context, inc *model.Incident) e
 	//TODO: implement team
 	r.logger.Info(
 		ctx,
-		"postgres/repository.ResolveIncident INFO",
+		log.Trace(),
 		incidentLogValues(inc)...,
 	)
 
@@ -493,7 +499,7 @@ func (r *repository) ResolveIncident(ctx context.Context, inc *model.Incident) e
 	if err != nil {
 		r.logger.Error(
 			ctx,
-			"postgres/repository.ResolveIncident ERROR",
+			log.Trace(),
 			append(
 				incidentLogValues(inc),
 				log.NewValue("error", err),
@@ -507,7 +513,7 @@ func (r *repository) ResolveIncident(ctx context.Context, inc *model.Incident) e
 	if err != nil {
 		r.logger.Error(
 			ctx,
-			"postgres/repository.ResolveIncident ERROR",
+			log.Trace(),
 			append(
 				incidentLogValues(inc),
 				log.NewValue("error", err),
@@ -520,7 +526,7 @@ func (r *repository) ResolveIncident(ctx context.Context, inc *model.Incident) e
 		err = errors.New("rows not affected")
 		r.logger.Error(
 			ctx,
-			"postgres/repository.ResolveIncident ERROR",
+			log.Trace(),
 			append(
 				incidentLogValues(inc),
 				log.NewValue("error", err),
@@ -531,7 +537,7 @@ func (r *repository) ResolveIncident(ctx context.Context, inc *model.Incident) e
 
 	r.logger.Info(
 		ctx,
-		"postgres/repository.ResolveIncident SUCCESS",
+		log.Trace(),
 		incidentLogValues(inc)...,
 	)
 
@@ -541,7 +547,7 @@ func (r *repository) ResolveIncident(ctx context.Context, inc *model.Incident) e
 func (r *repository) ListActiveIncidents(ctx context.Context) ([]model.Incident, error) {
 	r.logger.Info(
 		ctx,
-		"postgres/repository.ListActiveIncidents",
+		log.Trace(),
 	)
 	var (
 		incidents    []model.Incident
@@ -557,7 +563,7 @@ func (r *repository) ListActiveIncidents(ctx context.Context) ([]model.Incident,
 	if err != nil {
 		r.logger.Error(
 			ctx,
-			"postgres/repository.ListActiveIncidents Query ERROR",
+			log.Trace(),
 			log.NewValue("error", err),
 		)
 
@@ -596,7 +602,7 @@ func (r *repository) ListActiveIncidents(ctx context.Context) ([]model.Incident,
 		if err != nil {
 			r.logger.Error(
 				ctx,
-				"postgres/repository.ListActiveIncidents Scan ERROR",
+				log.Trace(),
 				log.NewValue("error", err),
 			)
 
@@ -608,7 +614,7 @@ func (r *repository) ListActiveIncidents(ctx context.Context) ([]model.Incident,
 
 	r.logger.Info(
 		ctx,
-		"postgres/repository.ListActiveIncidents SUCCESS",
+		log.Trace(),
 		logIncidents...,
 	)
 
@@ -648,7 +654,7 @@ func GetIncidentStatusFilterQuery() string {
 func (r *repository) PauseNotifyIncident(ctx context.Context, inc *model.Incident) error {
 	r.logger.Info(
 		ctx,
-		"postgres/repository.PauseNotifyIncident INFO",
+		log.Trace(),
 		incidentLogValues(inc)...,
 	)
 
@@ -662,7 +668,7 @@ func (r *repository) PauseNotifyIncident(ctx context.Context, inc *model.Inciden
 	if err != nil {
 		r.logger.Error(
 			ctx,
-			"postgres/repository.PauseNotifyIncident Exec ERROR",
+			log.Trace(),
 			append(
 				incidentLogValues(inc),
 				log.NewValue("error", err),
@@ -675,7 +681,7 @@ func (r *repository) PauseNotifyIncident(ctx context.Context, inc *model.Inciden
 	if err != nil {
 		r.logger.Error(
 			ctx,
-			"postgres/repository.PauseNotifyIncident RowsAffected ERROR",
+			log.Trace(),
 			append(
 				incidentLogValues(inc),
 				log.NewValue("error", err),
@@ -688,7 +694,7 @@ func (r *repository) PauseNotifyIncident(ctx context.Context, inc *model.Inciden
 		err = errors.New("rows not affected")
 		r.logger.Error(
 			ctx,
-			"postgres/repository.PauseNotifyIncident ERROR",
+			log.Trace(),
 			append(
 				incidentLogValues(inc),
 				log.NewValue("error", err),
@@ -699,7 +705,7 @@ func (r *repository) PauseNotifyIncident(ctx context.Context, inc *model.Inciden
 
 	r.logger.Info(
 		ctx,
-		"postgres/repository.PauseNotifyIncident SUCCESS",
+		log.Trace(),
 		incidentLogValues(inc)...,
 	)
 

@@ -46,7 +46,7 @@ func (h *handlerInteractive) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	body := buf.String()
 	logger.Info(
 		ctx,
-		"handler/interactive.ServeHTTP",
+		log.Trace(),
 		log.NewValue("requestbody", body),
 	)
 
@@ -55,7 +55,7 @@ func (h *handlerInteractive) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	logger.Info(
 		ctx,
-		"handler/interactive.ServeHTTP Form",
+		log.Trace(),
 		formValues...,
 	)
 
@@ -66,7 +66,7 @@ func (h *handlerInteractive) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	logger.Info(
 		ctx,
-		"handler/interactive.ServeHTTP dialogSubmission",
+		log.Trace(),
 		log.NewValue("dialogSubmission", dialogSubmission),
 	)
 
@@ -97,7 +97,7 @@ func (h *handlerInteractive) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		)
 		logger.Error(
 			ctx,
-			"handler/interactive.ServeHTTP invalid_callbackID",
+			log.Trace(),
 			log.NewValue("dialogSubmission", dialogSubmission),
 		)
 		w.WriteHeader(http.StatusBadRequest)
@@ -105,8 +105,9 @@ func (h *handlerInteractive) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger.Error(
 			ctx,
-			"handler/interactive.ServeHTTP proccess_submit_dialog_error",
-			log.NewValue("error", err),
+			log.Trace(),
+			log.Action("dialogSubmission.CallbackID"),
+			log.Reason(err.Error()),
 		)
 
 		commands.PostErrorAttachment(ctx, h.client, h.logger, dialogSubmission.Channel.ID, dialogSubmission.User.ID, err.Error())

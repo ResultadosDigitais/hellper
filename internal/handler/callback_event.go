@@ -26,7 +26,7 @@ func replyCallbackEvent(
 	case *slackevents.AppMentionEvent:
 		logger.Info(
 			ctx,
-			"handler/event.appmention",
+			log.Trace(),
 			log.NewValue("callbackEvent", callbackEvent),
 		)
 
@@ -39,28 +39,28 @@ func replyCallbackEvent(
 	case *slackevents.MessageEvent:
 		logger.Info(
 			ctx,
-			"handler/event.message",
+			log.Trace(),
 			log.NewValue("callbackEvent", callbackEvent),
 		)
 		return nil
 	case *slackevents.AppUninstalledEvent:
 		logger.Info(
 			ctx,
-			"handler/event.appunistalled",
+			log.Trace(),
 			log.NewValue("callbackEvent", callbackEvent),
 		)
 		return nil
 	case *slackevents.LinkSharedEvent:
 		logger.Info(
 			ctx,
-			"handler/event.linkshared",
+			log.Trace(),
 			log.NewValue("callbackEvent", callbackEvent),
 		)
 		return nil
 	default:
 		logger.Info(
 			ctx,
-			"handler/event.unkown_event",
+			log.Trace(),
 			log.NewValue("callbackEvent", callbackEvent),
 		)
 		return nil

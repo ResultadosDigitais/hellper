@@ -129,11 +129,7 @@ func UpdateDatesDialog(ctx context.Context, logger log.Logger, client bot.Client
 
 // UpdateDatesByDialog updates the dates of an incident after receiving data from a Slack dialog
 func UpdateDatesByDialog(ctx context.Context, client bot.Client, logger log.Logger, repository model.Repository, incidentDetails bot.DialogSubmission) error {
-	logger.Info(
-		ctx,
-		"command/close.CloseIncidentByDialog INFO",
-		log.NewValue("incident_close_details", incidentDetails),
-	)
+	logger.Info(ctx, log.Trace(), log.NewValue("incidentDetails", incidentDetails))
 
 	var (
 		dateLayout             = "02/01/2006 15:04:05"
@@ -155,13 +151,14 @@ func UpdateDatesByDialog(ctx context.Context, client bot.Client, logger log.Logg
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/dates.UpdateDatesByDialog parseTimeZone ERROR",
+			log.Trace(),
+			log.Action("parseTimeZone"),
+			log.Reason(err.Error()),
 			log.NewValue("channelID", channelID),
 			log.NewValue("timeZoneString", timeZoneString),
 			log.NewValue("initDateText", initDateText),
 			log.NewValue("identificationDateText", identificationDateText),
 			log.NewValue("endDateText", endDateText),
-			log.NewValue("error", err),
 		)
 
 		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
@@ -172,11 +169,12 @@ func UpdateDatesByDialog(ctx context.Context, client bot.Client, logger log.Logg
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/dates.UpdateDatesByDialog ParseIn ERROR",
+			log.Trace(),
+			log.Action("ParseInLocation"),
+			log.Reason(err.Error()),
 			log.NewValue("channelID", channelID),
 			log.NewValue("timeZoneString", timeZoneString),
 			log.NewValue("initDateText", initDateText),
-			log.NewValue("error", err),
 		)
 
 		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
@@ -187,11 +185,12 @@ func UpdateDatesByDialog(ctx context.Context, client bot.Client, logger log.Logg
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/dates.UpdateDatesByDialog ParseIn ERROR",
+			log.Trace(),
+			log.Action("ParseInLocation"),
+			log.Reason(err.Error()),
 			log.NewValue("channelID", channelID),
 			log.NewValue("timeZoneString", timeZoneString),
 			log.NewValue("identificationDateText", identificationDateText),
-			log.NewValue("error", err),
 		)
 
 		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
@@ -202,11 +201,12 @@ func UpdateDatesByDialog(ctx context.Context, client bot.Client, logger log.Logg
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/dates.UpdateDatesByDialog ParseIn ERROR",
+			log.Trace(),
+			log.Action("ParseInLocation"),
+			log.Reason(err.Error()),
 			log.NewValue("channelID", channelID),
 			log.NewValue("timeZoneString", timeZoneString),
 			log.NewValue("endDateText", endDateText),
-			log.NewValue("error", err),
 		)
 
 		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
@@ -224,9 +224,10 @@ func UpdateDatesByDialog(ctx context.Context, client bot.Client, logger log.Logg
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/dates.UpdateDatesByDialog UpdateIncidentDates ERROR",
+			log.Trace(),
+			log.Action("UpdateIncidentDates"),
+			log.Reason(err.Error()),
 			log.NewValue("incident", incident),
-			log.NewValue("error", err),
 		)
 
 		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())

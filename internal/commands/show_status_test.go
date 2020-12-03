@@ -43,6 +43,12 @@ func (f *statusCommandFixture) setup(t *testing.T) {
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("[]log.Value"),
 	).Return()
+	loggerMock.On(
+		"Error",
+		f.ctx,
+		mock.AnythingOfType("string"),
+		mock.AnythingOfType("[]log.Value"),
+	).Return()
 
 	//Client Mock
 	clientMock.On(

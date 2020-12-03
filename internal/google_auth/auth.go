@@ -31,8 +31,9 @@ func (gs *googleAuthStruct) GetGClient(ctx context.Context, logger log.Logger, t
 	if err != nil {
 		logger.Error(
 			ctx,
-			"googleApi/auth.GetGClient ConfigFromJSON error",
-			log.NewValue("error", err),
+			log.Trace(),
+			log.Action("google.ConfigFromJSON"),
+			log.Reason(err.Error()),
 		)
 
 		return nil, err
@@ -43,8 +44,9 @@ func (gs *googleAuthStruct) GetGClient(ctx context.Context, logger log.Logger, t
 	if err != nil {
 		logger.Error(
 			ctx,
-			"googleApi/auth.getGClient Unmarshal error",
-			log.NewValue("error", err),
+			log.Trace(),
+			log.Action("json.Unmarshal"),
+			log.Reason(err.Error()),
 		)
 
 		return nil, err

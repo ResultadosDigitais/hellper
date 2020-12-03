@@ -74,7 +74,8 @@ func newEnvironment() environment {
 	vars.StringVar(&env.Database, "hellper_database", "postgres", "Hellper database provider")
 	vars.StringVar(&env.FileStorage, "hellper_file_storage", "none", "Hellper file storage tool for postmortem document")
 	vars.StringVar(&env.Calendar, "hellper_calendar", "none", "Hellper calendar tool for postmortem meeting")
-	vars.StringVar(&env.SupportTeam, "hellper_support_team", "", "Support team identifier")
+
+	// Dependencies Configuration
 	vars.StringVar(&env.OAuthToken, "hellper_oauth_token", "", "Token to execute oauth actions")
 	vars.StringVar(&env.SlackSigningSecret, "hellper_slack_signing_secret", "", "Slack signs the requests confirm that each request comes from Slack by verifying its unique signature")
 	vars.StringVar(&env.ProductChannelID, "hellper_product_channel_id", "", "The Product channel id")

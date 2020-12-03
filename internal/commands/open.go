@@ -71,7 +71,7 @@ func OpenStartIncidentDialog(ctx context.Context, client bot.Client, serviceRepo
 			Label:       "Incident Room URL",
 			Name:        "incident_room_url",
 			Type:        "text",
-			Placeholder: "Incident Room URL eg. Zoom Join Url, Google Meet Url",
+			Placeholder: "Incident Room URL eg. Zoom Join URL, Google Meet URL",
 			Optional:    true,
 		},
 	}
@@ -134,7 +134,7 @@ func OpenStartIncidentDialog(ctx context.Context, client bot.Client, serviceRepo
 			Label:       "Incident description",
 			Name:        "incident_description",
 			Type:        "textarea",
-			Placeholder: "Incident description eg. We're having issues with a game service",
+			Placeholder: "Incident description eg. We're having issues with the Produc X or Service Y",
 			Optional:    false,
 		},
 		MaxLength: 500,

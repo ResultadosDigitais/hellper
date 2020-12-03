@@ -230,7 +230,7 @@ func StartIncidentByDialog(
 			"environment": environment,
 		}
 
-		url, err := meeting.CreateMeetingURL(options)
+		url, err := meeting.CreateMeeting(options)
 
 		if err != nil {
 			logger.Error(

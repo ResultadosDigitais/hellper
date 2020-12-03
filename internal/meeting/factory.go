@@ -9,8 +9,8 @@ type Provider interface {
 	CreateURL() (string, error)
 }
 
-// CreateMeetingURL creates a meeting url based in Hellper configs
-func CreateMeetingURL(options map[string]string) (string, error) {
+// CreateMeeting creates a meeting and return its url based on Hellper configs
+func CreateMeeting(options map[string]string) (string, error) {
 	provider := getMeetingProvider(options)
 	return provider.CreateURL()
 }

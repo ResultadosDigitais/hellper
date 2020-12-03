@@ -68,10 +68,10 @@ func OpenStartIncidentDialog(ctx context.Context, client bot.Client, serviceRepo
 
 	meeting := &slack.TextInputElement{
 		DialogInput: slack.DialogInput{
-			Label:       "War Room URL",
-			Name:        "war_room_url",
+			Label:       "Incident Room URL",
+			Name:        "incident_room_url",
 			Type:        "text",
-			Placeholder: "War Room URL eg. Matrix/Meeting/Zoom",
+			Placeholder: "Incident Room URL eg. Zoom Join Url, Google Meet Url",
 			Optional:    true,
 		},
 	}
@@ -134,7 +134,7 @@ func OpenStartIncidentDialog(ctx context.Context, client bot.Client, serviceRepo
 			Label:       "Incident description",
 			Name:        "incident_description",
 			Type:        "textarea",
-			Placeholder: "Incident description eg. We're having a delay email campaign delivery",
+			Placeholder: "Incident description eg. We're having issues with a game service",
 			Optional:    false,
 		},
 		MaxLength: 500,
@@ -180,7 +180,7 @@ func StartIncidentByDialog(
 		submission       = incidentDetails.Submission
 		incidentTitle    = submission.IncidentTitle
 		channelName      = submission.ChannelName
-		warRoomURL       = submission.WarRoomURL
+		incidentRoomURL  = submission.IncidentRoomURL
 		severityLevel    = submission.SeverityLevel
 		product          = submission.Product
 		commander        = submission.IncidentCommander
@@ -224,7 +224,7 @@ func StartIncidentByDialog(
 		return err
 	}
 
-	if warRoomURL == "" {
+	if incidentRoomURL == "" {
 		options := map[string]string{
 			"channel":     channelName,
 			"environment": environment,
@@ -239,16 +239,12 @@ func StartIncidentByDialog(
 				log.Reason("CreateMeetingURL"),
 				log.NewValue("error", err),
 			)
-
-			fmt.Println("-----------------------------------------------------------")
-			fmt.Println(err)
-			fmt.Println("-----------------------------------------------------------")
 		}
 
-		warRoomURL = url
+		incidentRoomURL = url
 	}
 
-	attachment := createOpenAttachment(incident, incidentID, warRoomURL, supportTeam)
+	attachment := createOpenAttachment(incident, incidentID, incidentRoomURL, supportTeam)
 	message := "An Incident has been opened by <@" + incident.IncidentAuthor + ">"
 
 	var waitgroup sync.WaitGroup
@@ -264,9 +260,9 @@ func StartIncidentByDialog(
 	shouldWritePostMortem := fileStorage != nil
 	if shouldWritePostMortem {
 		//We need run that without wait because the modal need close in only 3s
-		go createPostMortemAndFillTopic(ctx, logger, client, fileStorage, incident, incidentID, repository, channel, warRoomURL)
+		go createPostMortemAndFillTopic(ctx, logger, client, fileStorage, incident, incidentID, repository, channel, incidentRoomURL)
 	} else {
-		fillTopic(ctx, logger, client, incident, channel, warRoomURL, "")
+		fillTopic(ctx, logger, client, incident, channel, incidentRoomURL, "")
 	}
 
 	// startReminderStatusJob(ctx, logger, client, repository, incident)
@@ -302,11 +298,11 @@ func StartIncidentByDialog(
 
 func fillTopic(
 	ctx context.Context, logger log.Logger, client bot.Client, incident model.Incident,
-	channel *slack.Channel, warRoomURL string, postMortemURL string,
+	channel *slack.Channel, incidentRoomURL string, postMortemURL string,
 ) {
 	var topic strings.Builder
-	if warRoomURL != "" {
-		topic.WriteString("*WarRoom:* " + warRoomURL + "\n\n")
+	if incidentRoomURL != "" {
+		topic.WriteString("*IncidentRoom:* " + incidentRoomURL + "\n\n")
 	}
 	if postMortemURL != "" {
 		topic.WriteString("*PostMortemURL:* " + postMortemURL + "\n\n")
@@ -329,7 +325,7 @@ func fillTopic(
 
 func createPostMortemAndFillTopic(
 	ctx context.Context, logger log.Logger, client bot.Client, fileStorage filestorage.Driver, incident model.Incident,
-	incidentID int64, repository model.IncidentRepository, channel *slack.Channel, warRoomURL string,
+	incidentID int64, repository model.IncidentRepository, channel *slack.Channel, incidentRoomURL string,
 ) {
 	postMortemURL, err := createPostMortem(ctx, logger, client, fileStorage, incidentID, incident.Title, repository, channel.Name)
 	if err != nil {
@@ -343,10 +339,10 @@ func createPostMortemAndFillTopic(
 		return
 	}
 
-	fillTopic(ctx, logger, client, incident, channel, warRoomURL, postMortemURL)
+	fillTopic(ctx, logger, client, incident, channel, incidentRoomURL, postMortemURL)
 }
 
-func createOpenAttachment(incident model.Incident, incidentID int64, warRoomURL string, supportTeam string) slack.Attachment {
+func createOpenAttachment(incident model.Incident, incidentID int64, incidentRoomURL string, supportTeam string) slack.Attachment {
 	var messageText strings.Builder
 	messageText.WriteString("An Incident has been opened by <@" + incident.IncidentAuthor + ">\n\n")
 	messageText.WriteString("*Title:* " + incident.Title + "\n")
@@ -355,7 +351,7 @@ func createOpenAttachment(incident model.Incident, incidentID int64, warRoomURL 
 	messageText.WriteString("*Channel:* <#" + incident.ChannelId + ">\n")
 	messageText.WriteString("*Commander:* <@" + incident.CommanderId + ">\n\n")
 	messageText.WriteString("*Description:* `" + incident.DescriptionStarted + "`\n\n")
-	messageText.WriteString("*War Room:* " + warRoomURL + "\n")
+	messageText.WriteString("*Incident Room:* " + incidentRoomURL + "\n")
 	messageText.WriteString("*cc:* <@" + supportTeam + ">\n")
 
 	return slack.Attachment{
@@ -393,8 +389,8 @@ func createOpenAttachment(incident model.Incident, incidentID int64, warRoomURL 
 				Value: "```" + incident.DescriptionStarted + "```",
 			},
 			{
-				Title: "War Room",
-				Value: warRoomURL,
+				Title: "Incident Room",
+				Value: incidentRoomURL,
 			},
 		},
 	}

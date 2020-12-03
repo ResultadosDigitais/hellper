@@ -31,7 +31,7 @@ type Channel struct {
 type Submission struct {
 	IncidentTitle       string `json:"incident_title"`
 	ChannelName         string `json:"channel_name"`
-	WarRoomURL          string `json:"war_room_url"`
+	IncidentRoomURL     string `json:"incident_room_url"`
 	SeverityLevel       string `json:"severity_level"`
 	Responsibility      string `json:"responsibility"`
 	Product             string `json:"product"`

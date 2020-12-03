@@ -70,7 +70,7 @@ curl --data client_id="YOUR_CLIENT_ID_HERE" \
   https://oauth2.googleapis.com/token
 ```
 
-2. Run it in your terminal and copy the response.
+2. Run it in your terminal and copy the entire JSON response.
 3. Past it in your environment variable called: `HELLPER_GOOGLE_DRIVE_TOKEN`.
 
 #### Example
@@ -138,7 +138,7 @@ curl --data client_id="YOUR_CLIENT_ID_HERE" \
   https://oauth2.googleapis.com/token
 ```
 
-2. Run it in your terminal and copy the response.
+2. Run it in your terminal and copy the entire JSON response.
 3. Past it in your environment variable called: `HELLPER_GOOGLE_CALENDAR_TOKEN`.
 
 #### Example

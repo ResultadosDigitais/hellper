@@ -76,5 +76,9 @@ func (provider zoomProvider) getMeetingURLFromPayload(payload []byte) (string, e
 		return "", err
 	}
 
+	if data.JoinURL == "" {
+		return "", fmt.Errorf("couldn't retrieve a meeting url, please check you Zoom API settings. payload: %s", string(payload))
+	}
+
 	return data.JoinURL, nil
 }

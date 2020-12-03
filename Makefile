@@ -2,6 +2,12 @@
 CHECK_FILES?=$$(go list ./... | grep -v /vendor/)
 APP_NAME=notify-api
 
+GO ?= go
+GORUN ?= $(GO) run
+GOIMPORTS ?= $(GORUN) golang.org/x/tools/cmd/goimports
+GIT ?= git
+GITDIFF ?= $(GIT) diff
+
 help: ## Show this help.
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {sub("\\\\n",sprintf("\n%22c"," "), $$2);printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
@@ -19,8 +25,23 @@ test: ## Run tests.
 vet: ## Vet the code
 	go vet $(CHECK_FILES)
 
+install: ## Install application on local machine or container
+	go install *.go
+
 run: ## Run application
 	docker-compose up
 
-install: ## Install application on local machine or container
-	go install *.go
+migrate: ## Migrate the database
+	docker-compose exec hellper sh -c "go run ./cmd/migrations -v"
+
+clean: ## Remove all resources
+	docker-compose rm -sf
+
+goimports:
+	@$(GOIMPORTS) -w $(SOURCES)
+
+git/diff:
+	@if ! $(GITDIFF) --quiet; then \
+		printf 'Found changes on local workspace. Please run this target and commit the changes\n' ; \
+		exit 1; \
+	fi

@@ -237,6 +237,15 @@ func getCalendarEvent(
 	channelName string,
 	channelID string,
 ) (*model.Event, error) {
+	if calendar == nil {
+		logger.Error(
+			ctx,
+			log.Trace(),
+			log.Reason("noCalendarConfigured"),
+		)
+		return nil, nil
+	}
+
 	startMeeting, endMeeting, err := setMeetingDate(ctx, logger, t, config.Env.PostmortemGapDays, config.Env.Timezone)
 	if err != nil {
 		logger.Error(
@@ -288,8 +297,8 @@ func createResolveChannelAttachment(inc model.Incident, userName string, event *
 	messageText.WriteString("*Status.io link:* `" + inc.StatusPageUrl + "`\n")
 	messageText.WriteString("*Description:* `" + inc.DescriptionResolved + "`\n")
 	if event == nil {
-		messageText.WriteString("*Post Mortem:* A Post Mortem Meeting was not schedule, be sure to fill up the Post Mortem document.\n")
-		postMortemMessage = "A Post Mortem Meeting was not schedule, be sure to fill up the Post Mortem document."
+		messageText.WriteString("*Post Mortem:* A Post Mortem Meeting was not scheduled, but be sure to fill up the Post Mortem document.\n")
+		postMortemMessage = "A Post Mortem Meeting was not scheduled, but be sure to fill up the Post Mortem document."
 	} else {
 		messageText.WriteString("*Post Mortem Meeting Link:* `" + event.EventURL + "`\n\n")
 		postMortemMessage = "I have scheduled a Post Mortem Meeting for you!\nIt will be on `" + event.Start.Format(time.RFC1123) + "`.\nHere is the link: `" + event.EventURL + "`\n"
@@ -342,8 +351,8 @@ func createResolvePrivateAttachment(inc model.Incident, event *model.Event) slac
 	privateText.WriteString("The Incident <#" + inc.ChannelId + "> has been resolved by you\n\n")
 	privateText.WriteString("*Status.io:* Be sure to update the incident status on" + inc.StatusPageUrl + "\n")
 	if event == nil {
-		privateText.WriteString("*Post Mortem:* A Post Mortem Meeting was not schedule, be sure to fill up the Post Mortem document.\n")
-		postMortemMessage = "A Post Mortem Meeting was not schedule, be sure to fill up the Post Mortem document."
+		privateText.WriteString("*Post Mortem:* A Post Mortem Meeting was not scheduled, but be sure to fill up the Post Mortem document.\n")
+		postMortemMessage = "A Post Mortem Meeting was not scheduled, but be sure to fill up the Post Mortem document."
 	} else {
 		privateText.WriteString("*Post Mortem Meeting Link:* `" + event.EventURL + "`\n\n")
 		postMortemMessage = "I have scheduled a Post Mortem Meeting for you!\nIt will be on `" + event.Start.Format(time.RFC1123) + "`.\nHere is the link: `" + event.EventURL + "`\n"

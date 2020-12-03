@@ -3,7 +3,6 @@ package internal
 import (
 	"context"
 	"fmt"
-
 	"hellper/internal/bot"
 	"hellper/internal/bot/slack"
 	"hellper/internal/calendar"
@@ -18,64 +17,133 @@ import (
 	"hellper/internal/model/sql/postgres"
 )
 
-func New() (log.Logger, bot.Client, model.IncidentRepository, filestorage.Driver, calendar.Calendar) {
+type MainInternal struct {
+	Logger             log.Logger
+	Client             bot.Client
+	IncidentRepository model.IncidentRepository
+	FileStorage        filestorage.Driver
+	Calendar           calendar.Calendar
+}
+
+func New() MainInternal {
 	ctx := context.Background()
 	logger := NewLogger()
-	return logger, NewClient(logger), NewRepository(logger), NewFileStorage(logger), NewCalendar(ctx, logger)
+	return MainInternal{
+		Logger:             logger,
+		Client:             NewClient(ctx, logger),
+		IncidentRepository: NewIncidentRepository(ctx, logger),
+		FileStorage:        NewFileStorage(ctx, logger),
+		Calendar:           NewCalendar(ctx, logger),
+	}
 }
 
 func NewLogger() log.Logger {
-	return zap.NewDefault()
+	configuredLogger := config.Env.Logger
+	fmt.Printf("internal.NewLogger initializing logger: %s\n", configuredLogger)
+	switch configuredLogger {
+	case LoggerZap:
+		return zap.NewDefault()
+	default:
+		panic(fmt.Sprintf(
+			"internal.NewLogger invalid logger option: option=%s valid_options=[%s]",
+			configuredLogger, LoggerZap,
+		))
+	}
 }
 
-func NewClient(logger log.Logger) bot.Client {
-	return slack.NewClient(config.Env.OAuthToken)
+func NewClient(ctx context.Context, logger log.Logger) bot.Client {
+	configuredClient := config.Env.Client
+	logger.Info(ctx, fmt.Sprintf(
+		"internal.NewClient initializing client connection: %s", configuredClient,
+	))
+	switch configuredClient {
+	case ClientSlack:
+		return slack.NewClient(config.Env.OAuthToken)
+	default:
+		panic(fmt.Sprintf(
+			"internal.NewClient invalid client option: option=%s valid_options=[%s]\n",
+			configuredClient, ClientSlack,
+		))
+	}
 }
 
-func NewRepository(logger log.Logger) model.IncidentRepository {
-	fmt.Printf("Configured database: %s", config.Env.Database)
-	switch config.Env.Database {
-	case "postgres":
+// NewIncidentRepository creates a new connection with the database for incidents
+func NewIncidentRepository(ctx context.Context, logger log.Logger) model.IncidentRepository {
+	configuredDatabase := config.Env.Database
+	logger.Info(ctx, fmt.Sprintf(
+		"internal.NewIncidentRepository initializing incident database connection: %s", configuredDatabase,
+	))
+	switch configuredDatabase {
+	case DatabasePostgres:
 		db := sql.NewDBWithDSN(config.Env.Database, config.Env.DSN)
 		return postgres.NewIncidentRepository(logger, db)
 	default:
 		panic(fmt.Sprintf(
-			"invalid database option: option=%s valid_options=[postgres]",
-			config.Env.Database,
+			"internal.NewIncidentRepository invalid database option: option=%s valid_options=[%s]\n",
+			configuredDatabase, DatabasePostgres,
 		))
 	}
 }
 
 // NewFileStorage creates a new connection with the file storage for postmortem document
-func NewFileStorage(logger log.Logger) filestorage.Driver {
-	fileStorage := config.Env.FileStorage
-	switch fileStorage {
-	case "google_drive":
+func NewFileStorage(ctx context.Context, logger log.Logger) filestorage.Driver {
+	configuredFileStorage := config.Env.FileStorage
+	logger.Info(
+		ctx, fmt.Sprintf("internal.NewFileStorage initializing file storage connection: %s", configuredFileStorage))
+	switch configuredFileStorage {
+	case FileStorageGoogleDrive:
 		return googledrive.NewFileStorage(logger)
+	case FileStorageNone:
+		return nil
 	default:
-		panic(fmt.Sprintf(
-			"invalid file storage option: option=%s valid_options=[google_drive]",
-			fileStorage,
+		logger.Error(ctx, fmt.Sprintf(
+			"internal.NewFileStorage invalid file storage option: option=%s valid_options=[%s,%s]",
+			configuredFileStorage, FileStorageGoogleDrive, FileStorageNone,
 		))
+		return nil
 	}
 }
 
 // NewCalendar creates a new connection with the calendar service
 func NewCalendar(ctx context.Context, logger log.Logger) calendar.Calendar {
-	var (
-		calendarToken = config.Env.GoogleCalendarToken
-		calendarID    = config.Env.GoogleCalendarID
+	configuredCalendar := config.Env.Calendar
+	logger.Info(
+		ctx,
+		fmt.Sprintf("internal.NewCalendar initializing calendar connection: %s", configuredCalendar),
 	)
-	calendar, err := googlecalendar.NewCalendar(ctx, logger, calendarToken, calendarID)
-	if err != nil {
-		logger.Error(
-			ctx,
-			"internal.NewCalendar ERROR",
-			log.NewValue("error", err),
+	switch configuredCalendar {
+	case CalendarGoogle:
+		var (
+			calendarToken = config.Env.GoogleCalendarToken
+			calendarID    = config.Env.GoogleCalendarID
 		)
-
+		if !googlecalendar.ValidateParameters(calendarID, calendarToken) {
+			logger.Error(
+				ctx,
+				"internal.NewCalendar[Google] parameters not configured: calendarID/calendarToken",
+			)
+			return nil
+		}
+		calendar, err := googlecalendar.NewCalendar(ctx, logger, calendarToken, calendarID)
+		if err != nil {
+			logger.Error(
+				ctx,
+				"internal.NewCalendar[Google] ERROR",
+				log.NewValue("error", err),
+			)
+			return nil
+		}
+		return calendar
+	case CalendarNone:
+		return nil
+	default:
+		logger.Error(
+			ctx, fmt.Sprintf(
+				"internal.NewCalendar invalid calendar option: option=%s valid_options=[%s,%s]",
+				configuredCalendar, CalendarGoogle, CalendarNone,
+			),
+		)
 		return nil
 	}
 
-	return calendar
 }

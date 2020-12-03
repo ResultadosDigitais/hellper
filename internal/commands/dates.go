@@ -259,10 +259,10 @@ func createDatesSuccessAttachment(inc model.Incident, userName string) slack.Att
 		messageText strings.Builder
 	)
 
-	messageText.WriteString("The dates of Incident <#" + inc.ChannelId + "> has been updated by <@" + userName + ">\n\n")
+	messageText.WriteString("The dates of Incident <#" + inc.ChannelId + "> have been updated by <@" + userName + ">\n\n")
 
 	return slack.Attachment{
-		Pretext:  "The dates of Incident <#" + inc.ChannelId + "> has been updated by <@" + userName + ">",
+		Pretext:  "The dates of Incident <#" + inc.ChannelId + "> have been updated by <@" + userName + ">",
 		Fallback: messageText.String(),
 		Text:     "",
 		Color:    "#6fff47",

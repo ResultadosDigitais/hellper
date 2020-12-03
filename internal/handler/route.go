@@ -22,17 +22,18 @@ var (
 )
 
 func init() {
-	logger, client, repository, fileStorage, calendar := internal.New()
-	openHandler = newHandlerOpen(logger, client, repository)
-	eventsHandler = newHandlerEvents(logger, client, repository)
-	interactiveHandler = newHandlerInteractive(logger, client, repository, fileStorage, calendar)
-	statusHandler = newHandlerStatus(logger, client, repository)
-	datesHandler = newHandlerDates(logger, client, repository)
-	closeHandler = newHandlerClose(logger, client, repository)
-	cancelHandler = newHandlerCancel(logger, client, repository)
-	resolveHandler = newHandlerResolve(logger, client, repository)
-	pauseNotifyHandler = newHandlerPauseNotify(logger, client, repository)
-	// commands.StartAllReminderJobs(logger, client, repository)
+	dependencies := internal.New()
+	openHandler = newHandlerOpen(dependencies.Logger, dependencies.Client, dependencies.IncidentRepository)
+	eventsHandler = newHandlerEvents(dependencies.Logger, dependencies.Client, dependencies.IncidentRepository)
+	interactiveHandler = newHandlerInteractive(dependencies.Logger, dependencies.Client, dependencies.IncidentRepository,
+		dependencies.FileStorage, dependencies.Calendar)
+	statusHandler = newHandlerStatus(dependencies.Logger, dependencies.Client, dependencies.IncidentRepository)
+	datesHandler = newHandlerDates(dependencies.Logger, dependencies.Client, dependencies.IncidentRepository)
+	closeHandler = newHandlerClose(dependencies.Logger, dependencies.Client, dependencies.IncidentRepository)
+	cancelHandler = newHandlerCancel(dependencies.Logger, dependencies.Client, dependencies.IncidentRepository)
+	resolveHandler = newHandlerResolve(dependencies.Logger, dependencies.Client, dependencies.IncidentRepository)
+	pauseNotifyHandler = newHandlerPauseNotify(dependencies.Logger, dependencies.Client, dependencies.IncidentRepository)
+	// commands.StartAllReminderJobs(dependencies.Logger, dependencies.Client, dependencies.IncidentRepository)
 }
 
 // NewHandlerRoute handles the http requests received and calls the correct handler.

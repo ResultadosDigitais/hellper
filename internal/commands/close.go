@@ -37,13 +37,13 @@ func CloseIncidentDialog(ctx context.Context, logger log.Logger, client bot.Clie
 			messageText strings.Builder
 		)
 
-		messageText.WriteString("The dates of Incident <#" + inc.ChannelId + "> has not been updated yet.\n" +
+		messageText.WriteString("The dates of Incident <#" + inc.ChannelId + "> have not been updated yet.\n" +
 			"Please, call the command `/hellper_update_dates` to receive the current dates and update each one.")
 
 		attch := slack.Attachment{
 			Pretext:  "",
 			Fallback: messageText.String(),
-			Text: "The dates of Incident <#" + inc.ChannelId + "> has not been updated yet.\n" +
+			Text: "The dates of Incident <#" + inc.ChannelId + "> have not been updated yet.\n" +
 				"Please, call the command `/hellper_update_dates` to receive the current dates and update each one.",
 			Color:  "#ff8c00",
 			Fields: []slack.AttachmentField{},

@@ -14,6 +14,11 @@ import (
 	gCalendar "google.golang.org/api/calendar/v3"
 )
 
+const (
+  DefaultCalendarID = "YOUR_GOOGLE_CALENDAR_ID"
+  DefaultCalendarToken = "YOUR_GOOGLE_CALENDAR_TOKEN"
+)
+
 type googleCalendar struct {
 	logger          log.Logger
 	calendarService google.CalendarService
@@ -199,4 +204,15 @@ func (gc *googleCalendar) CreateCalendarEvent(ctx context.Context, start, end, s
 	}
 
 	return modelEvent, nil
+}
+
+//ValidateParameters checks if the calendarID and calendarToken are valid
+func ValidateParameters(calendarID, calendarToken string) bool {
+  if calendarID == "" || calendarID == DefaultCalendarID {
+    return false
+  }
+  if calendarToken == "" || calendarToken == DefaultCalendarToken {
+    return false
+  }
+  return true
 }

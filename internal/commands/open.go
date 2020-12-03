@@ -230,8 +230,13 @@ func StartIncidentByDialog(
 		postAndPinMessage(client, productChannelID, message, attachment)
 	})
 
-	//We need run that without wait because the modal need close in only 3s
-	go createPostMortemAndUpdateTopic(ctx, logger, client, fileStorage, incident, incidentID, repository, channel, warRoomURL)
+	shouldWritePostMortem := fileStorage != nil
+	if shouldWritePostMortem {
+		//We need run that without wait because the modal need close in only 3s
+		go createPostMortemAndFillTopic(ctx, logger, client, fileStorage, incident, incidentID, repository, channel, warRoomURL)
+	} else {
+		fillTopic(ctx, logger, client, incident, channel, warRoomURL, "")
+	}
 
 	// startReminderStatusJob(ctx, logger, client, repository, incident)
 
@@ -264,7 +269,37 @@ func StartIncidentByDialog(
 	return nil
 }
 
-func createPostMortemAndUpdateTopic(ctx context.Context, logger log.Logger, client bot.Client, fileStorage filestorage.Driver, incident model.Incident, incidentID int64, repository model.IncidentRepository, channel *slack.Channel, warRoomURL string) {
+func fillTopic(
+	ctx context.Context, logger log.Logger, client bot.Client, incident model.Incident,
+	channel *slack.Channel, warRoomURL string, postMortemURL string,
+) {
+	var topic strings.Builder
+	if warRoomURL != "" {
+		topic.WriteString("*WarRoom:* " + warRoomURL + "\n\n")
+	}
+	if postMortemURL != "" {
+		topic.WriteString("*PostMortemURL:* " + postMortemURL + "\n\n")
+	}
+	topic.WriteString("*Commander:* <@" + incident.CommanderId + ">\n\n")
+	topicString := topic.String()
+
+	_, err := client.SetTopicOfConversation(channel.ID, topicString)
+	if err != nil {
+		logger.Error(
+			ctx,
+			log.Trace(),
+			log.Reason("SetTopicOfConversation"),
+			log.NewValue("channel.ID", channel.ID),
+			log.NewValue("topic.String", topicString),
+			log.NewValue("error", err),
+		)
+	}
+}
+
+func createPostMortemAndFillTopic(
+	ctx context.Context, logger log.Logger, client bot.Client, fileStorage filestorage.Driver, incident model.Incident,
+	incidentID int64, repository model.IncidentRepository, channel *slack.Channel, warRoomURL string,
+) {
 	postMortemURL, err := createPostMortem(ctx, logger, client, fileStorage, incidentID, incident.Title, repository, channel.Name)
 	if err != nil {
 		logger.Error(
@@ -277,22 +312,7 @@ func createPostMortemAndUpdateTopic(ctx context.Context, logger log.Logger, clie
 		return
 	}
 
-	var topic strings.Builder
-	topic.WriteString("*WarRoom:* " + warRoomURL + "\n\n")
-	topic.WriteString("*PostMortem:* " + postMortemURL + "\n\n")
-	topic.WriteString("*Commander:* <@" + incident.CommanderId + ">\n\n")
-
-	_, err = client.SetTopicOfConversation(channel.ID, topic.String())
-	if err != nil {
-		logger.Error(
-			ctx,
-			log.Trace(),
-			log.Reason("SetTopicOfConversation"),
-			log.NewValue("channel.ID", channel.ID),
-			log.NewValue("topic.String", topic.String()),
-			log.NewValue("error", err),
-		)
-	}
+	fillTopic(ctx, logger, client, incident, channel, warRoomURL, postMortemURL)
 }
 
 func createOpenAttachment(incident model.Incident, incidentID int64, warRoomURL string, supportTeam string) slack.Attachment {

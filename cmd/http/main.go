@@ -15,8 +15,10 @@ func main() {
 
 func determineListenAddress() string {
 	port := os.Getenv("PORT")
-	if port == "" {
-		return config.Env.BindAddress
+
+	if port != "" {
+		return ":" + port
 	}
-	return ":" + port
+
+	return config.Env.BindAddress
 }

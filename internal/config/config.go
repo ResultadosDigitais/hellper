@@ -72,6 +72,7 @@ func newEnvironment() environment {
 	vars.StringVar(&env.Logger, "hellper_logger", "zap", "Hellper log provider")
 	vars.StringVar(&env.Client, "hellper_client", "slack", "Hellper bot client tool")
 	vars.StringVar(&env.Database, "hellper_database", "postgres", "Hellper database provider")
+	vars.StringVar(&env.MeetingConfig.ProviderName, "hellper_meeting", "matrix", "Name of meeting provider that will create a War room on incident start.")
 	vars.StringVar(&env.FileStorage, "hellper_file_storage", "none", "Hellper file storage tool for postmortem document")
 	vars.StringVar(&env.Calendar, "hellper_calendar", "none", "Hellper calendar tool for postmortem meeting")
 
@@ -81,6 +82,7 @@ func newEnvironment() environment {
 	vars.StringVar(&env.ProductChannelID, "hellper_product_channel_id", "", "The Product channel id")
 	vars.StringVar(&env.SupportTeam, "hellper_support_team", "", "Support team identifier")
 	vars.StringVar(&env.DSN, "hellper_dsn", "", "Hellper database provider")
+	vars.StringVar(&meetingProviderConfig, "hellper_meeting_provider_config", "{}", "Specific config of meeting provider that will create a War room on incident start.")
 	vars.StringVar(&env.GoogleCredentials, "hellper_google_credentials", "", "Google Credentials")
 	vars.StringVar(&env.GoogleDriveFileID, "hellper_google_drive_file_id", "", "Google Drive FileId")
 	vars.StringVar(&env.GoogleDriveToken, "hellper_google_drive_token", "", "Google Drive Token")
@@ -98,10 +100,9 @@ func newEnvironment() environment {
 	vars.BoolVar(&env.NotifyOnClose, "hellper_notify_on_close", true, "Notify the Product channel when close the incident")
 	vars.BoolVar(&env.NotifyOnCancel, "hellper_notify_on_cancel", true, "Notify the Product channel when cancel the incident")
 	vars.StringVar(&env.Timezone, "hellper_timezone", "America/Sao_Paulo", "The local time of a region or a country used to create a event.")
-	vars.StringVar(&env.MeetingConfig.ProviderName, "hellper_meeting_provider", "matrix", "Name of meeting provider that will create a War room on incident start.")
-	vars.StringVar(&meetingProviderConfig, "hellper_meeting_provider_config", "{}", "Specific config of meeting provider that will create a War room on incident start.")
 
 	vars.Parse()
+
 	env.MeetingConfig.ProviderConfig = getStringMapFromJSON(meetingProviderConfig)
 
 	return env
@@ -111,7 +112,7 @@ func getStringMapFromJSON(mapAsJSONString string) map[string]string {
 	stringMap := make(map[string]string)
 
 	err := json.Unmarshal([]byte(mapAsJSONString), &stringMap)
-	if err != nil { // TODO: move this to a logger
+	if err != nil {
 		fmt.Printf("Config with invalid json format. Config: %s", mapAsJSONString)
 	}
 

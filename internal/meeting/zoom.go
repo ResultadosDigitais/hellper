@@ -1,7 +1,6 @@
 package meeting
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -32,15 +31,9 @@ func (provider zoomProvider) CreateURL() (string, error) {
 	)
 
 	url := fmt.Sprintf("%s/users/%s/meetings", apiBaseURL, userID)
+	postData := provider.createMeetingInput(channel)
 
-	postData := map[string]string{
-		"topic": fmt.Sprintf("Incident reported on %s", channel),
-		"type":  "1", // Instant meeting
-	}
-
-	jsonValue, _ := json.Marshal(postData)
-
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonValue))
+	req, err := http.NewRequest("POST", url, postData)
 
 	if err != nil {
 		return "", err

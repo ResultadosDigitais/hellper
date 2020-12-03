@@ -4,15 +4,24 @@ import (
 	"hellper/internal/config"
 )
 
-// Provider is an interface that defines how a meetubg will be created
+const MeetingProviderZoom = "zoom"
+const MeetingProviderMatrix = "matrix"
+const MeetingProviderNone = "none"
+
+// Provider is an interface that defines how a meeting will be created
 type Provider interface {
-	CreateURL() (string, error)
+	CreateMeeting() (string, error)
 }
 
-// CreateMeeting creates a meeting and return its url based on Hellper configs
+// CreateMeeting creates a meeting and returns its url based on Hellper configs
 func CreateMeeting(options map[string]string) (string, error) {
 	provider := getMeetingProvider(options)
-	return provider.CreateURL()
+
+	if provider == nil {
+		return "", nil
+	}
+
+	return provider.CreateMeeting()
 }
 
 func getMeetingProvider(additionalConfig map[string]string) Provider {
@@ -21,9 +30,11 @@ func getMeetingProvider(additionalConfig map[string]string) Provider {
 		providerConfig = config.Env.MeetingConfig.ProviderConfig
 	)
 
-	if providerName == "zoom" {
+	if providerName == MeetingProviderZoom {
 		return getZoomMeetingProvider(providerConfig, additionalConfig)
+	} else if providerName == MeetingProviderMatrix {
+		return getMatrixMeetingProvider(providerConfig, additionalConfig)
 	}
 
-	return getMatrixMeetingProvider(providerConfig, additionalConfig)
+	return nil
 }

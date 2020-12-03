@@ -23,7 +23,7 @@ func getZoomMeetingProvider(config, additionalConfig map[string]string) zoomProv
 	}
 }
 
-func (provider zoomProvider) CreateURL() (string, error) {
+func (provider zoomProvider) CreateMeeting() (string, error) {
 	var (
 		apiBaseURL = "https://api.zoom.us/v2"
 		userID     = provider.userID

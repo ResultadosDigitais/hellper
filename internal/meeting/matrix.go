@@ -18,7 +18,7 @@ func getMatrixMeetingProvider(config map[string]string, additionalConfig map[str
 	}
 }
 
-func (provider matrixProvider) CreateURL() (string, error) {
+func (provider matrixProvider) CreateMeeting() (string, error) {
 	var (
 		url         = provider.matrixURL
 		channelName = provider.channel

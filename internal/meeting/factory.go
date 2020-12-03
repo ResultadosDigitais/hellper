@@ -11,8 +11,8 @@ type Provider interface {
 
 // CreateMeetingURL creates a meeting url based in Hellper configs
 func CreateMeetingURL(options map[string]string) (string, error) {
-	creator := getMeetingProvider(options)
-	return creator.CreateURL()
+	provider := getMeetingProvider(options)
+	return provider.CreateURL()
 }
 
 func getMeetingProvider(additionalConfig map[string]string) Provider {

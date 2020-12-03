@@ -30,7 +30,7 @@ func (e *EventExecutor) ExecuteEventCommand(
 ) error {
 	e.logger.Info(
 		ctx,
-		"command/eventexecutor.ExecuteEventCommand",
+		log.Trace(),
 		log.NewValue("command_line", cmdLine),
 		log.NewValue("event", event),
 	)
@@ -40,9 +40,10 @@ func (e *EventExecutor) ExecuteEventCommand(
 	if err != nil {
 		e.logger.Error(
 			ctx,
-			"command/eventexecutor.ExecuteEventCommand command_result",
+			log.Trace(),
+			log.Action("invoker.eventInvoker"),
+			log.Reason(err.Error()),
 			log.NewValue("command_line", cmdLine),
-			log.NewValue("error", err),
 		)
 		return err
 	}

@@ -38,7 +38,7 @@ func (h *handlerStatus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	body := buf.String()
 	logger.Info(
 		ctx,
-		"handler/status.ServeHTTP",
+		log.Trace(),
 		log.NewValue("requestbody", body),
 	)
 
@@ -47,7 +47,7 @@ func (h *handlerStatus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	logger.Info(
 		ctx,
-		"handler/status.ServeHTTP Form",
+		log.Trace(),
 		formValues...,
 	)
 
@@ -58,9 +58,10 @@ func (h *handlerStatus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger.Error(
 			ctx,
-			"handler/status.ServeHTTP ShowStatus error",
+			log.Trace(),
+			log.Action("commands.ShowStatus"),
+			log.Reason(err.Error()),
 			log.NewValue("channelID", channelID),
-			log.NewValue("error", err),
 		)
 
 		http.Error(w, err.Error(), http.StatusInternalServerError)

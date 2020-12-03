@@ -38,7 +38,7 @@ func (h *handlerResolve) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	body := buf.String()
 	logger.Info(
 		ctx,
-		"handler/resolve.ServeHTTP",
+		log.Trace(),
 		log.NewValue("requestbody", body),
 	)
 
@@ -47,7 +47,7 @@ func (h *handlerResolve) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	logger.Info(
 		ctx,
-		"handler/resolve.ServeHTTP Form",
+		log.Trace(),
 		formValues...,
 	)
 
@@ -58,9 +58,9 @@ func (h *handlerResolve) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		logger.Error(
 			ctx,
 			log.Trace(),
-			log.Reason("ResolveIncidentDialog"),
+			log.Action("commands.ResolveIncidentDialog"),
+			log.Reason(err.Error()),
 			log.NewValue("triggerID", triggerID),
-			log.NewValue("error", err),
 		)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

@@ -40,7 +40,7 @@ func (h *handlerDates) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	body := buf.String()
 	logger.Info(
 		ctx,
-		"handler/dates.ServeHTTP",
+		log.Trace(),
 		log.NewValue("requestbody", body),
 	)
 
@@ -49,7 +49,7 @@ func (h *handlerDates) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	logger.Info(
 		ctx,
-		"handler/dates.ServeHTTP Form",
+		log.Trace(),
 		formValues...,
 	)
 
@@ -61,10 +61,11 @@ func (h *handlerDates) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger.Error(
 			ctx,
-			"handler/dates.ServeHTTP UpdateDatesDialog error",
+			log.Trace(),
+			log.Action("commands.UpdateDatesDialog"),
+			log.Reason(err.Error()),
 			log.NewValue("channelID", channelID),
 			log.NewValue("triggerID", triggerID),
-			log.NewValue("error", err),
 		)
 
 		http.Error(w, err.Error(), http.StatusInternalServerError)

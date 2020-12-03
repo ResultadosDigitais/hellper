@@ -17,9 +17,10 @@ func ListOpenIncidents(ctx context.Context, client bot.Client, logger log.Logger
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/list_open.ListOpenIncidents ListActiveIncidents error",
+			log.Trace(),
+			log.Action("repository.ListActiveIncidents"),
+			log.Reason(err.Error()),
 			log.NewValue("event", event),
-			log.NewValue("error", err),
 		)
 
 		PostErrorAttachment(ctx, client, logger, event.Channel, event.User, err.Error())
@@ -27,7 +28,7 @@ func ListOpenIncidents(ctx context.Context, client bot.Client, logger log.Logger
 
 	logger.Info(
 		ctx,
-		"command/list_open.ListOpenIncidents",
+		log.Trace(),
 		log.NewValue("event", event),
 		log.NewValue("incidents", incidents),
 	)

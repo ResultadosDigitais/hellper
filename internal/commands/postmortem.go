@@ -5,29 +5,24 @@ import (
 	"strconv"
 	"strings"
 
-	"hellper/internal/bot"
-	filestorage "hellper/internal/file_storage"
+	"hellper/internal/app"
 	"hellper/internal/log"
-	"hellper/internal/model"
 
 	"github.com/slack-go/slack"
 )
 
 func createPostMortem(
 	ctx context.Context,
-	logger log.Logger,
-	client bot.Client,
-	fileStorage filestorage.Driver,
+	app *app.App,
 	incidentID int64,
 	incidentName string,
-	repository model.IncidentRepository,
 	channelName string,
 ) (string, error) {
 
 	postMortemName := strconv.FormatInt(incidentID, 10) + " - PostMortem - " + incidentName
-	postMortemURL, err := fileStorage.CreatePostMortemDocument(ctx, postMortemName)
+	postMortemURL, err := app.FileStorage.CreatePostMortemDocument(ctx, postMortemName)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			"command/open.create_post_mortem_document ERROR",
 			log.NewValue("incident_id", incidentID),
@@ -37,7 +32,7 @@ func createPostMortem(
 		)
 		return "", err
 	}
-	addPostMortemURLToDB(ctx, logger, repository, channelName, postMortemURL)
+	addPostMortemURLToDB(ctx, app, channelName, postMortemURL)
 
 	var messageText strings.Builder
 	messageText.WriteString("*Post Mortem URL:* " + postMortemURL + "\n")
@@ -55,14 +50,14 @@ func createPostMortem(
 		},
 	}
 
-	postAndPinMessage(client, channelName, "Post Mortem document created", attachment)
+	postAndPinMessage(app, channelName, "Post Mortem document created", attachment)
 	return postMortemURL, nil
 }
 
-func addPostMortemURLToDB(ctx context.Context, logger log.Logger, repository model.IncidentRepository, channelName string, postMortemURL string) {
-	err := repository.AddPostMortemUrl(ctx, channelName, postMortemURL)
+func addPostMortemURLToDB(ctx context.Context, app *app.App, channelName string, postMortemURL string) {
+	err := app.IncidentRepository.AddPostMortemUrl(ctx, channelName, postMortemURL)
 	if err != nil {
-		logger.Info(
+		app.Logger.Info(
 			ctx,
 			"Post Mortem could not be inserted to DB",
 			log.NewValue("channelName", channelName),

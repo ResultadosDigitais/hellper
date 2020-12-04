@@ -1,4 +1,4 @@
-package internal
+package app
 
 import (
 	"context"
@@ -17,7 +17,7 @@ import (
 	"hellper/internal/model/sql/postgres"
 )
 
-type MainInternal struct {
+type App struct {
 	Logger             log.Logger
 	Client             bot.Client
 	IncidentRepository model.IncidentRepository
@@ -26,10 +26,10 @@ type MainInternal struct {
 	Calendar           calendar.Calendar
 }
 
-func New() MainInternal {
+func NewApp() App {
 	ctx := context.Background()
 	logger := NewLogger()
-	return MainInternal{
+	return App{
 		Logger:             logger,
 		Client:             NewClient(ctx, logger),
 		IncidentRepository: NewIncidentRepository(ctx, logger),

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"hellper/internal/bot"
+	"hellper/internal/app"
 	"hellper/internal/log"
 	"hellper/internal/model"
 
@@ -50,10 +50,10 @@ func createDateFields(inc model.Incident) (fields []slack.AttachmentField) {
 	return fields
 }
 
-func createDatesAttachment(ctx context.Context, logger log.Logger, repository model.IncidentRepository, channelID string) (slack.Attachment, error) {
-	inc, err := repository.GetIncident(ctx, channelID)
+func createDatesAttachment(ctx context.Context, app *app.App, channelID string) (slack.Attachment, error) {
+	inc, err := app.IncidentRepository.GetIncident(ctx, channelID)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("GetIncident"),
@@ -76,16 +76,16 @@ func createDatesAttachment(ctx context.Context, logger log.Logger, repository mo
 	return attach, nil
 }
 
-func createStatusAttachment(ctx context.Context, client bot.Client, logger log.Logger, channelID string) (slack.Attachment, error) {
+func createStatusAttachment(ctx context.Context, app *app.App, channelID string) (slack.Attachment, error) {
 	var (
 		attach     slack.Attachment
 		fields     []slack.AttachmentField
 		attachText string
 	)
 
-	items, _, err := client.ListPins(channelID)
+	items, _, err := app.Client.ListPins(channelID)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("ListPins"),
@@ -109,7 +109,7 @@ func createStatusAttachment(ctx context.Context, client bot.Client, logger log.L
 
 			timeMessage, err := convertTimestamp(item.Message.Timestamp)
 			if err != nil {
-				logger.Error(
+				app.Logger.Error(
 					ctx,
 					log.Trace(),
 					log.Reason("convertTimestamp"),
@@ -121,9 +121,9 @@ func createStatusAttachment(ctx context.Context, client bot.Client, logger log.L
 			}
 
 			if item.Message.User != "" {
-				user, err := client.GetUserInfoContext(ctx, item.Message.User)
+				user, err := app.Client.GetUserInfoContext(ctx, item.Message.User)
 				if err != nil {
-					logger.Error(
+					app.Logger.Error(
 						ctx,
 						log.Trace(),
 						log.Reason("GetUserInfoContext"),
@@ -134,7 +134,7 @@ func createStatusAttachment(ctx context.Context, client bot.Client, logger log.L
 					return slack.Attachment{}, err
 				}
 
-				msg, err := treatMessage(ctx, client, logger, item.Message.Text)
+				msg, err := treatMessage(ctx, app, item.Message.Text)
 				if err != nil {
 					return slack.Attachment{}, err
 				}
@@ -174,7 +174,7 @@ func createStatusAttachment(ctx context.Context, client bot.Client, logger log.L
 			Color:    "#999999",
 			Fields:   fields,
 		}
-		logger.Info(
+		app.Logger.Info(
 			ctx,
 			log.Trace(),
 			log.Reason("AttachmentField"),
@@ -184,9 +184,9 @@ func createStatusAttachment(ctx context.Context, client bot.Client, logger log.L
 	return attach, nil
 }
 
-func treatMessage(ctx context.Context, client bot.Client, logger log.Logger, msg string) (string, error) {
+func treatMessage(ctx context.Context, app *app.App, msg string) (string, error) {
 	msg = treatHere(msg)
-	msg, err := treatUsersMentions(ctx, client, logger, msg)
+	msg, err := treatUsersMentions(ctx, app, msg)
 	if err != nil {
 		return "", err
 	}
@@ -207,14 +207,14 @@ func treatHere(msg string) string {
 	return msg
 }
 
-func treatUsersMentions(ctx context.Context, client bot.Client, logger log.Logger, msg string) (string, error) {
+func treatUsersMentions(ctx context.Context, app *app.App, msg string) (string, error) {
 	re := regexp.MustCompile(`<@(\w+)>`)
 	userIDs := re.FindAllStringSubmatch(msg, -1)
 
 	for _, id := range userIDs {
-		user, err := client.GetUserInfoContext(ctx, id[1])
+		user, err := app.Client.GetUserInfoContext(ctx, id[1])
 		if err != nil {
-			logger.Error(
+			app.Logger.Error(
 				ctx,
 				log.Trace(),
 				log.Reason("GetUserInfoContext"),
@@ -233,9 +233,7 @@ func treatUsersMentions(ctx context.Context, client bot.Client, logger log.Logge
 // ShowStatus posts an attachment on the channel, with each pinned message from it
 func ShowStatus(
 	ctx context.Context,
-	client bot.Client,
-	logger log.Logger,
-	repository model.IncidentRepository,
+	app *app.App,
 	channelID string,
 	userID string,
 ) error {
@@ -245,24 +243,24 @@ func ShowStatus(
 		attachStatus slack.Attachment
 	)
 
-	logger.Info(
+	app.Logger.Info(
 		ctx,
 		log.Trace(),
 		log.NewValue("channelID", channelID),
 	)
 
-	attachDates, err := createDatesAttachment(ctx, logger, repository, channelID)
+	attachDates, err := createDatesAttachment(ctx, app, channelID)
 	if err != nil {
-		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
+		PostErrorAttachment(ctx, app, channelID, userID, err.Error())
 		return err
 	}
 
-	attachStatus, err = createStatusAttachment(ctx, client, logger, channelID)
+	attachStatus, err = createStatusAttachment(ctx, app, channelID)
 	if err != nil {
-		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
+		PostErrorAttachment(ctx, app, channelID, userID, err.Error())
 		return err
 	}
 
-	postMessage(client, channelID, "", attachDates, attachStatus)
+	postMessage(app, channelID, "", attachDates, attachStatus)
 	return nil
 }

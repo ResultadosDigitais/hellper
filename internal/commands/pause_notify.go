@@ -3,6 +3,7 @@ package commands
 import (
 	"context"
 	"database/sql"
+	"hellper/internal/app"
 	"hellper/internal/bot"
 	"hellper/internal/log"
 	"hellper/internal/model"
@@ -13,23 +14,23 @@ import (
 )
 
 // PauseNotifyIncidentDialog opens a dialog on Slack, so the user can pause notify
-func PauseNotifyIncidentDialog(ctx context.Context, logger log.Logger, client bot.Client, repository model.IncidentRepository, channelID string, userID string, triggerID string) error {
+func PauseNotifyIncidentDialog(ctx context.Context, app *app.App, channelID string, userID string, triggerID string) error {
 
-	inc, err := repository.GetIncident(ctx, channelID)
+	inc, err := app.IncidentRepository.GetIncident(ctx, channelID)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			"command/pauseNotify.PauseNotifyIncidentDialog GetIncident ERROR",
 			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
 
-		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
+		PostErrorAttachment(ctx, app, channelID, userID, err.Error())
 		return err
 	}
 
 	if inc.Status == model.StatusClosed || inc.Status == model.StatusCancel {
-		PostInfoAttachment(ctx, client, channelID, userID, "Ops! That's not possible", "The incident status is: "+inc.Status)
+		PostInfoAttachment(ctx, app, channelID, userID, "Ops! That's not possible", "The incident status is: "+inc.Status)
 		return nil
 	}
 
@@ -65,15 +66,13 @@ func PauseNotifyIncidentDialog(ctx context.Context, logger log.Logger, client bo
 		Elements:       []slack.DialogElement{pauseNotifyTime, reason},
 	}
 
-	return client.OpenDialog(triggerID, dialog)
+	return app.Client.OpenDialog(triggerID, dialog)
 }
 
 // PauseNotifyIncidentByDialog Pause a notify from a Slack dialog
 func PauseNotifyIncidentByDialog(
 	ctx context.Context,
-	client bot.Client,
-	logger log.Logger,
-	repository model.IncidentRepository,
+	app *app.App,
 	incidentDetails bot.DialogSubmission,
 ) error {
 
@@ -90,7 +89,7 @@ func PauseNotifyIncidentByDialog(
 
 	days, err := strconv.Atoi(pauseNotifyTimeText)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			"command/pauseNotify.PauseNotifyIncidentByDialog strconv.Atoi ERROR",
 			log.NewValue("channelID", channelID),
@@ -98,13 +97,13 @@ func PauseNotifyIncidentByDialog(
 			log.NewValue("error", err),
 		)
 
-		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
+		PostErrorAttachment(ctx, app, channelID, userID, err.Error())
 		return err
 	}
 
 	pauseNotifyTime.Time = time.Now().AddDate(0, 0, days)
 
-	logger.Info(
+	app.Logger.Info(
 		ctx,
 		"command/pauseNotify.PauseNotifyIncidentByDialog",
 		log.NewValue("pauseNotifyTimeText", pauseNotifyTimeText),
@@ -117,20 +116,20 @@ func PauseNotifyIncidentByDialog(
 		SnoozedUntil: pauseNotifyTime,
 	}
 
-	err = repository.PauseNotifyIncident(ctx, &incident)
+	err = app.IncidentRepository.PauseNotifyIncident(ctx, &incident)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			"command/pauseNotify.PauseNotifyIncidentByDialog PauseNotifyIncident ERROR",
 			log.NewValue("incident", incident),
 			log.NewValue("error", err),
 		)
 
-		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
+		PostErrorAttachment(ctx, app, channelID, userID, err.Error())
 		return err
 	}
 
-	postAndPinMessage(client, channelID, "Hellper notifications have been paused by *"+userName+"* until *"+incident.SnoozedUntil.Time.Format(time.RFC1123)+"* for the following reason:\n```\n"+pauseNotifyReasonText+"\n```")
+	postAndPinMessage(app, channelID, "Hellper notifications have been paused by *"+userName+"* until *"+incident.SnoozedUntil.Time.Format(time.RFC1123)+"* for the following reason:\n```\n"+pauseNotifyReasonText+"\n```")
 	return nil
 }
 

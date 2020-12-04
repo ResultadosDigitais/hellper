@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"hellper/internal/app"
 	"hellper/internal/bot"
 	"hellper/internal/config"
 	"hellper/internal/job"
@@ -19,11 +20,11 @@ func canStopReminder(incident model.Incident) bool {
 	return incident.Status == model.StatusClosed || incident.Status == model.StatusCancel
 }
 
-func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, repository model.IncidentRepository, jobIncident model.Incident) func(j job.Job) {
+func requestStatus(ctx context.Context, app *app.App, jobIncident model.Incident) func(j job.Job) {
 	return func(j job.Job) {
-		incident, err := repository.GetIncident(ctx, jobIncident.ChannelId)
+		incident, err := app.IncidentRepository.GetIncident(ctx, jobIncident.ChannelId)
 		if err != nil {
-			logger.Error(
+			app.Logger.Error(
 				ctx,
 				log.Trace(),
 				log.Reason("GetIncident"),
@@ -34,7 +35,7 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 			return
 		}
 
-		logger.Info(
+		app.Logger.Info(
 			ctx,
 			log.Trace(),
 			log.Action("running"),
@@ -43,7 +44,7 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 		)
 
 		if canStopReminder(incident) {
-			logger.Info(
+			app.Logger.Info(
 				ctx,
 				log.Trace(),
 				log.Action("do_not_notify"),
@@ -60,7 +61,7 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 
 		snoozedUntil := incident.SnoozedUntil
 		if snoozedUntil.Time.Unix() > time.Now().Unix() {
-			logger.Info(
+			app.Logger.Info(
 				ctx,
 				log.Trace(),
 				log.Action("do_not_notify"),
@@ -73,7 +74,7 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 		}
 
 		if incident.Status != jobIncident.Status {
-			logger.Info(
+			app.Logger.Info(
 				ctx,
 				log.Trace(),
 				log.Action("do_not_notify"),
@@ -83,14 +84,14 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 				log.NewValue("incident.Status", incident.Status),
 				log.NewValue("jobIncident.Status", jobIncident.Status),
 			)
-			startReminderStatusJob(ctx, logger, client, repository, incident)
+			startReminderStatusJob(ctx, app, incident)
 			job.Stop(&j)
 			return
 		}
 
-		pin, err := bot.LastPin(client, incident.ChannelId)
+		pin, err := bot.LastPin(app.Client, incident.ChannelId)
 		if err != nil {
-			logger.Error(
+			app.Logger.Error(
 				ctx,
 				log.Trace(),
 				log.Reason("LastPin"),
@@ -106,7 +107,7 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 			endTS := incident.EndTimestamp
 			diffHours := now.Sub(*endTS)
 			if int(diffHours.Hours()) <= config.Env.SLAHoursToClose {
-				logger.Info(
+				app.Logger.Info(
 					ctx,
 					log.Trace(),
 					log.Action("do_not_notify"),
@@ -121,14 +122,14 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 				return
 			}
 
-			sendNotification(ctx, logger, client, incident)
+			sendNotification(ctx, app, incident)
 			return
 		}
 
 		if pin != (slack.Item{}) {
 			timeMessage, err := convertTimestamp(pin.Message.Msg.Timestamp)
 			if err != nil {
-				logger.Error(
+				app.Logger.Error(
 					ctx,
 					log.Trace(),
 					log.Action("convertTimestamp"),
@@ -140,7 +141,7 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 			}
 
 			if timeMessage.After(time.Now().Add(-setRecurrence(incident))) {
-				logger.Info(
+				app.Logger.Info(
 					ctx,
 					log.Trace(),
 					log.Action("do_not_notify"),
@@ -152,12 +153,12 @@ func requestStatus(ctx context.Context, client bot.Client, logger log.Logger, re
 			}
 		}
 
-		sendNotification(ctx, logger, client, incident)
+		sendNotification(ctx, app, incident)
 	}
 }
 
-func startReminderStatusJob(ctx context.Context, logger log.Logger, client bot.Client, repository model.IncidentRepository, incident model.Incident) {
-	logger.Info(
+func startReminderStatusJob(ctx context.Context, app *app.App, incident model.Incident) {
+	app.Logger.Info(
 		ctx,
 		log.Trace(),
 		log.Action("running"),
@@ -167,19 +168,19 @@ func startReminderStatusJob(ctx context.Context, logger log.Logger, client bot.C
 		log.NewValue("recurrence", setRecurrence(incident).Seconds()),
 	)
 
-	j := job.New(setRecurrence(incident), requestStatus(ctx, client, logger, repository, incident))
+	j := job.New(setRecurrence(incident), requestStatus(ctx, app, incident))
 	jobs = append(jobs, j)
 }
 
 // StartAllReminderJobs starts a job for each current active incident. This job posts a reminder in the channel, asking for a incident status update.
 // This function is called only once, in the inicialization of the aplication. For new incidents, the startReminderStatusJob is called specifically for that incident.
-func StartAllReminderJobs(logger log.Logger, client bot.Client, repository model.IncidentRepository) {
+func StartAllReminderJobs(app *app.App) {
 	ctx := context.Background()
-	logger.Info(ctx, log.Trace())
+	app.Logger.Info(ctx, log.Trace())
 
-	incidents, err := repository.ListActiveIncidents(ctx)
+	incidents, err := app.IncidentRepository.ListActiveIncidents(ctx)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			log.Trace(),
 			log.Action("ListActiveIncidents"),
@@ -188,7 +189,7 @@ func StartAllReminderJobs(logger log.Logger, client bot.Client, repository model
 	}
 
 	for _, incident := range incidents {
-		startReminderStatusJob(ctx, logger, client, repository, incident)
+		startReminderStatusJob(ctx, app, incident)
 	}
 
 }
@@ -213,11 +214,11 @@ func setRecurrence(incident model.Incident) time.Duration {
 	return 0
 }
 
-func sendNotification(ctx context.Context, logger log.Logger, client bot.Client, incident model.Incident) {
-	err := postMessage(client, incident.ChannelId, statusNotify(incident))
+func sendNotification(ctx context.Context, app *app.App, incident model.Incident) {
+	err := postMessage(app, incident.ChannelId, statusNotify(incident))
 
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			log.Trace(),
 			log.Action("postMessage"),
@@ -229,7 +230,7 @@ func sendNotification(ctx context.Context, logger log.Logger, client bot.Client,
 		return
 	}
 
-	logger.Info(
+	app.Logger.Info(
 		ctx,
 		log.Trace(),
 		log.Action("postMessage"),

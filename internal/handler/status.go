@@ -4,30 +4,24 @@ import (
 	"bytes"
 	"net/http"
 
-	"hellper/internal/bot"
+	"hellper/internal/app"
 	"hellper/internal/commands"
 	"hellper/internal/log"
-	"hellper/internal/model"
 )
 
 type handlerStatus struct {
-	logger     log.Logger
-	client     bot.Client
-	repository model.IncidentRepository
+	app *app.App
 }
 
-func newHandlerStatus(logger log.Logger, client bot.Client, repository model.IncidentRepository) *handlerStatus {
+func newHandlerStatus(app *app.App) *handlerStatus {
 	return &handlerStatus{
-		logger:     logger,
-		client:     client,
-		repository: repository,
+		app: app,
 	}
 }
 
 func (h *handlerStatus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var (
-		ctx    = r.Context()
-		logger = h.logger
+		ctx = r.Context()
 
 		buf        bytes.Buffer
 		formValues []log.Value
@@ -36,7 +30,7 @@ func (h *handlerStatus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	buf.ReadFrom(r.Body)
 	body := buf.String()
-	logger.Info(
+	h.app.Logger.Info(
 		ctx,
 		"handler/status.ServeHTTP",
 		log.NewValue("requestbody", body),
@@ -45,7 +39,7 @@ func (h *handlerStatus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	for key, value := range r.Form {
 		formValues = append(formValues, log.NewValue(key, value))
 	}
-	logger.Info(
+	h.app.Logger.Info(
 		ctx,
 		"handler/status.ServeHTTP Form",
 		formValues...,
@@ -54,9 +48,9 @@ func (h *handlerStatus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	channelID := r.FormValue("channel_id")
 	userID := r.FormValue("user_id")
 
-	err := commands.ShowStatus(ctx, h.client, logger, h.repository, channelID, userID)
+	err := commands.ShowStatus(ctx, h.app, channelID, userID)
 	if err != nil {
-		logger.Error(
+		h.app.Logger.Error(
 			ctx,
 			"handler/status.ServeHTTP ShowStatus error",
 			log.NewValue("channelID", channelID),

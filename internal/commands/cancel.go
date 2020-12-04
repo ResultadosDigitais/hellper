@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"hellper/internal/app"
 	"hellper/internal/bot"
 	"hellper/internal/config"
 	"hellper/internal/log"
@@ -17,17 +18,15 @@ import (
 // OpenCancelIncidentDialog opens a dialog on Slack, so the user can cancel an incident
 func OpenCancelIncidentDialog(
 	ctx context.Context,
-	logger log.Logger,
-	client bot.Client,
-	repository model.IncidentRepository,
+	app *app.App,
 	channelID string,
 	userID string,
 	triggerID string,
 ) error {
 
-	inc, err := repository.GetIncident(ctx, channelID)
+	inc, err := app.IncidentRepository.GetIncident(ctx, channelID)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("GetIncident"),
@@ -36,7 +35,7 @@ func OpenCancelIncidentDialog(
 			log.NewValue("error", err),
 		)
 
-		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
+		PostErrorAttachment(ctx, app, channelID, userID, err.Error())
 		return err
 	}
 
@@ -55,9 +54,9 @@ func OpenCancelIncidentDialog(
 			Fields:   []slack.AttachmentField{},
 		}
 
-		_, err = client.PostEphemeralContext(ctx, channelID, userID, slack.MsgOptionAttachments(attch))
+		_, err = app.Client.PostEphemeralContext(ctx, channelID, userID, slack.MsgOptionAttachments(attch))
 		if err != nil {
-			logger.Error(
+			app.Logger.Error(
 				ctx,
 				log.Trace(),
 				log.Reason("PostEphemeralContext"),
@@ -66,7 +65,7 @@ func OpenCancelIncidentDialog(
 				log.NewValue("error", err),
 			)
 
-			PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
+			PostErrorAttachment(ctx, app, channelID, userID, err.Error())
 			return err
 		}
 
@@ -94,18 +93,16 @@ func OpenCancelIncidentDialog(
 		},
 	}
 
-	return client.OpenDialog(triggerID, dialog)
+	return app.Client.OpenDialog(triggerID, dialog)
 }
 
 // CancelIncidentByDialog cancels an incident after receiving data from a Slack dialog
 func CancelIncidentByDialog(
 	ctx context.Context,
-	logger log.Logger,
-	client bot.Client,
-	repository model.IncidentRepository,
+	app *app.App,
 	incidentDetails bot.DialogSubmission,
 ) error {
-	logger.Info(
+	app.Logger.Info(
 		ctx,
 		log.Trace(),
 		log.Action("running"),
@@ -125,9 +122,9 @@ func CancelIncidentByDialog(
 		}
 	)
 
-	err := repository.CancelIncident(ctx, &requestCancel)
+	err := app.IncidentRepository.CancelIncident(ctx, &requestCancel)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("CancelIncident"),
@@ -137,13 +134,13 @@ func CancelIncidentByDialog(
 			log.NewValue("error", err),
 		)
 
-		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
+		PostErrorAttachment(ctx, app, channelID, userID, err.Error())
 		return err
 	}
 
-	inc, err := repository.GetIncident(ctx, channelID)
+	inc, err := app.IncidentRepository.GetIncident(ctx, channelID)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("GetIncident"),
@@ -157,13 +154,13 @@ func CancelIncidentByDialog(
 	message := "An Incident has been canceled by <@" + userID + "> *cc:* <!subteam^" + supportTeam + ">"
 
 	err = postAndPinMessage(
-		client,
+		app,
 		channelID,
 		message,
 		attachment,
 	)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("postAndPinMessage"),
@@ -177,13 +174,13 @@ func CancelIncidentByDialog(
 
 	if notifyOnCancel {
 		err := postAndPinMessage(
-			client,
+			app,
 			productChannelID,
 			message,
 			attachment,
 		)
 		if err != nil {
-			logger.Error(
+			app.Logger.Error(
 				ctx,
 				log.Trace(),
 				log.Reason("postAndPinMessage"),
@@ -197,9 +194,9 @@ func CancelIncidentByDialog(
 		}
 	}
 
-	err = client.ArchiveConversationContext(ctx, channelID)
+	err = app.Client.ArchiveConversationContext(ctx, channelID)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("ArchiveConversationContext"),
@@ -207,7 +204,7 @@ func CancelIncidentByDialog(
 			log.NewValue("error", err),
 		)
 
-		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
+		PostErrorAttachment(ctx, app, channelID, userID, err.Error())
 		return err
 	}
 

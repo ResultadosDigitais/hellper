@@ -4,32 +4,24 @@ import (
 	"bytes"
 	"net/http"
 
-	"hellper/internal/bot"
+	"hellper/internal/app"
 	"hellper/internal/commands"
 	"hellper/internal/log"
-	"hellper/internal/model"
 )
 
 type handlerPauseNotify struct {
-	logger     log.Logger
-	client     bot.Client
-	repository model.IncidentRepository
+	app *app.App
 }
 
-func newHandlerPauseNotify(logger log.Logger, client bot.Client, repository model.IncidentRepository) *handlerPauseNotify {
+func newHandlerPauseNotify(app *app.App) *handlerPauseNotify {
 	return &handlerPauseNotify{
-		logger:     logger,
-		client:     client,
-		repository: repository,
+		app: app,
 	}
 }
 
 func (h *handlerPauseNotify) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var (
-		ctx        = r.Context()
-		logger     = h.logger
-		client     = h.client
-		repository = h.repository
+		ctx = r.Context()
 
 		buf        bytes.Buffer
 		formValues []log.Value
@@ -38,7 +30,7 @@ func (h *handlerPauseNotify) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	buf.ReadFrom(r.Body)
 	body := buf.String()
-	logger.Info(
+	h.app.Logger.Info(
 		ctx,
 		"handler/pauseNotify.ServeHTTP",
 		log.NewValue("requestbody", body),
@@ -47,7 +39,7 @@ func (h *handlerPauseNotify) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	for key, value := range r.Form {
 		formValues = append(formValues, log.NewValue(key, value))
 	}
-	logger.Info(
+	h.app.Logger.Info(
 		ctx,
 		"handler/pauseNotify.ServeHTTP Form",
 		formValues...,
@@ -57,9 +49,9 @@ func (h *handlerPauseNotify) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	userID := r.FormValue("user_id")
 	triggerID := r.FormValue("trigger_id")
 
-	err := commands.PauseNotifyIncidentDialog(ctx, logger, client, repository, channelID, userID, triggerID)
+	err := commands.PauseNotifyIncidentDialog(ctx, h.app, channelID, userID, triggerID)
 	if err != nil {
-		logger.Error(
+		h.app.Logger.Error(
 			ctx,
 			"handler/pauseNotify.ServeHTTP PauseNotifyIncidentDialog error",
 			log.NewValue("channelID", channelID),

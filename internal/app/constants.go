@@ -1,4 +1,4 @@
-package internal
+package app
 
 const LoggerZap = "zap"
 const ClientSlack = "slack"

@@ -4,30 +4,24 @@ import (
 	"bytes"
 	"net/http"
 
-	"hellper/internal/bot"
+	"hellper/internal/app"
 	"hellper/internal/commands"
 	"hellper/internal/log"
-	"hellper/internal/model"
 )
 
 type handlerResolve struct {
-	logger     log.Logger
-	client     bot.Client
-	repository model.IncidentRepository
+	app *app.App
 }
 
-func newHandlerResolve(logger log.Logger, client bot.Client, repository model.IncidentRepository) *handlerResolve {
+func newHandlerResolve(app *app.App) *handlerResolve {
 	return &handlerResolve{
-		logger:     logger,
-		client:     client,
-		repository: repository,
+		app: app,
 	}
 }
 
 func (h *handlerResolve) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var (
-		ctx    = r.Context()
-		logger = h.logger
+		ctx = r.Context()
 
 		formValues []log.Value
 		buf        bytes.Buffer
@@ -36,7 +30,7 @@ func (h *handlerResolve) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	buf.ReadFrom(r.Body)
 	body := buf.String()
-	logger.Info(
+	h.app.Logger.Info(
 		ctx,
 		"handler/resolve.ServeHTTP",
 		log.NewValue("requestbody", body),
@@ -45,7 +39,7 @@ func (h *handlerResolve) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	for key, value := range r.Form {
 		formValues = append(formValues, log.NewValue(key, value))
 	}
-	logger.Info(
+	h.app.Logger.Info(
 		ctx,
 		"handler/resolve.ServeHTTP Form",
 		formValues...,
@@ -53,9 +47,9 @@ func (h *handlerResolve) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	triggerID := r.FormValue("trigger_id")
 
-	err := commands.ResolveIncidentDialog(h.client, triggerID)
+	err := commands.ResolveIncidentDialog(h.app, triggerID)
 	if err != nil {
-		logger.Error(
+		h.app.Logger.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("ResolveIncidentDialog"),

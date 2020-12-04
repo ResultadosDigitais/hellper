@@ -4,6 +4,8 @@ go 1.13
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
+	github.com/Sirupsen/logrus v0.0.0-00010101000000-000000000000 // indirect
+	github.com/docker/docker v1.13.1
 	github.com/google/uuid v1.1.2
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/joho/godotenv v1.3.0
@@ -18,3 +20,5 @@ require (
 	golang.org/x/tools v0.0.0-20201202200335-bef1c476418a // indirect
 	google.golang.org/api v0.35.0
 )
+
+replace github.com/Sirupsen/logrus => github.com/sirupsen/logrus v1.7.0

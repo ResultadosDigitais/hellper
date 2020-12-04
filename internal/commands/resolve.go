@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"hellper/internal/app"
 	"hellper/internal/concurrence"
 	"strconv"
 	"strings"
@@ -9,7 +10,6 @@ import (
 	"time"
 
 	"hellper/internal/bot"
-	calendar "hellper/internal/calendar"
 	"hellper/internal/config"
 	"hellper/internal/log"
 	"hellper/internal/model"
@@ -20,7 +20,7 @@ import (
 var patternStringDate = "2013-04-01 22:43"
 
 // ResolveIncidentDialog opens a dialog on Slack, so the user can resolve an incident
-func ResolveIncidentDialog(client bot.Client, triggerID string) error {
+func ResolveIncidentDialog(app *app.App, triggerID string) error {
 	description := &slack.TextInputElement{
 		DialogInput: slack.DialogInput{
 			Label:       "Description",
@@ -76,19 +76,16 @@ func ResolveIncidentDialog(client bot.Client, triggerID string) error {
 		},
 	}
 
-	return client.OpenDialog(triggerID, dialog)
+	return app.Client.OpenDialog(triggerID, dialog)
 }
 
 // ResolveIncidentByDialog resolves an incident after receiving data from a Slack dialog
 func ResolveIncidentByDialog(
 	ctx context.Context,
-	client bot.Client,
-	logger log.Logger,
-	repository model.IncidentRepository,
-	calendar calendar.Calendar,
+	app *app.App,
 	incidentDetails bot.DialogSubmission,
 ) error {
-	logger.Info(
+	app.Logger.Info(
 		ctx,
 		"command/resolve.ResolveIncidentByDialog",
 		log.NewValue("incident_resolve_details", incidentDetails),
@@ -117,9 +114,9 @@ func ResolveIncidentByDialog(
 		StatusPageUrl:       statusPageURL,
 	}
 
-	err := repository.ResolveIncident(ctx, &incident)
+	err := app.IncidentRepository.ResolveIncident(ctx, &incident)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("ResolveIncident"),
@@ -129,9 +126,9 @@ func ResolveIncidentByDialog(
 		return err
 	}
 
-	inc, err := repository.GetIncident(ctx, channelID)
+	inc, err := app.IncidentRepository.GetIncident(ctx, channelID)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("GetIncident"),
@@ -143,7 +140,7 @@ func ResolveIncidentByDialog(
 
 	hasPostMortemMeeting, err := strconv.ParseBool(postMortemMeeting)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("strconv.ParseBool"),
@@ -153,9 +150,9 @@ func ResolveIncidentByDialog(
 	}
 
 	if hasPostMortemMeeting {
-		calendarEvent, err = getCalendarEvent(ctx, client, logger, repository, calendar, incident.EndTimestamp, channelName, channelID)
+		calendarEvent, err = getCalendarEvent(ctx, app, incident.EndTimestamp, channelName, channelID)
 		if err != nil {
-			logger.Error(
+			app.Logger.Error(
 				ctx,
 				log.Trace(),
 				log.Reason("getCalendarEvent"),
@@ -174,7 +171,7 @@ func ResolveIncidentByDialog(
 
 	concurrence.WithWaitGroup(&waitgroup, func() {
 		postAndPinMessage(
-			client,
+			app,
 			channelID,
 			message,
 			channelAttachment,
@@ -183,14 +180,14 @@ func ResolveIncidentByDialog(
 	if notifyOnResolve {
 		concurrence.WithWaitGroup(&waitgroup, func() {
 			postAndPinMessage(
-				client,
+				app,
 				productChannelID,
 				message,
 				channelAttachment,
 			)
 		})
 	}
-	postMessage(client, userID, "", privateAttachment)
+	postMessage(app, userID, "", privateAttachment)
 
 	return nil
 }
@@ -229,16 +226,13 @@ func setMeetingDate(ctx context.Context, logger log.Logger, d *time.Time, postMo
 
 func getCalendarEvent(
 	ctx context.Context,
-	client bot.Client,
-	logger log.Logger,
-	repository model.IncidentRepository,
-	calendar calendar.Calendar,
+	app *app.App,
 	t *time.Time,
 	channelName string,
 	channelID string,
 ) (*model.Event, error) {
-	if calendar == nil {
-		logger.Error(
+	if app.Calendar == nil {
+		app.Logger.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("noCalendarConfigured"),
@@ -246,9 +240,9 @@ func getCalendarEvent(
 		return nil, nil
 	}
 
-	startMeeting, endMeeting, err := setMeetingDate(ctx, logger, t, config.Env.PostmortemGapDays, config.Env.Timezone)
+	startMeeting, endMeeting, err := setMeetingDate(ctx, app.Logger, t, config.Env.PostmortemGapDays, config.Env.Timezone)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("setMeetingDate"),
@@ -258,11 +252,11 @@ func getCalendarEvent(
 	}
 
 	summary := "[Post Mortem] " + channelName
-	emails, _ := getUsersEmailsInConversation(ctx, client, logger, channelID)
+	emails, _ := getUsersEmailsInConversation(ctx, app, channelID)
 
-	inc, err := repository.GetIncident(ctx, channelID)
+	inc, err := app.IncidentRepository.GetIncident(ctx, channelID)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("GetIncident"),
@@ -272,9 +266,9 @@ func getCalendarEvent(
 		return nil, err
 	}
 
-	calendarEvent, err := calendar.CreateCalendarEvent(ctx, startMeeting, endMeeting, summary, inc.CommanderEmail, *emails)
+	calendarEvent, err := app.Calendar.CreateCalendarEvent(ctx, startMeeting, endMeeting, summary, inc.CommanderEmail, *emails)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("CreateCalendarEvent"),

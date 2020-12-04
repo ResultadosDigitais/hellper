@@ -4,30 +4,25 @@ import (
 	"bytes"
 	"net/http"
 
-	"hellper/internal/bot"
+	"hellper/internal/app"
 	"hellper/internal/commands"
 	"hellper/internal/log"
-	"hellper/internal/model"
 )
 
 type handlerCancel struct {
-	logger     log.Logger
-	client     bot.Client
-	repository model.IncidentRepository
+	app *app.App
 }
 
-func newHandlerCancel(logger log.Logger, client bot.Client, repository model.IncidentRepository) *handlerCancel {
+func newHandlerCancel(app *app.App) *handlerCancel {
 	return &handlerCancel{
-		logger:     logger,
-		client:     client,
-		repository: repository,
+		app: app,
 	}
 }
 
 func (h *handlerCancel) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var (
 		ctx    = r.Context()
-		logger = h.logger
+		logger = h.app.Logger
 
 		formValues []log.Value
 		buf        bytes.Buffer
@@ -56,7 +51,7 @@ func (h *handlerCancel) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	channelID := r.FormValue("channel_id")
 	userID := r.FormValue("user_id")
 
-	err := commands.OpenCancelIncidentDialog(ctx, logger, h.client, h.repository, channelID, userID, tiggerID)
+	err := commands.OpenCancelIncidentDialog(ctx, h.app, channelID, userID, tiggerID)
 	if err != nil {
 		logger.Error(
 			ctx,

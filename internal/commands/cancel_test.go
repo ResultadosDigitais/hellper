@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"hellper/internal/app"
 	"hellper/internal/bot"
 	"hellper/internal/commands"
 	"hellper/internal/log"
@@ -20,10 +21,8 @@ type cancelCommandFixture struct {
 	expectError  bool
 	errorMessage string
 
-	ctx            context.Context
-	mockLogger     log.Logger
-	mockClient     bot.Client
-	mockRepository model.IncidentRepository
+	ctx context.Context
+	app *app.App
 
 	channelID   string
 	userID      string
@@ -90,10 +89,11 @@ func (f *cancelCommandFixture) setup(t *testing.T) {
 		f.channelID,
 	).Return(nil)
 
-	f.mockLogger = loggerMock
-	f.mockClient = clientMock
-	f.mockRepository = repositoryMock
-
+	f.app = &app.App{
+		Logger:             loggerMock,
+		Client:             clientMock,
+		IncidentRepository: repositoryMock,
+	}
 }
 func TestOpenCancelIncidentDialog(t *testing.T) {
 	table := []cancelCommandFixture{
@@ -121,9 +121,7 @@ func TestOpenCancelIncidentDialog(t *testing.T) {
 
 			err := commands.OpenCancelIncidentDialog(
 				f.ctx,
-				f.mockLogger,
-				f.mockClient,
-				f.mockRepository,
+				f.app,
 				f.channelID,
 				f.userID,
 				f.triggerID,
@@ -164,9 +162,7 @@ func TestCancelIncidentByDialog(t *testing.T) {
 
 			err := commands.CancelIncidentByDialog(
 				f.ctx,
-				f.mockLogger,
-				f.mockClient,
-				f.mockRepository,
+				f.app,
 				f.mockDetails,
 			)
 

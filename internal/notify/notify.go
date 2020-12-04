@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"flag"
-	"hellper/internal"
+	"hellper/internal/app"
 	"hellper/internal/config"
 	"hellper/internal/log"
 	"hellper/internal/model"
@@ -13,9 +13,10 @@ import (
 )
 
 var (
-	logger     = internal.NewLogger()
-	client     = internal.NewClient(logger)
-	repository = internal.NewRepository(logger)
+	ctx                = context.Background()
+	logger             = app.NewLogger()
+	client             = app.NewClient(ctx, logger)
+	incidentRepository = app.NewIncidentRepository(ctx, logger)
 
 	arg opt
 )

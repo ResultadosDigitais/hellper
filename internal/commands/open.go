@@ -3,6 +3,7 @@ package commands
 import (
 	"context"
 	"fmt"
+	"hellper/internal/app"
 	"hellper/internal/concurrence"
 	"strconv"
 	"strings"
@@ -11,7 +12,6 @@ import (
 
 	"hellper/internal/bot"
 	"hellper/internal/config"
-	filestorage "hellper/internal/file_storage"
 	"hellper/internal/log"
 	"hellper/internal/meeting"
 	"hellper/internal/model"
@@ -22,10 +22,10 @@ import (
 const minimumNumberServices = 4
 
 // OpenStartIncidentDialog opens a dialog on Slack, so the user can start an incident
-func OpenStartIncidentDialog(ctx context.Context, client bot.Client, serviceRepository model.ServiceRepository, triggerID string) error {
+func OpenStartIncidentDialog(ctx context.Context, app *app.App, triggerID string) error {
 	serviceList := []slack.DialogSelectOption{}
 
-	services, err := serviceRepository.ListServiceInstances(ctx)
+	services, err := app.ServiceRepository.ListServiceInstances(ctx)
 	if err != nil {
 		return err
 	}
@@ -156,19 +156,16 @@ func OpenStartIncidentDialog(ctx context.Context, client bot.Client, serviceRepo
 		},
 	}
 
-	return client.OpenDialog(triggerID, dialog)
+	return app.Client.OpenDialog(triggerID, dialog)
 }
 
 // StartIncidentByDialog starts an incident after receiving data from a Slack dialog
 func StartIncidentByDialog(
 	ctx context.Context,
-	client bot.Client,
-	logger log.Logger,
-	repository model.IncidentRepository,
-	fileStorage filestorage.Driver,
+	app *app.App,
 	incidentDetails bot.DialogSubmission,
 ) error {
-	logger.Info(
+	app.Logger.Info(
 		ctx,
 		"command/open.StartIncidentByDialog",
 		log.NewValue("incident_open_details", incidentDetails),
@@ -190,12 +187,12 @@ func StartIncidentByDialog(
 		productChannelID = config.Env.ProductChannelID
 	)
 
-	user, err := getSlackUserInfo(ctx, client, logger, commander)
+	user, err := getSlackUserInfo(ctx, app, commander)
 	if err != nil {
 		return fmt.Errorf("commands.StartIncidentByDialog.get_slack_user_info: incident=%v commanderId=%v error=%v", channelName, commander, err)
 	}
 
-	channel, err := client.CreateConversationContext(ctx, channelName, false)
+	channel, err := app.Client.CreateConversationContext(ctx, channelName, false)
 	if err != nil {
 		return fmt.Errorf("commands.StartIncidentByDialog.create_conversation_context: incident=%v error=%v", channelName, err)
 	}
@@ -219,7 +216,7 @@ func StartIncidentByDialog(
 		CommanderEmail:          user.Email,
 	}
 
-	incidentID, err := repository.InsertIncident(ctx, &incident)
+	incidentID, err := app.IncidentRepository.InsertIncident(ctx, &incident)
 	if err != nil {
 		return err
 	}
@@ -233,7 +230,7 @@ func StartIncidentByDialog(
 		url, err := meeting.CreateMeeting(options)
 
 		if err != nil {
-			logger.Error(
+			app.Logger.Error(
 				ctx,
 				log.Trace(),
 				log.Reason("CreateMeetingURL"),
@@ -251,25 +248,25 @@ func StartIncidentByDialog(
 	defer waitgroup.Wait()
 
 	concurrence.WithWaitGroup(&waitgroup, func() {
-		postAndPinMessage(client, channel.ID, message, attachment)
+		postAndPinMessage(app, channel.ID, message, attachment)
 	})
 	concurrence.WithWaitGroup(&waitgroup, func() {
-		postAndPinMessage(client, productChannelID, message, attachment)
+		postAndPinMessage(app, productChannelID, message, attachment)
 	})
 
-	shouldWritePostMortem := fileStorage != nil
+	shouldWritePostMortem := app.FileStorage != nil
 	if shouldWritePostMortem {
 		//We need run that without wait because the modal need close in only 3s
-		go createPostMortemAndFillTopic(ctx, logger, client, fileStorage, incident, incidentID, repository, channel, incidentRoomURL)
+		go createPostMortemAndFillTopic(ctx, app, incident, incidentID, channel, incidentRoomURL)
 	} else {
-		fillTopic(ctx, logger, client, incident, channel, incidentRoomURL, "")
+		fillTopic(ctx, app, incident, channel, incidentRoomURL, "")
 	}
 
 	// startReminderStatusJob(ctx, logger, client, repository, incident)
 
-	_, warning, metaWarning, err := client.JoinConversationContext(ctx, channel.ID)
+	_, warning, metaWarning, err := app.Client.JoinConversationContext(ctx, channel.ID)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("JoinConversationContext"),
@@ -280,9 +277,9 @@ func StartIncidentByDialog(
 		return err
 	}
 
-	_, err = client.InviteUsersToConversationContext(ctx, channel.ID, commander)
+	_, err = app.Client.InviteUsersToConversationContext(ctx, channel.ID, commander)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("InviteUsersToConversationContext"),
@@ -297,7 +294,7 @@ func StartIncidentByDialog(
 }
 
 func fillTopic(
-	ctx context.Context, logger log.Logger, client bot.Client, incident model.Incident,
+	ctx context.Context, app *app.App, incident model.Incident,
 	channel *slack.Channel, incidentRoomURL string, postMortemURL string,
 ) {
 	var topic strings.Builder
@@ -310,9 +307,9 @@ func fillTopic(
 	topic.WriteString("*Commander:* <@" + incident.CommanderId + ">\n\n")
 	topicString := topic.String()
 
-	_, err := client.SetTopicOfConversation(channel.ID, topicString)
+	_, err := app.Client.SetTopicOfConversation(channel.ID, topicString)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("SetTopicOfConversation"),
@@ -324,12 +321,11 @@ func fillTopic(
 }
 
 func createPostMortemAndFillTopic(
-	ctx context.Context, logger log.Logger, client bot.Client, fileStorage filestorage.Driver, incident model.Incident,
-	incidentID int64, repository model.IncidentRepository, channel *slack.Channel, incidentRoomURL string,
+	ctx context.Context, app *app.App, incident model.Incident, incidentID int64, channel *slack.Channel, incidentRoomURL string,
 ) {
-	postMortemURL, err := createPostMortem(ctx, logger, client, fileStorage, incidentID, incident.Title, repository, channel.Name)
+	postMortemURL, err := createPostMortem(ctx, app, incidentID, incident.Title, channel.Name)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("createPostMortem"),
@@ -339,7 +335,7 @@ func createPostMortemAndFillTopic(
 		return
 	}
 
-	fillTopic(ctx, logger, client, incident, channel, incidentRoomURL, postMortemURL)
+	fillTopic(ctx, app, incident, channel, incidentRoomURL, postMortemURL)
 }
 
 func createOpenAttachment(incident model.Incident, incidentID int64, incidentRoomURL string, supportTeam string) slack.Attachment {

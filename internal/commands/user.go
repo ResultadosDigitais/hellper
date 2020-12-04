@@ -3,7 +3,7 @@ package commands
 import (
 	"context"
 
-	"hellper/internal/bot"
+	"hellper/internal/app"
 	"hellper/internal/log"
 	"hellper/internal/model"
 
@@ -12,14 +12,13 @@ import (
 
 func getSlackUserInfo(
 	ctx context.Context,
-	client bot.Client,
-	logger log.Logger,
+	app *app.App,
 	userID string,
 ) (*model.User, error) {
 
-	slackUser, err := client.GetUserInfoContext(ctx, userID)
+	slackUser, err := app.Client.GetUserInfoContext(ctx, userID)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			"command/user.getSlackUserInfo error",
 			log.NewValue("userID", userID),
@@ -40,11 +39,10 @@ func getSlackUserInfo(
 
 func getUsersIDsInConversation(
 	ctx context.Context,
-	client bot.Client,
-	logger log.Logger,
+	app *app.App,
 	channelID string,
 ) (*[]string, error) {
-	logger.Info(
+	app.Logger.Info(
 		ctx,
 		"command/user.getUsersInConversation",
 		log.NewValue("params", channelID),
@@ -57,9 +55,9 @@ func getUsersIDsInConversation(
 	var members []string
 
 	for {
-		list, cursor, err := client.GetUsersInConversationContext(ctx, &params)
+		list, cursor, err := app.Client.GetUsersInConversationContext(ctx, &params)
 		if err != nil {
-			logger.Error(
+			app.Logger.Error(
 				ctx,
 				"command/user.getUsersIDsInConversation",
 				log.NewValue("channelID", channelID),
@@ -80,15 +78,14 @@ func getUsersIDsInConversation(
 
 func getUsersInConversation(
 	ctx context.Context,
-	client bot.Client,
-	logger log.Logger,
+	app *app.App,
 	channelID string,
 ) (*[]model.User, error) {
 	var users []model.User
 
-	usersIDs, err := getUsersIDsInConversation(ctx, client, logger, channelID)
+	usersIDs, err := getUsersIDsInConversation(ctx, app, channelID)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			"command/user.getUsersInConversation",
 			log.NewValue("channel_id", channelID),
@@ -98,9 +95,9 @@ func getUsersInConversation(
 	}
 
 	for _, id := range *usersIDs {
-		user, err := getSlackUserInfo(ctx, client, logger, id)
+		user, err := getSlackUserInfo(ctx, app, id)
 		if err != nil {
-			logger.Error(
+			app.Logger.Error(
 				ctx,
 				"command/user.getUsersInConversation",
 				log.NewValue("user_id", id),
@@ -116,15 +113,14 @@ func getUsersInConversation(
 
 func getUsersEmailsInConversation(
 	ctx context.Context,
-	client bot.Client,
-	logger log.Logger,
+	app *app.App,
 	channelID string,
 ) (*[]string, error) {
 	var emails []string
 
-	users, err := getUsersInConversation(ctx, client, logger, channelID)
+	users, err := getUsersInConversation(ctx, app, channelID)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			"command/user.getUsersEmailsInConversation",
 			log.NewValue("channel_id", channelID),

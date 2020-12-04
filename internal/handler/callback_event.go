@@ -3,16 +3,15 @@ package handler
 import (
 	"context"
 
-	"hellper/internal/bot"
+	"hellper/internal/app"
 	"hellper/internal/commands"
 	"hellper/internal/log"
-	"hellper/internal/model"
 
 	"github.com/slack-go/slack/slackevents"
 )
 
 func replyCallbackEvent(
-	ctx context.Context, logger log.Logger, client bot.Client, repository model.IncidentRepository, event slackevents.EventsAPIEvent,
+	ctx context.Context, app *app.App, event slackevents.EventsAPIEvent,
 ) error {
 	var (
 		innerEvent = event.InnerEvent
@@ -24,7 +23,7 @@ func replyCallbackEvent(
 
 	switch callbackEvent := innerEvent.Data.(type) {
 	case *slackevents.AppMentionEvent:
-		logger.Info(
+		app.Logger.Info(
 			ctx,
 			"handler/event.appmention",
 			log.NewValue("callbackEvent", callbackEvent),
@@ -37,28 +36,28 @@ func replyCallbackEvent(
 			User:    callbackEvent.User,
 		}
 	case *slackevents.MessageEvent:
-		logger.Info(
+		app.Logger.Info(
 			ctx,
 			"handler/event.message",
 			log.NewValue("callbackEvent", callbackEvent),
 		)
 		return nil
 	case *slackevents.AppUninstalledEvent:
-		logger.Info(
+		app.Logger.Info(
 			ctx,
 			"handler/event.appunistalled",
 			log.NewValue("callbackEvent", callbackEvent),
 		)
 		return nil
 	case *slackevents.LinkSharedEvent:
-		logger.Info(
+		app.Logger.Info(
 			ctx,
 			"handler/event.linkshared",
 			log.NewValue("callbackEvent", callbackEvent),
 		)
 		return nil
 	default:
-		logger.Info(
+		app.Logger.Info(
 			ctx,
 			"handler/event.unkown_event",
 			log.NewValue("callbackEvent", callbackEvent),
@@ -66,7 +65,7 @@ func replyCallbackEvent(
 		return nil
 	}
 
-	executor := commands.NewEventExecutor(logger, client, repository)
+	executor := commands.NewEventExecutor(app)
 	err = executor.ExecuteEventCommand(ctx, cmdLine, trigger)
 	if err != nil {
 		return err

@@ -4,30 +4,25 @@ import (
 	"bytes"
 	"net/http"
 
-	"hellper/internal/bot"
+	"hellper/internal/app"
 	"hellper/internal/commands"
 	"hellper/internal/log"
-	"hellper/internal/model"
 )
 
 type handlerClose struct {
-	logger     log.Logger
-	client     bot.Client
-	repository model.IncidentRepository
+	app *app.App
 }
 
-func newHandlerClose(logger log.Logger, client bot.Client, repository model.IncidentRepository) *handlerClose {
+func newHandlerClose(app *app.App) *handlerClose {
 	return &handlerClose{
-		logger:     logger,
-		client:     client,
-		repository: repository,
+		app: app,
 	}
 }
 
 func (h *handlerClose) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var (
 		ctx    = r.Context()
-		logger = h.logger
+		logger = h.app.Logger
 
 		formValues []log.Value
 		buf        bytes.Buffer
@@ -55,7 +50,7 @@ func (h *handlerClose) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	channelID := r.FormValue("channel_id")
 	userID := r.FormValue("user_id")
 
-	err := commands.CloseIncidentDialog(ctx, logger, h.client, h.repository, channelID, userID, triggerID)
+	err := commands.CloseIncidentDialog(ctx, h.app, channelID, userID, triggerID)
 	if err != nil {
 		logger.Error(
 			ctx,

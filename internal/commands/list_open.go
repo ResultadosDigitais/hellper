@@ -2,7 +2,7 @@ package commands
 
 import (
 	"context"
-	"hellper/internal/bot"
+	"hellper/internal/app"
 	"hellper/internal/log"
 	"hellper/internal/model"
 	"strings"
@@ -11,21 +11,21 @@ import (
 )
 
 //ListOpenIncidents get the currently opened incidents and return the channel_name of each one of them.
-func ListOpenIncidents(ctx context.Context, client bot.Client, logger log.Logger, repository model.IncidentRepository, event TriggerEvent) {
+func ListOpenIncidents(ctx context.Context, app *app.App, event TriggerEvent) {
 
-	incidents, err := repository.ListActiveIncidents(ctx)
+	incidents, err := app.IncidentRepository.ListActiveIncidents(ctx)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			"command/list_open.ListOpenIncidents ListActiveIncidents error",
 			log.NewValue("event", event),
 			log.NewValue("error", err),
 		)
 
-		PostErrorAttachment(ctx, client, logger, event.Channel, event.User, err.Error())
+		PostErrorAttachment(ctx, app, event.Channel, event.User, err.Error())
 	}
 
-	logger.Info(
+	app.Logger.Info(
 		ctx,
 		"command/list_open.ListOpenIncidents",
 		log.NewValue("event", event),
@@ -37,7 +37,7 @@ func ListOpenIncidents(ctx context.Context, client bot.Client, logger log.Logger
 		messageText.WriteString("No active incidents!")
 	} else {
 		attachment := createListOpenAttachment(incidents)
-		postMessage(client, event.Channel, "", attachment)
+		postMessage(app, event.Channel, "", attachment)
 	}
 }
 

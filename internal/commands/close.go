@@ -3,6 +3,7 @@ package commands
 import (
 	"context"
 	"database/sql"
+	"hellper/internal/app"
 	"hellper/internal/concurrence"
 	"strconv"
 	"strings"
@@ -17,10 +18,10 @@ import (
 )
 
 // CloseIncidentDialog opens a dialog on Slack, so the user can close an incident
-func CloseIncidentDialog(ctx context.Context, logger log.Logger, client bot.Client, repository model.IncidentRepository, channelID, userID, triggerID string) error {
-	inc, err := repository.GetIncident(ctx, channelID)
+func CloseIncidentDialog(ctx context.Context, app *app.App, channelID, userID, triggerID string) error {
+	inc, err := app.IncidentRepository.GetIncident(ctx, channelID)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("GetIncident"),
@@ -28,7 +29,7 @@ func CloseIncidentDialog(ctx context.Context, logger log.Logger, client bot.Clie
 			log.NewValue("error", err),
 		)
 
-		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
+		PostErrorAttachment(ctx, app, channelID, userID, err.Error())
 		return err
 	}
 
@@ -49,7 +50,7 @@ func CloseIncidentDialog(ctx context.Context, logger log.Logger, client bot.Clie
 			Fields: []slack.AttachmentField{},
 		}
 
-		return postMessage(client, channelID, "", attch)
+		return postMessage(app, channelID, "", attch)
 	}
 
 	feature := &slack.TextInputElement{
@@ -155,12 +156,12 @@ func CloseIncidentDialog(ctx context.Context, logger log.Logger, client bot.Clie
 		},
 	}
 
-	return client.OpenDialog(triggerID, dialog)
+	return app.Client.OpenDialog(triggerID, dialog)
 }
 
 // CloseIncidentByDialog closes an incident after receiving data from a Slack dialog
-func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Logger, repository model.IncidentRepository, incidentDetails bot.DialogSubmission) error {
-	logger.Info(
+func CloseIncidentByDialog(ctx context.Context, app *app.App, incidentDetails bot.DialogSubmission) error {
+	app.Logger.Info(
 		ctx,
 		"command/close.CloseIncidentByDialog",
 		log.NewValue("incident_close_details", incidentDetails),
@@ -202,9 +203,9 @@ func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Lo
 		ChannelId:      channelID,
 	}
 
-	err = repository.CloseIncident(ctx, &incident)
+	err = app.IncidentRepository.CloseIncident(ctx, &incident)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("CloseIncident"),
@@ -214,9 +215,9 @@ func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Lo
 		return err
 	}
 
-	inc, err := repository.GetIncident(ctx, channelID)
+	inc, err := app.IncidentRepository.GetIncident(ctx, channelID)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("GetIncident"),
@@ -236,7 +237,7 @@ func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Lo
 	if notifyOnClose {
 		concurrence.WithWaitGroup(&waitgroup, func() {
 			postAndPinMessage(
-				client,
+				app,
 				productChannelID,
 				message,
 				channelAttachment,
@@ -244,18 +245,18 @@ func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Lo
 		})
 	}
 	concurrence.WithWaitGroup(&waitgroup, func() {
-		postMessage(client, userID, "", privateAttachment)
+		postMessage(app, userID, "", privateAttachment)
 	})
 
 	postAndPinMessage(
-		client,
+		app,
 		channelID,
 		message,
 		channelAttachment,
 	)
-	err = client.ArchiveConversationContext(ctx, channelID)
+	err = app.Client.ArchiveConversationContext(ctx, channelID)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("ArchiveConversationContext"),
@@ -263,7 +264,7 @@ func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Lo
 			log.NewValue("userID", userID),
 			log.NewValue("error", err),
 		)
-		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
+		PostErrorAttachment(ctx, app, channelID, userID, err.Error())
 		return err
 	}
 

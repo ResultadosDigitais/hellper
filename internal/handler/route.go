@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"path"
 
-	"hellper/internal"
+	"hellper/internal/app"
 	"hellper/internal/bot"
 )
 
@@ -22,17 +22,16 @@ var (
 )
 
 func init() {
-	dependencies := internal.NewApp()
-	openHandler = newHandlerOpen(dependencies.Logger, dependencies.Client, dependencies.IncidentRepository, dependencies.ServiceRepository)
-	eventsHandler = newHandlerEvents(dependencies.Logger, dependencies.Client, dependencies.IncidentRepository)
-	interactiveHandler = newHandlerInteractive(dependencies.Logger, dependencies.Client, dependencies.IncidentRepository,
-		dependencies.FileStorage, dependencies.Calendar)
-	statusHandler = newHandlerStatus(dependencies.Logger, dependencies.Client, dependencies.IncidentRepository)
-	datesHandler = newHandlerDates(dependencies.Logger, dependencies.Client, dependencies.IncidentRepository)
-	closeHandler = newHandlerClose(dependencies.Logger, dependencies.Client, dependencies.IncidentRepository)
-	cancelHandler = newHandlerCancel(dependencies.Logger, dependencies.Client, dependencies.IncidentRepository)
-	resolveHandler = newHandlerResolve(dependencies.Logger, dependencies.Client, dependencies.IncidentRepository)
-	pauseNotifyHandler = newHandlerPauseNotify(dependencies.Logger, dependencies.Client, dependencies.IncidentRepository)
+	dependencies := app.NewApp()
+	openHandler = newHandlerOpen(&dependencies)
+	eventsHandler = newHandlerEvents(&dependencies)
+	interactiveHandler = newHandlerInteractive(&dependencies)
+	statusHandler = newHandlerStatus(&dependencies)
+	datesHandler = newHandlerDates(&dependencies)
+	closeHandler = newHandlerClose(&dependencies)
+	cancelHandler = newHandlerCancel(&dependencies)
+	resolveHandler = newHandlerResolve(&dependencies)
+	pauseNotifyHandler = newHandlerPauseNotify(&dependencies)
 	// commands.StartAllReminderJobs(dependencies.Logger, dependencies.Client, dependencies.IncidentRepository)
 }
 

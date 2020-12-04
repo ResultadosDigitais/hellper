@@ -5,36 +5,25 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"hellper/internal/app"
 	"hellper/internal/bot"
-	calendar "hellper/internal/calendar"
 	"hellper/internal/commands"
-	filestorage "hellper/internal/file_storage"
 	"hellper/internal/log"
-	"hellper/internal/model"
 )
 
 type handlerInteractive struct {
-	logger      log.Logger
-	client      bot.Client
-	repository  model.IncidentRepository
-	fileStorage filestorage.Driver
-	calendar    calendar.Calendar
+	app *app.App
 }
 
-func newHandlerInteractive(logger log.Logger, client bot.Client, repository model.IncidentRepository, fileStorage filestorage.Driver, calendar calendar.Calendar) *handlerInteractive {
+func newHandlerInteractive(app *app.App) *handlerInteractive {
 	return &handlerInteractive{
-		logger:      logger,
-		client:      client,
-		repository:  repository,
-		fileStorage: fileStorage,
-		calendar:    calendar,
+		app: app,
 	}
 }
 
 func (h *handlerInteractive) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var (
-		ctx    = r.Context()
-		logger = h.logger
+		ctx = r.Context()
 
 		formValues []log.Value
 		buf        bytes.Buffer
@@ -44,7 +33,7 @@ func (h *handlerInteractive) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	buf.ReadFrom(r.Body)
 	body := buf.String()
-	logger.Info(
+	h.app.Logger.Info(
 		ctx,
 		"handler/interactive.ServeHTTP",
 		log.NewValue("requestbody", body),
@@ -53,7 +42,7 @@ func (h *handlerInteractive) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	for key, value := range r.Form {
 		formValues = append(formValues, log.NewValue(key, value))
 	}
-	logger.Info(
+	h.app.Logger.Info(
 		ctx,
 		"handler/interactive.ServeHTTP Form",
 		formValues...,
@@ -64,7 +53,7 @@ func (h *handlerInteractive) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	dialogSubmission := bot.DialogSubmission{}
 	json.Unmarshal([]byte(formPayload), &dialogSubmission)
 
-	logger.Info(
+	h.app.Logger.Info(
 		ctx,
 		"handler/interactive.ServeHTTP dialogSubmission",
 		log.NewValue("dialogSubmission", dialogSubmission),
@@ -75,27 +64,26 @@ func (h *handlerInteractive) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	switch callbackID {
 	case "inc-close":
-		err = commands.CloseIncidentByDialog(ctx, h.client, h.logger, h.repository, dialogSubmission)
+		err = commands.CloseIncidentByDialog(ctx, h.app, dialogSubmission)
 	case "inc-cancel":
-		err = commands.CancelIncidentByDialog(ctx, h.logger, h.client, h.repository, dialogSubmission)
+		err = commands.CancelIncidentByDialog(ctx, h.app, dialogSubmission)
 	case "inc-open":
-		err = commands.StartIncidentByDialog(ctx, h.client, h.logger, h.repository, h.fileStorage, dialogSubmission)
+		err = commands.StartIncidentByDialog(ctx, h.app, dialogSubmission)
 	case "inc-resolve":
-		err = commands.ResolveIncidentByDialog(ctx, h.client, h.logger, h.repository, h.calendar, dialogSubmission)
+		err = commands.ResolveIncidentByDialog(ctx, h.app, dialogSubmission)
 	case "inc-dates":
-		err = commands.UpdateDatesByDialog(ctx, h.client, h.logger, h.repository, dialogSubmission)
+		err = commands.UpdateDatesByDialog(ctx, h.app, dialogSubmission)
 	case "inc-pausenotify":
-		err = commands.PauseNotifyIncidentByDialog(ctx, h.client, h.logger, h.repository, dialogSubmission)
+		err = commands.PauseNotifyIncidentByDialog(ctx, h.app, dialogSubmission)
 	default:
 		commands.PostErrorAttachment(
 			ctx,
-			h.client,
-			h.logger,
+			h.app,
 			dialogSubmission.Channel.ID,
 			dialogSubmission.User.ID,
 			"invalid command, "+callbackID,
 		)
-		logger.Error(
+		h.app.Logger.Error(
 			ctx,
 			"handler/interactive.ServeHTTP invalid_callbackID",
 			log.NewValue("dialogSubmission", dialogSubmission),
@@ -103,13 +91,13 @@ func (h *handlerInteractive) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 	}
 	if err != nil {
-		logger.Error(
+		h.app.Logger.Error(
 			ctx,
 			"handler/interactive.ServeHTTP proccess_submit_dialog_error",
 			log.NewValue("error", err),
 		)
 
-		commands.PostErrorAttachment(ctx, h.client, h.logger, dialogSubmission.Channel.ID, dialogSubmission.User.ID, err.Error())
+		commands.PostErrorAttachment(ctx, h.app, dialogSubmission.Channel.ID, dialogSubmission.User.ID, err.Error())
 	}
 
 	w.WriteHeader(http.StatusNoContent)

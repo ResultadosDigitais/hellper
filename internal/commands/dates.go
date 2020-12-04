@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"hellper/internal/app"
 	"hellper/internal/bot"
 	"hellper/internal/log"
 	"hellper/internal/model"
@@ -13,7 +14,7 @@ import (
 )
 
 // UpdateDatesDialog opens a dialog on Slack, so the user can update the dates of an incident
-func UpdateDatesDialog(ctx context.Context, logger log.Logger, client bot.Client, repository model.IncidentRepository, channelID string, userID string, triggerID string) error {
+func UpdateDatesDialog(ctx context.Context, app *app.App, channelID string, userID string, triggerID string) error {
 	var (
 		dateLayout          = "02/01/2006 15:04:05"
 		initValue           = ""
@@ -21,20 +22,20 @@ func UpdateDatesDialog(ctx context.Context, logger log.Logger, client bot.Client
 		endValue            = ""
 	)
 
-	inc, err := repository.GetIncident(ctx, channelID)
+	inc, err := app.IncidentRepository.GetIncident(ctx, channelID)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			"command/dates.UpdateDatesDialog GetIncident ERROR",
 			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
 
-		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
+		PostErrorAttachment(ctx, app, channelID, userID, err.Error())
 		return err
 	}
 
-	logger.Info(
+	app.Logger.Info(
 		ctx,
 		"command/close.UpdateDatesDialog INFO",
 		log.NewValue("channelID", channelID),
@@ -124,12 +125,12 @@ func UpdateDatesDialog(ctx context.Context, logger log.Logger, client bot.Client
 		},
 	}
 
-	return client.OpenDialog(triggerID, dialog)
+	return app.Client.OpenDialog(triggerID, dialog)
 }
 
 // UpdateDatesByDialog updates the dates of an incident after receiving data from a Slack dialog
-func UpdateDatesByDialog(ctx context.Context, client bot.Client, logger log.Logger, repository model.IncidentRepository, incidentDetails bot.DialogSubmission) error {
-	logger.Info(
+func UpdateDatesByDialog(ctx context.Context, app *app.App, incidentDetails bot.DialogSubmission) error {
+	app.Logger.Info(
 		ctx,
 		"command/close.CloseIncidentByDialog INFO",
 		log.NewValue("incident_close_details", incidentDetails),
@@ -153,7 +154,7 @@ func UpdateDatesByDialog(ctx context.Context, client bot.Client, logger log.Logg
 
 	location, err := parseTimeZone(timeZoneString)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			"command/dates.UpdateDatesByDialog parseTimeZone ERROR",
 			log.NewValue("channelID", channelID),
@@ -164,13 +165,13 @@ func UpdateDatesByDialog(ctx context.Context, client bot.Client, logger log.Logg
 			log.NewValue("error", err),
 		)
 
-		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
+		PostErrorAttachment(ctx, app, channelID, userID, err.Error())
 		return err
 	}
 
 	initDate, err = time.ParseInLocation(dateLayout, initDateText, location)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			"command/dates.UpdateDatesByDialog ParseIn ERROR",
 			log.NewValue("channelID", channelID),
@@ -179,13 +180,13 @@ func UpdateDatesByDialog(ctx context.Context, client bot.Client, logger log.Logg
 			log.NewValue("error", err),
 		)
 
-		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
+		PostErrorAttachment(ctx, app, channelID, userID, err.Error())
 		return err
 	}
 
 	identificationDate, err = time.ParseInLocation(dateLayout, identificationDateText, location)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			"command/dates.UpdateDatesByDialog ParseIn ERROR",
 			log.NewValue("channelID", channelID),
@@ -194,13 +195,13 @@ func UpdateDatesByDialog(ctx context.Context, client bot.Client, logger log.Logg
 			log.NewValue("error", err),
 		)
 
-		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
+		PostErrorAttachment(ctx, app, channelID, userID, err.Error())
 		return err
 	}
 
 	endDate, err = time.ParseInLocation(dateLayout, endDateText, location)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			"command/dates.UpdateDatesByDialog ParseIn ERROR",
 			log.NewValue("channelID", channelID),
@@ -209,7 +210,7 @@ func UpdateDatesByDialog(ctx context.Context, client bot.Client, logger log.Logg
 			log.NewValue("error", err),
 		)
 
-		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
+		PostErrorAttachment(ctx, app, channelID, userID, err.Error())
 		return err
 	}
 
@@ -220,21 +221,21 @@ func UpdateDatesByDialog(ctx context.Context, client bot.Client, logger log.Logg
 		EndTimestamp:            &endDate,
 	}
 
-	err = repository.UpdateIncidentDates(ctx, &incident)
+	err = app.IncidentRepository.UpdateIncidentDates(ctx, &incident)
 	if err != nil {
-		logger.Error(
+		app.Logger.Error(
 			ctx,
 			"command/dates.UpdateDatesByDialog UpdateIncidentDates ERROR",
 			log.NewValue("incident", incident),
 			log.NewValue("error", err),
 		)
 
-		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
+		PostErrorAttachment(ctx, app, channelID, userID, err.Error())
 		return err
 	}
 
 	successAttach := createDatesSuccessAttachment(incident, userName)
-	postMessage(client, incident.ChannelId, "", successAttach)
+	postMessage(app, incident.ChannelId, "", successAttach)
 
 	return nil
 }

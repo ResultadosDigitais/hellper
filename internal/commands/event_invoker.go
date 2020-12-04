@@ -6,15 +6,12 @@ import (
 	"regexp"
 	"strings"
 
-	"hellper/internal/bot"
+	"hellper/internal/app"
 	"hellper/internal/log"
-	"hellper/internal/model"
 )
 
 type eventInvoker struct {
-	logger     log.Logger
-	client     bot.Client
-	repository model.IncidentRepository
+	app *app.App
 }
 
 var (
@@ -38,29 +35,19 @@ func parseCommandLine(cmdLine string) (string, string, error) {
 	return matches[3], matches[4], nil
 }
 
-func newEventInvoker(
-	logger log.Logger, client bot.Client, repository model.IncidentRepository,
-) *eventInvoker {
+func newEventInvoker(app *app.App) *eventInvoker {
 	return &eventInvoker{
-		logger:     logger,
-		client:     client,
-		repository: repository,
+		app: app,
 	}
 }
 
 func (e *eventInvoker) eventInvoker(ctx context.Context, cmdLine string, event TriggerEvent) error {
-	var (
-		logger     = e.logger
-		client     = e.client
-		repository = e.repository
-	)
-
 	cmd, args, err := parseCommandLine(cmdLine)
 	if err != nil {
 		return err
 	}
 
-	logger.Info(
+	e.app.Logger.Info(
 		ctx,
 		"command/event_invoker.eventInvoker",
 		log.NewValue("command", cmd),
@@ -70,11 +57,11 @@ func (e *eventInvoker) eventInvoker(ctx context.Context, cmdLine string, event T
 
 	switch cmd {
 	case "", "help":
-		help(ctx, client, logger, event.Channel)
+		help(ctx, e.app, event.Channel)
 	case "ping":
-		ping(ctx, client, logger, event.Channel)
+		ping(ctx, e.app, event.Channel)
 	case "list":
-		ListOpenIncidents(ctx, client, logger, repository, event)
+		ListOpenIncidents(ctx, e.app, event)
 	}
 	return err
 }

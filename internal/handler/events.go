@@ -36,7 +36,7 @@ func (h *handlerEvents) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	)
 	buf.ReadFrom(r.Body)
 	body := buf.String()
-	h.app.Logger.Info(
+	h.app.Logger.Debug(
 		ctx,
 		"handler/events.ServeHTTP",
 		log.NewValue("requestbody", body),

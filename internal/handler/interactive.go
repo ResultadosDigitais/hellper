@@ -33,7 +33,7 @@ func (h *handlerInteractive) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	buf.ReadFrom(r.Body)
 	body := buf.String()
-	h.app.Logger.Info(
+	h.app.Logger.Debug(
 		ctx,
 		"handler/interactive.ServeHTTP",
 		log.NewValue("requestbody", body),
@@ -42,7 +42,7 @@ func (h *handlerInteractive) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	for key, value := range r.Form {
 		formValues = append(formValues, log.NewValue(key, value))
 	}
-	h.app.Logger.Info(
+	h.app.Logger.Debug(
 		ctx,
 		"handler/interactive.ServeHTTP Form",
 		formValues...,
@@ -53,7 +53,7 @@ func (h *handlerInteractive) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	dialogSubmission := bot.DialogSubmission{}
 	json.Unmarshal([]byte(formPayload), &dialogSubmission)
 
-	h.app.Logger.Info(
+	h.app.Logger.Debug(
 		ctx,
 		"handler/interactive.ServeHTTP dialogSubmission",
 		log.NewValue("dialogSubmission", dialogSubmission),

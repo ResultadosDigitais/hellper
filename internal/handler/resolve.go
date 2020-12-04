@@ -30,7 +30,7 @@ func (h *handlerResolve) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	buf.ReadFrom(r.Body)
 	body := buf.String()
-	h.app.Logger.Info(
+	h.app.Logger.Debug(
 		ctx,
 		"handler/resolve.ServeHTTP",
 		log.NewValue("requestbody", body),
@@ -39,7 +39,7 @@ func (h *handlerResolve) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	for key, value := range r.Form {
 		formValues = append(formValues, log.NewValue(key, value))
 	}
-	h.app.Logger.Info(
+	h.app.Logger.Debug(
 		ctx,
 		"handler/resolve.ServeHTTP Form",
 		formValues...,

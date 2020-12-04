@@ -161,7 +161,7 @@ func CloseIncidentDialog(ctx context.Context, app *app.App, channelID, userID, t
 
 // CloseIncidentByDialog closes an incident after receiving data from a Slack dialog
 func CloseIncidentByDialog(ctx context.Context, app *app.App, incidentDetails bot.DialogSubmission) error {
-	app.Logger.Info(
+	app.Logger.Debug(
 		ctx,
 		"command/close.CloseIncidentByDialog",
 		log.NewValue("incident_close_details", incidentDetails),

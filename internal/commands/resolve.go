@@ -86,7 +86,7 @@ func ResolveIncidentByDialog(
 	app *app.App,
 	incidentDetails bot.DialogSubmission,
 ) error {
-	app.Logger.Info(
+	app.Logger.Debug(
 		ctx,
 		"command/resolve.ResolveIncidentByDialog",
 		log.NewValue("incident_resolve_details", incidentDetails),

@@ -165,7 +165,7 @@ func StartIncidentByDialog(
 	app *app.App,
 	incidentDetails bot.DialogSubmission,
 ) error {
-	app.Logger.Info(
+	app.Logger.Debug(
 		ctx,
 		"command/open.StartIncidentByDialog",
 		log.NewValue("incident_open_details", incidentDetails),

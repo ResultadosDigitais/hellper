@@ -29,7 +29,6 @@ type App struct {
 func NewApp() App {
 	ctx := context.Background()
 	logger := NewLogger()
-
 	defer logger.Info(ctx, "Application configured")
 
 	return App{
@@ -58,7 +57,7 @@ func NewLogger() log.Logger {
 
 func NewClient(ctx context.Context, logger log.Logger) bot.Client {
 	configuredClient := config.Env.Client
-	logger.Info(ctx, fmt.Sprintf(
+	logger.Debug(ctx, fmt.Sprintf(
 		"internal.NewClient initializing client connection: %s", configuredClient,
 	))
 	switch configuredClient {
@@ -75,7 +74,7 @@ func NewClient(ctx context.Context, logger log.Logger) bot.Client {
 // NewIncidentRepository creates a new connection with the database for incidents
 func NewIncidentRepository(ctx context.Context, logger log.Logger) model.IncidentRepository {
 	configuredDatabase := config.Env.Database
-	logger.Info(ctx, fmt.Sprintf(
+	logger.Debug(ctx, fmt.Sprintf(
 		"internal.NewIncidentRepository initializing incident database connection: %s", configuredDatabase,
 	))
 	switch configuredDatabase {
@@ -93,7 +92,7 @@ func NewIncidentRepository(ctx context.Context, logger log.Logger) model.Inciden
 // NewServiceRepository creates a new connection with the database for services
 func NewServiceRepository(ctx context.Context, logger log.Logger) model.ServiceRepository {
 	configuredDatabase := config.Env.Database
-	logger.Info(ctx, fmt.Sprintf(
+	logger.Debug(ctx, fmt.Sprintf(
 		"internal.NewServiceRepository initializing service database connection: %s", configuredDatabase,
 	))
 	switch configuredDatabase {
@@ -111,7 +110,7 @@ func NewServiceRepository(ctx context.Context, logger log.Logger) model.ServiceR
 // NewFileStorage creates a new connection with the file storage for postmortem document
 func NewFileStorage(ctx context.Context, logger log.Logger) filestorage.Driver {
 	configuredFileStorage := config.Env.FileStorage
-	logger.Info(
+	logger.Debug(
 		ctx, fmt.Sprintf("internal.NewFileStorage initializing file storage connection: %s", configuredFileStorage))
 	switch configuredFileStorage {
 	case FileStorageGoogleDrive:
@@ -130,7 +129,7 @@ func NewFileStorage(ctx context.Context, logger log.Logger) filestorage.Driver {
 // NewCalendar creates a new connection with the calendar service
 func NewCalendar(ctx context.Context, logger log.Logger) calendar.Calendar {
 	configuredCalendar := config.Env.Calendar
-	logger.Info(
+	logger.Debug(
 		ctx,
 		fmt.Sprintf("internal.NewCalendar initializing calendar connection: %s", configuredCalendar),
 	)

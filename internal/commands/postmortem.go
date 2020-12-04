@@ -57,7 +57,7 @@ func createPostMortem(
 func addPostMortemURLToDB(ctx context.Context, app *app.App, channelName string, postMortemURL string) {
 	err := app.IncidentRepository.AddPostMortemUrl(ctx, channelName, postMortemURL)
 	if err != nil {
-		app.Logger.Info(
+		app.Logger.Debug(
 			ctx,
 			"Post Mortem could not be inserted to DB",
 			log.NewValue("channelName", channelName),

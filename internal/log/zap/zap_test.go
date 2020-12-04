@@ -168,7 +168,7 @@ func TestLogger(test *testing.T) {
 				assert.Implements(t, (*log.Logger)(nil), logger, "logger bad instance")
 
 				logger.Debug(context.Background(), scenario.message, scenario.values...)
-				logger.Info(context.Background(), scenario.message, scenario.values...)
+				logger.Debug(context.Background(), scenario.message, scenario.values...)
 				logger.Error(context.Background(), scenario.message, scenario.values...)
 				if len(scenario.values) > 0 {
 					scenario.logger.AssertCalled(t, "Check", scenario.zapLevel, scenario.message)

@@ -52,7 +52,7 @@ func incidentLogValues(inc *model.Incident) []log.Value {
 }
 
 func (r *incidentRepository) InsertIncident(ctx context.Context, inc *model.Incident) (int64, error) {
-	r.logger.Info(
+	r.logger.Debug(
 		ctx,
 		"postgres/incident-repository.InsertIncident INFO",
 		incidentLogValues(inc)...,
@@ -109,7 +109,7 @@ func (r *incidentRepository) InsertIncident(ctx context.Context, inc *model.Inci
 
 	switch err := idResult.Scan(&id); err {
 	case nil:
-		r.logger.Info(
+		r.logger.Debug(
 			ctx,
 			"postgres/incident-repository.InsertIncident SUCCESS",
 			incidentLogValues(inc)...,
@@ -129,11 +129,13 @@ func (r *incidentRepository) InsertIncident(ctx context.Context, inc *model.Inci
 }
 
 func (r *incidentRepository) AddPostMortemUrl(ctx context.Context, channelName string, postMortemUrl string) error {
-	r.logger.Info(
-		ctx,
-		"postgres/incident-repository.AddPostMortemUrl INFO",
+	logWriter := r.logger.With(
 		log.NewValue("channelName", channelName),
 		log.NewValue("postMortemURL", postMortemUrl),
+	)
+	logWriter.Debug(
+		ctx,
+		"postgres/incident-repository.AddPostMortemUrl INFO",
 	)
 
 	updateCommand := `UPDATE incident SET post_mortem_url = $1 WHERE channel_name = $2`
@@ -144,19 +146,15 @@ func (r *incidentRepository) AddPostMortemUrl(ctx context.Context, channelName s
 		channelName)
 
 	if err != nil {
-		r.logger.Error(
+		logWriter.Error(
 			ctx,
 			"postgres/incident-repository.AddPostMortemUrl ERROR",
-			log.NewValue("channelName", channelName),
-			log.NewValue("postMortemURL", postMortemUrl),
 			log.NewValue("error", err),
 		)
 	} else {
-		r.logger.Info(
+		logWriter.Debug(
 			ctx,
 			"postgres/incident-repository.AddPostMortemUrl SUCCESS",
-			log.NewValue("channelName", channelName),
-			log.NewValue("postMortemURL", postMortemUrl),
 		)
 	}
 
@@ -164,10 +162,13 @@ func (r *incidentRepository) AddPostMortemUrl(ctx context.Context, channelName s
 }
 
 func (r *incidentRepository) GetIncident(ctx context.Context, channelID string) (inc model.Incident, err error) {
-	r.logger.Info(
+	logWriter := r.logger.With(
+		log.NewValue("channelID", channelID),
+	)
+
+	logWriter.Debug(
 		ctx,
 		"postgres/incident-repository.GetIncident INFO",
-		log.NewValue("channelID", channelID),
 	)
 
 	rows, err := r.db.Query(
@@ -175,10 +176,9 @@ func (r *incidentRepository) GetIncident(ctx context.Context, channelID string) 
 		channelID,
 	)
 	if err != nil {
-		r.logger.Error(
+		logWriter.Error(
 			ctx,
 			"postgres/incident-repository.GetIncident Query ERROR",
-			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
 
@@ -188,10 +188,9 @@ func (r *incidentRepository) GetIncident(ctx context.Context, channelID string) 
 
 	if !rows.Next() {
 		err = errors.New("Incident " + channelID + "not found")
-		r.logger.Error(
+		logWriter.Error(
 			ctx,
 			"postgres/incident-repository.GetIncident ERROR",
-			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
 
@@ -223,10 +222,9 @@ func (r *incidentRepository) GetIncident(ctx context.Context, channelID string) 
 		&inc.CommanderEmail,
 	)
 
-	r.logger.Info(
+	logWriter.Debug(
 		ctx,
 		"postgres/incident-repository.GetIncident SUCCESS",
-		log.NewValue("channelID", channelID),
 	)
 	return inc, nil
 }
@@ -261,7 +259,7 @@ func GetIncidentByChannelID() string {
 }
 
 func (r *incidentRepository) UpdateIncidentDates(ctx context.Context, inc *model.Incident) error {
-	r.logger.Info(
+	r.logger.Debug(
 		ctx,
 		"postgres/incident-repository.UpdateIncidentDates INFO",
 		incidentLogValues(inc)...,
@@ -316,7 +314,7 @@ func (r *incidentRepository) UpdateIncidentDates(ctx context.Context, inc *model
 		return err
 	}
 
-	r.logger.Info(
+	r.logger.Debug(
 		ctx,
 		"postgres/incident-repository.UpdateIncidentDates SUCCESS",
 		incidentLogValues(inc)...,
@@ -326,12 +324,16 @@ func (r *incidentRepository) UpdateIncidentDates(ctx context.Context, inc *model
 }
 
 func (r *incidentRepository) CancelIncident(ctx context.Context, inc *model.Incident) error {
-	r.logger.Info(
-		ctx,
-		"postgres/incident-repository.CancelIncident INFO",
+	logWriter := r.logger.With(
 		log.NewValue("channelID", inc.ChannelId),
 		log.NewValue("descriptionCancel", inc.DescriptionCancelled),
 	)
+
+	logWriter.Debug(
+		ctx,
+		"postgres/incident-repository.CancelIncident DEBUG",
+	)
+
 	result, err := r.db.Exec(
 		`UPDATE incident SET status = $1, description_cancelled = $2 WHERE channel_id = $3`,
 		model.StatusCancel,
@@ -340,11 +342,9 @@ func (r *incidentRepository) CancelIncident(ctx context.Context, inc *model.Inci
 	)
 
 	if err != nil {
-		r.logger.Error(
+		logWriter.Error(
 			ctx,
 			"postgres/incident-repository.CancelIncident ERROR",
-			log.NewValue("channelID", inc.ChannelId),
-			log.NewValue("description", inc.DescriptionCancelled),
 			log.NewValue("error", err),
 		)
 		return err
@@ -353,11 +353,9 @@ func (r *incidentRepository) CancelIncident(ctx context.Context, inc *model.Inci
 	rowsAffected, err := result.RowsAffected()
 
 	if err != nil {
-		r.logger.Error(
+		logWriter.Error(
 			ctx,
 			"postgres/incident-repository.CancelIncident ERROR",
-			log.NewValue("channelID", inc.ChannelId),
-			log.NewValue("description", inc.DescriptionCancelled),
 			log.NewValue("error", err),
 		)
 
@@ -366,22 +364,18 @@ func (r *incidentRepository) CancelIncident(ctx context.Context, inc *model.Inci
 
 	if rowsAffected == 0 {
 		err = errors.New("rows not affected")
-		r.logger.Error(
+		logWriter.Error(
 			ctx,
 			"postgres/incident-repository.CancelIncident ERROR",
-			log.NewValue("channelID", inc.ChannelId),
-			log.NewValue("description", inc.DescriptionCancelled),
 			log.NewValue("error", err),
 		)
 
 		return err
 	}
 
-	r.logger.Info(
+	logWriter.Info(
 		ctx,
 		"postgres/incident-repository.CancelIncident SUCCESS",
-		log.NewValue("channelID", inc.ChannelId),
-		log.NewValue("descriptionCancel", inc.DescriptionCancelled),
 	)
 	return nil
 }

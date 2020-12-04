@@ -55,38 +55,38 @@ func (h *handlerEvents) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	logWriter := h.app.Logger.With(
+		log.NewValue("event", event),
+	)
+
 	switch event.Type {
 	case slackevents.CallbackEvent:
-		h.app.Logger.Info(
+		logWriter.Debug(
 			ctx,
 			"handler/events.ParseEvent CallbackEvent",
-			log.NewValue("event", event),
 		)
 
 		// Temporary memory cache
 		if _, exists := msgsCache[stringSha1(body)]; exists {
-			h.app.Logger.Info(
+			logWriter.Debug(
 				ctx,
 				"handler/events.ParseEvent duplicated_message",
-				log.NewValue("event", event),
 				log.NewValue("message", msgsCache),
 			)
 			return
 		}
 		msgsCache[stringSha1(body)] = struct{}{}
-		h.app.Logger.Info(
+		logWriter.Debug(
 			ctx,
 			"handler/events.ParseEvent deduplication_message_added",
-			log.NewValue("event", event),
 			log.NewValue("message", msgsCache),
 		)
 
 		err = replyCallbackEvent(ctx, h.app, event)
 		if err != nil {
-			h.app.Logger.Error(
+			logWriter.Error(
 				ctx,
 				"handler/events.ParseEvent callback_event_error",
-				log.NewValue("event", event),
 				log.NewValue("error", err),
 			)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -95,7 +95,7 @@ func (h *handlerEvents) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusAccepted)
 		return
 	case slackevents.URLVerification:
-		h.app.Logger.Info(
+		logWriter.Debug(
 			ctx,
 			"handler/events.ParseEvent URLVerification",
 			log.NewValue("event", event),
@@ -104,10 +104,9 @@ func (h *handlerEvents) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		var resp slackevents.ChallengeResponse
 		err = json.NewDecoder(&buf).Decode(&resp)
 		if err != nil {
-			h.app.Logger.Error(
+			logWriter.Error(
 				ctx,
 				"handler/events.ParseEvent Decode error",
-				log.NewValue("event", event),
 				log.NewValue("error", err),
 			)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -117,10 +116,9 @@ func (h *handlerEvents) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("content-type", "text")
 		fmt.Fprintf(w, "%s", resp.Challenge)
 
-		h.app.Logger.Info(
+		logWriter.Debug(
 			ctx,
 			"handler/events.ParseEvent challenge",
-			log.NewValue("event", event),
 			log.NewValue("challenge", resp.Challenge),
 		)
 

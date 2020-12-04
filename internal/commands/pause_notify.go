@@ -87,13 +87,17 @@ func PauseNotifyIncidentByDialog(
 		pauseNotifyTime sql.NullTime
 	)
 
+	logWriter := app.Logger.With(
+		log.NewValue("channelID", channelID),
+		log.NewValue("pauseNotifyTimeText", pauseNotifyTimeText),
+		log.NewValue("pauseNotifyReasonText", pauseNotifyReasonText),
+	)
+
 	days, err := strconv.Atoi(pauseNotifyTimeText)
 	if err != nil {
-		app.Logger.Error(
+		logWriter.Error(
 			ctx,
 			"command/pauseNotify.PauseNotifyIncidentByDialog strconv.Atoi ERROR",
-			log.NewValue("channelID", channelID),
-			log.NewValue("pauseNotifyTimeText", pauseNotifyTimeText),
 			log.NewValue("error", err),
 		)
 
@@ -103,11 +107,9 @@ func PauseNotifyIncidentByDialog(
 
 	pauseNotifyTime.Time = time.Now().AddDate(0, 0, days)
 
-	app.Logger.Info(
+	logWriter.Debug(
 		ctx,
 		"command/pauseNotify.PauseNotifyIncidentByDialog",
-		log.NewValue("pauseNotifyTimeText", pauseNotifyTimeText),
-		log.NewValue("pauseNotifyReasonText", pauseNotifyReasonText),
 		log.NewValue("pauseNotifyTime", pauseNotifyTime),
 	)
 

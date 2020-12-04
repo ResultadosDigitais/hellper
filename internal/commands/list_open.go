@@ -12,23 +12,24 @@ import (
 
 //ListOpenIncidents get the currently opened incidents and return the channel_name of each one of them.
 func ListOpenIncidents(ctx context.Context, app *app.App, event TriggerEvent) {
+	loggerWriter := app.Logger.With(
+		log.NewValue("event", event),
+	)
 
 	incidents, err := app.IncidentRepository.ListActiveIncidents(ctx)
 	if err != nil {
-		app.Logger.Error(
+		loggerWriter.Error(
 			ctx,
-			"command/list_open.ListOpenIncidents ListActiveIncidents error",
-			log.NewValue("event", event),
+			"command/list_open.ListOpenIncidents ListActiveIncidents ERROR",
 			log.NewValue("error", err),
 		)
 
 		PostErrorAttachment(ctx, app, event.Channel, event.User, err.Error())
 	}
 
-	app.Logger.Info(
+	loggerWriter.Debug(
 		ctx,
 		"command/list_open.ListOpenIncidents",
-		log.NewValue("event", event),
 		log.NewValue("incidents", incidents),
 	)
 

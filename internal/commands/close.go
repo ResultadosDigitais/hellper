@@ -183,6 +183,11 @@ func CloseIncidentByDialog(ctx context.Context, app *app.App, incidentDetails bo
 		productChannelID = config.Env.ProductChannelID
 	)
 
+	logWriter := app.Logger.With(
+		log.NewValue("channelID", channelID),
+		log.NewValue("userID", userID),
+	)
+
 	severityLevelInt64, err := getStringInt64(severityLevel)
 	if err != nil {
 		return err
@@ -205,7 +210,7 @@ func CloseIncidentByDialog(ctx context.Context, app *app.App, incidentDetails bo
 
 	err = app.IncidentRepository.CloseIncident(ctx, &incident)
 	if err != nil {
-		app.Logger.Error(
+		logWriter.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("CloseIncident"),
@@ -217,11 +222,10 @@ func CloseIncidentByDialog(ctx context.Context, app *app.App, incidentDetails bo
 
 	inc, err := app.IncidentRepository.GetIncident(ctx, channelID)
 	if err != nil {
-		app.Logger.Error(
+		logWriter.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("GetIncident"),
-			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
 		return err
@@ -256,12 +260,10 @@ func CloseIncidentByDialog(ctx context.Context, app *app.App, incidentDetails bo
 	)
 	err = app.Client.ArchiveConversationContext(ctx, channelID)
 	if err != nil {
-		app.Logger.Error(
+		logWriter.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("ArchiveConversationContext"),
-			log.NewValue("channelID", channelID),
-			log.NewValue("userID", userID),
 			log.NewValue("error", err),
 		)
 		PostErrorAttachment(ctx, app, channelID, userID, err.Error())

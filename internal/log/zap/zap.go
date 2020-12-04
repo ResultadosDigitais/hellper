@@ -16,6 +16,7 @@ type zapWriter interface {
 type zapLogger interface {
 	Check(zapcore.Level, string) zapWriter
 	Sync() error
+	With(...zap.Field) *zap.Logger
 }
 
 type zapLoggerDelegate struct {
@@ -94,8 +95,24 @@ func (logger logger) Info(ctx context.Context, msg string, values ...log.Value) 
 	logger.log(ctx, log.INFO, msg, values...)
 }
 
+func (logger logger) Warn(ctx context.Context, msg string, values ...log.Value) {
+	logger.log(ctx, log.WARN, msg, values...)
+}
+
 func (logger logger) Error(ctx context.Context, msg string, values ...log.Value) {
 	logger.log(ctx, log.ERROR, msg, values...)
+}
+
+func (logger logger) With(values ...log.Value) log.Logger {
+	fields := make([]zapcore.Field, len(values))
+	for index, logValue := range values {
+		fields[index] = zap.Any(logValue.Name, logValue.Value)
+	}
+
+	configuredLogger := logger.adapter.With(fields...)
+	zapLogger := NewZapLoggerDelegate(configuredLogger)
+
+	return New(zapLogger)
 }
 
 func (logger logger) Close(context.Context) {

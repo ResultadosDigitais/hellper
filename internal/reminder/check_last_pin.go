@@ -14,15 +14,13 @@ import (
 	"github.com/slack-go/slack"
 )
 
-func hasLastPin(ctx context.Context, client bot.Client, logger log.Logger, incident model.Incident) bool {
+func hasLastPin(ctx context.Context, client bot.Client, logWriter log.Logger, incident model.Incident) bool {
 	pin, err := bot.LastPin(client, incident.ChannelId)
 	if err != nil {
-		logger.Error(
+		logWriter.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("LastPin"),
-			log.NewValue("channelID", incident.ChannelId),
-			log.NewValue("channelName", incident.ChannelName),
 			log.NewValue("error", err),
 		)
 		return true
@@ -31,25 +29,21 @@ func hasLastPin(ctx context.Context, client bot.Client, logger log.Logger, incid
 	if pin != (slack.Item{}) {
 		timeMessage, err := convertTimestamp(pin.Message.Msg.Timestamp)
 		if err != nil {
-			logger.Error(
+			logWriter.Error(
 				ctx,
 				log.Trace(),
 				log.Action("convertTimestamp"),
-				log.NewValue("channelID", incident.ChannelId),
-				log.NewValue("channelName", incident.ChannelName),
 				log.NewValue("error", err),
 			)
 			return true
 		}
 
 		if timeMessage.After(time.Now().Add(-setRecurrence(incident))) {
-			logger.Info(
+			logWriter.Info(
 				ctx,
 				log.Trace(),
 				log.Action("do_not_notify"),
 				log.Reason("last_pin_time"),
-				log.NewValue("channelID", incident.ChannelId),
-				log.NewValue("channelName", incident.ChannelName),
 			)
 			return true
 		}

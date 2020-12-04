@@ -16,18 +16,21 @@ type notifyRules struct {
 
 // CanSendNotify checks the notification rules
 func CanSendNotify(ctx context.Context, client bot.Client, logger log.Logger, repository model.IncidentRepository, incident model.Incident) bool {
-	logger.Info(
-		ctx,
-		log.Trace(),
-		log.Action("running"),
+	logWriter := logger.With(
 		log.NewValue("channelID", incident.ChannelId),
 		log.NewValue("channelName", incident.ChannelName),
 	)
 
+	logWriter.Debug(
+		ctx,
+		log.Trace(),
+		log.Action("running"),
+	)
+
 	rules := notifyRules{
-		snoozedUntil: hasSnoozedUntil(ctx, logger, incident),
-		lastPin:      hasLastPin(ctx, client, logger, incident),
-		slaClose:     hasSLAClose(ctx, client, logger, incident),
+		snoozedUntil: hasSnoozedUntil(ctx, logWriter, incident),
+		lastPin:      hasLastPin(ctx, client, logWriter, incident),
+		slaClose:     hasSLAClose(ctx, client, logWriter, incident),
 		status:       incident.Status,
 	}
 

@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"fmt"
 	"hellper/internal/app"
 	"hellper/internal/concurrence"
 	"strconv"
@@ -114,13 +115,23 @@ func ResolveIncidentByDialog(
 		StatusPageUrl:       statusPageURL,
 	}
 
+	logWriter := app.Logger.With(
+		log.NewValue("incident", incident),
+		log.NewValue("channelID", channelID),
+	)
+
+	logWriter.Debug(
+		ctx,
+		log.Trace(),
+		log.Action("running"),
+	)
+
 	err := app.IncidentRepository.ResolveIncident(ctx, &incident)
 	if err != nil {
-		app.Logger.Error(
+		logWriter.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("ResolveIncident"),
-			log.NewValue("incident", incident),
 			log.NewValue("error", err),
 		)
 		return err
@@ -128,11 +139,10 @@ func ResolveIncidentByDialog(
 
 	inc, err := app.IncidentRepository.GetIncident(ctx, channelID)
 	if err != nil {
-		app.Logger.Error(
+		logWriter.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("GetIncident"),
-			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
 		return err
@@ -140,7 +150,7 @@ func ResolveIncidentByDialog(
 
 	hasPostMortemMeeting, err := strconv.ParseBool(postMortemMeeting)
 	if err != nil {
-		app.Logger.Error(
+		logWriter.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("strconv.ParseBool"),
@@ -152,7 +162,7 @@ func ResolveIncidentByDialog(
 	if hasPostMortemMeeting {
 		calendarEvent, err = getCalendarEvent(ctx, app, incident.EndTimestamp, channelName, channelID)
 		if err != nil {
-			app.Logger.Error(
+			logWriter.Error(
 				ctx,
 				log.Trace(),
 				log.Reason("getCalendarEvent"),
@@ -231,18 +241,22 @@ func getCalendarEvent(
 	channelName string,
 	channelID string,
 ) (*model.Event, error) {
+	logWriter := app.Logger.With(
+		log.NewValue("channelID", channelID),
+	)
+
 	if app.Calendar == nil {
-		app.Logger.Error(
+		logWriter.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("noCalendarConfigured"),
 		)
-		return nil, nil
+		return nil, fmt.Errorf("Calendar is not available")
 	}
 
 	startMeeting, endMeeting, err := setMeetingDate(ctx, app.Logger, t, config.Env.PostmortemGapDays, config.Env.Timezone)
 	if err != nil {
-		app.Logger.Error(
+		logWriter.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("setMeetingDate"),
@@ -256,11 +270,10 @@ func getCalendarEvent(
 
 	inc, err := app.IncidentRepository.GetIncident(ctx, channelID)
 	if err != nil {
-		app.Logger.Error(
+		logWriter.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("GetIncident"),
-			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
 		return nil, err
@@ -268,7 +281,7 @@ func getCalendarEvent(
 
 	calendarEvent, err := app.Calendar.CreateCalendarEvent(ctx, startMeeting, endMeeting, summary, inc.CommanderEmail, *emails)
 	if err != nil {
-		app.Logger.Error(
+		logWriter.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("CreateCalendarEvent"),

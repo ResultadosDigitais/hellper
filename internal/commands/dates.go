@@ -22,12 +22,15 @@ func UpdateDatesDialog(ctx context.Context, app *app.App, channelID string, user
 		endValue            = ""
 	)
 
+	logWriter := app.Logger.With(
+		log.NewValue("channelID", channelID),
+	)
+
 	inc, err := app.IncidentRepository.GetIncident(ctx, channelID)
 	if err != nil {
-		app.Logger.Error(
+		logWriter.Error(
 			ctx,
 			"command/dates.UpdateDatesDialog GetIncident ERROR",
-			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
 
@@ -35,12 +38,11 @@ func UpdateDatesDialog(ctx context.Context, app *app.App, channelID string, user
 		return err
 	}
 
-	app.Logger.Info(
+	logWriter.Debug(
 		ctx,
 		"command/close.UpdateDatesDialog INFO",
-		log.NewValue("channelID", channelID),
-		log.NewValue("startDate", inc.StartTimestamp),
 		log.NewValue("identificationDate", inc.IdentificationTimestamp),
+		log.NewValue("startDate", inc.StartTimestamp),
 		log.NewValue("endDate", inc.EndTimestamp),
 	)
 
@@ -130,11 +132,6 @@ func UpdateDatesDialog(ctx context.Context, app *app.App, channelID string, user
 
 // UpdateDatesByDialog updates the dates of an incident after receiving data from a Slack dialog
 func UpdateDatesByDialog(ctx context.Context, app *app.App, incidentDetails bot.DialogSubmission) error {
-	app.Logger.Info(
-		ctx,
-		"command/close.CloseIncidentByDialog INFO",
-		log.NewValue("incident_close_details", incidentDetails),
-	)
 
 	var (
 		dateLayout             = "02/01/2006 15:04:05"
@@ -152,16 +149,25 @@ func UpdateDatesByDialog(ctx context.Context, app *app.App, incidentDetails bot.
 		endDate            time.Time
 	)
 
+	logWriter := app.Logger.With(
+		log.NewValue("channelID", channelID),
+		log.NewValue("timeZoneString", timeZoneString),
+		log.NewValue("initDateText", initDateText),
+		log.NewValue("identificationDateText", identificationDateText),
+		log.NewValue("endDateText", endDateText),
+	)
+
+	logWriter.Debug(
+		ctx,
+		"command/close.UpdateDatesByDialog INFO",
+		log.NewValue("incident_close_details", incidentDetails),
+	)
+
 	location, err := parseTimeZone(timeZoneString)
 	if err != nil {
-		app.Logger.Error(
+		logWriter.Error(
 			ctx,
 			"command/dates.UpdateDatesByDialog parseTimeZone ERROR",
-			log.NewValue("channelID", channelID),
-			log.NewValue("timeZoneString", timeZoneString),
-			log.NewValue("initDateText", initDateText),
-			log.NewValue("identificationDateText", identificationDateText),
-			log.NewValue("endDateText", endDateText),
 			log.NewValue("error", err),
 		)
 
@@ -171,12 +177,9 @@ func UpdateDatesByDialog(ctx context.Context, app *app.App, incidentDetails bot.
 
 	initDate, err = time.ParseInLocation(dateLayout, initDateText, location)
 	if err != nil {
-		app.Logger.Error(
+		logWriter.Error(
 			ctx,
-			"command/dates.UpdateDatesByDialog ParseIn ERROR",
-			log.NewValue("channelID", channelID),
-			log.NewValue("timeZoneString", timeZoneString),
-			log.NewValue("initDateText", initDateText),
+			"command/dates.UpdateDatesByDialog ParseInLocation initDate ERROR",
 			log.NewValue("error", err),
 		)
 
@@ -186,12 +189,9 @@ func UpdateDatesByDialog(ctx context.Context, app *app.App, incidentDetails bot.
 
 	identificationDate, err = time.ParseInLocation(dateLayout, identificationDateText, location)
 	if err != nil {
-		app.Logger.Error(
+		logWriter.Error(
 			ctx,
-			"command/dates.UpdateDatesByDialog ParseIn ERROR",
-			log.NewValue("channelID", channelID),
-			log.NewValue("timeZoneString", timeZoneString),
-			log.NewValue("identificationDateText", identificationDateText),
+			"command/dates.UpdateDatesByDialog ParseInLocation identificationDate ERROR",
 			log.NewValue("error", err),
 		)
 
@@ -201,12 +201,9 @@ func UpdateDatesByDialog(ctx context.Context, app *app.App, incidentDetails bot.
 
 	endDate, err = time.ParseInLocation(dateLayout, endDateText, location)
 	if err != nil {
-		app.Logger.Error(
+		logWriter.Error(
 			ctx,
-			"command/dates.UpdateDatesByDialog ParseIn ERROR",
-			log.NewValue("channelID", channelID),
-			log.NewValue("timeZoneString", timeZoneString),
-			log.NewValue("endDateText", endDateText),
+			"command/dates.UpdateDatesByDialog ParseInLocation endDate ERROR",
 			log.NewValue("error", err),
 		)
 
@@ -223,7 +220,7 @@ func UpdateDatesByDialog(ctx context.Context, app *app.App, incidentDetails bot.
 
 	err = app.IncidentRepository.UpdateIncidentDates(ctx, &incident)
 	if err != nil {
-		app.Logger.Error(
+		logWriter.Error(
 			ctx,
 			"command/dates.UpdateDatesByDialog UpdateIncidentDates ERROR",
 			log.NewValue("incident", incident),

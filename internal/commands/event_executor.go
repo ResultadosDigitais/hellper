@@ -23,20 +23,22 @@ func NewEventExecutor(app *app.App) *EventExecutor {
 func (e *EventExecutor) ExecuteEventCommand(
 	ctx context.Context, cmdLine string, event TriggerEvent,
 ) error {
-	e.app.Logger.Info(
-		ctx,
-		"command/eventexecutor.ExecuteEventCommand",
+	logWriter := e.app.Logger.With(
 		log.NewValue("command_line", cmdLine),
 		log.NewValue("event", event),
+	)
+
+	logWriter.Debug(
+		ctx,
+		"command/eventexecutor.ExecuteEventCommand",
 	)
 
 	invoker := newEventInvoker(e.app)
 	err := invoker.eventInvoker(ctx, cmdLine, event)
 	if err != nil {
-		e.app.Logger.Error(
+		logWriter.Error(
 			ctx,
 			"command/eventexecutor.ExecuteEventCommand command_result",
-			log.NewValue("command_line", cmdLine),
 			log.NewValue("error", err),
 		)
 		return err

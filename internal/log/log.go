@@ -11,6 +11,8 @@ const (
 
 	//ERROR is the error level logger
 	ERROR Level = "error"
+	// WARN is the warning level logger
+	WARN Level = "warn"
 	//INFO is the info level logger
 	INFO Level = "info"
 	//DEBUG is the debug level logger
@@ -68,7 +70,9 @@ func NewValue(name string, value interface{}) Value {
 type Logger interface {
 	Debug(context.Context, string, ...Value)
 	Info(context.Context, string, ...Value)
+	Warn(context.Context, string, ...Value)
 	Error(context.Context, string, ...Value)
+	With(...Value) Logger
 }
 
 func Trace() string {

@@ -28,30 +28,28 @@ func requestStatus(ctx context.Context, app *app.App, jobIncident model.Incident
 				ctx,
 				log.Trace(),
 				log.Reason("GetIncident"),
-				log.NewValue("channelID", incident.ChannelId),
-				log.NewValue("channelName", incident.ChannelName),
 				log.NewValue("error", err),
 			)
 			return
 		}
 
-		app.Logger.Info(
-			ctx,
-			log.Trace(),
-			log.Action("running"),
+		logWriter := app.Logger.With(
 			log.NewValue("channelID", incident.ChannelId),
 			log.NewValue("channelName", incident.ChannelName),
 		)
 
+		logWriter.Debug(
+			ctx,
+			log.Trace(),
+			log.Action("running"),
+		)
+
 		if canStopReminder(incident) {
-			app.Logger.Info(
+			logWriter.Debug(
 				ctx,
 				log.Trace(),
 				log.Action("do_not_notify"),
 				log.Reason("canStopReminder"),
-				log.NewValue("channelID", incident.ChannelId),
-				log.NewValue("channelName", incident.ChannelName),
-				log.NewValue("incident.Status", incident.Status),
 				log.NewValue("jobIncident.Status", jobIncident.Status),
 			)
 
@@ -61,27 +59,22 @@ func requestStatus(ctx context.Context, app *app.App, jobIncident model.Incident
 
 		snoozedUntil := incident.SnoozedUntil
 		if snoozedUntil.Time.Unix() > time.Now().Unix() {
-			app.Logger.Info(
+			logWriter.Debug(
 				ctx,
 				log.Trace(),
 				log.Action("do_not_notify"),
 				log.Reason("isPaused"),
-				log.NewValue("channelID", incident.ChannelId),
-				log.NewValue("channelName", incident.ChannelName),
 				log.NewValue("snoozedUntil", snoozedUntil.Time),
 			)
 			return
 		}
 
 		if incident.Status != jobIncident.Status {
-			app.Logger.Info(
+			logWriter.Debug(
 				ctx,
 				log.Trace(),
 				log.Action("do_not_notify"),
 				log.Reason("statusChanged"),
-				log.NewValue("channelID", incident.ChannelId),
-				log.NewValue("channelName", incident.ChannelName),
-				log.NewValue("incident.Status", incident.Status),
 				log.NewValue("jobIncident.Status", jobIncident.Status),
 			)
 			startReminderStatusJob(ctx, app, incident)
@@ -91,12 +84,10 @@ func requestStatus(ctx context.Context, app *app.App, jobIncident model.Incident
 
 		pin, err := bot.LastPin(app.Client, incident.ChannelId)
 		if err != nil {
-			app.Logger.Error(
+			logWriter.Error(
 				ctx,
 				log.Trace(),
 				log.Reason("LastPin"),
-				log.NewValue("channelID", incident.ChannelId),
-				log.NewValue("channelName", incident.ChannelName),
 				log.NewValue("error", err),
 			)
 			return
@@ -107,13 +98,11 @@ func requestStatus(ctx context.Context, app *app.App, jobIncident model.Incident
 			endTS := incident.EndTimestamp
 			diffHours := now.Sub(*endTS)
 			if int(diffHours.Hours()) <= config.Env.SLAHoursToClose {
-				app.Logger.Info(
+				logWriter.Debug(
 					ctx,
 					log.Trace(),
 					log.Action("do_not_notify"),
 					log.Reason("SLAHoursToClose"),
-					log.NewValue("channelID", incident.ChannelId),
-					log.NewValue("channelName", incident.ChannelName),
 					log.NewValue("incident.Status", incident.Status),
 					log.NewValue("incident.EndTimestamp", incident.EndTimestamp),
 					log.NewValue("SLAHoursToClose", config.Env.SLAHoursToClose),
@@ -129,25 +118,21 @@ func requestStatus(ctx context.Context, app *app.App, jobIncident model.Incident
 		if pin != (slack.Item{}) {
 			timeMessage, err := convertTimestamp(pin.Message.Msg.Timestamp)
 			if err != nil {
-				app.Logger.Error(
+				logWriter.Error(
 					ctx,
 					log.Trace(),
 					log.Action("convertTimestamp"),
-					log.NewValue("channelID", incident.ChannelId),
-					log.NewValue("channelName", incident.ChannelName),
 					log.NewValue("error", err),
 				)
 				return
 			}
 
 			if timeMessage.After(time.Now().Add(-setRecurrence(incident))) {
-				app.Logger.Info(
+				logWriter.Debug(
 					ctx,
 					log.Trace(),
 					log.Action("do_not_notify"),
 					log.Reason("last_pin_time"),
-					log.NewValue("channelID", incident.ChannelId),
-					log.NewValue("channelName", incident.ChannelName),
 				)
 				return
 			}
@@ -158,13 +143,16 @@ func requestStatus(ctx context.Context, app *app.App, jobIncident model.Incident
 }
 
 func startReminderStatusJob(ctx context.Context, app *app.App, incident model.Incident) {
-	app.Logger.Info(
+	logWriter := app.Logger.With(
+		log.NewValue("channelID", incident.ChannelId),
+		log.NewValue("channelName", incident.ChannelName),
+		log.NewValue("status", incident.Status),
+	)
+
+	logWriter.Debug(
 		ctx,
 		log.Trace(),
 		log.Action("running"),
-		log.NewValue("channelID", incident.ChannelId),
-		log.NewValue("ChannelName", incident.ChannelName),
-		log.NewValue("Status", incident.Status),
 		log.NewValue("recurrence", setRecurrence(incident).Seconds()),
 	)
 
@@ -215,27 +203,27 @@ func setRecurrence(incident model.Incident) time.Duration {
 }
 
 func sendNotification(ctx context.Context, app *app.App, incident model.Incident) {
+	logWriter := app.Logger.With(
+		log.NewValue("channelID", incident.ChannelId),
+		log.NewValue("channelName", incident.ChannelName),
+		log.NewValue("incidentStatus", incident.Status),
+	)
+
+	logWriter.Info(
+		ctx,
+		log.Trace(),
+		log.Action("postMessage"),
+	)
+
 	err := postMessage(app, incident.ChannelId, statusNotify(incident))
 
 	if err != nil {
-		app.Logger.Error(
+		logWriter.Error(
 			ctx,
 			log.Trace(),
 			log.Action("postMessage"),
-			log.NewValue("channelID", incident.ChannelId),
-			log.NewValue("channelName", incident.ChannelName),
-			log.NewValue("incident.Status", incident.Status),
 			log.NewValue("error", err),
 		)
 		return
 	}
-
-	app.Logger.Info(
-		ctx,
-		log.Trace(),
-		log.Action("postMessage"),
-		log.NewValue("channelID", incident.ChannelId),
-		log.NewValue("channelName", incident.ChannelName),
-		log.NewValue("incident.Status", incident.Status),
-	)
 }

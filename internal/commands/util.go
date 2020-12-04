@@ -14,18 +14,27 @@ import (
 )
 
 func ping(ctx context.Context, app *app.App, channelID string) {
+
+	logWriter := app.Logger.With(
+		log.NewValue("channelID", channelID),
+	)
+
 	err := postMessage(app, channelID, "pong")
 	if err != nil {
-		app.Logger.Error(
+		logWriter.Error(
 			ctx,
 			"command/util.ping postMessage error",
-			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
 	}
 }
 
 func help(ctx context.Context, app *app.App, channelID string) {
+
+	logWriter := app.Logger.With(
+		log.NewValue("channelID", channelID),
+	)
+
 	err := postMessage(app, channelID, `
 	hellper
 	A bot to help the incident treatment
@@ -36,10 +45,9 @@ func help(ctx context.Context, app *app.App, channelID string) {
  	state     Show incident state and timeline
 `)
 	if err != nil {
-		app.Logger.Error(
+		logWriter.Error(
 			ctx,
 			"command/util.help postMessage error",
-			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
 	}

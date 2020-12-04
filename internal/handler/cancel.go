@@ -32,7 +32,7 @@ func (h *handlerCancel) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	buf.ReadFrom(r.Body)
 	body := buf.String()
-	logger.Info(
+	logger.Debug(
 		ctx,
 		"handler/cancel.ServeHTTP",
 		log.NewValue("requestbody", body),
@@ -41,7 +41,7 @@ func (h *handlerCancel) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	for key, value := range r.Form {
 		formValues = append(formValues, log.NewValue(key, value))
 	}
-	logger.Info(
+	logger.Debug(
 		ctx,
 		"handler/cancel.ServeHTTP Form",
 		formValues...,

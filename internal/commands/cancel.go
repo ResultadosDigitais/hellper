@@ -24,14 +24,17 @@ func OpenCancelIncidentDialog(
 	triggerID string,
 ) error {
 
+	loggerWritter := app.Logger.With(
+		log.NewValue("channelID", channelID),
+		log.NewValue("userID", userID),
+	)
+
 	inc, err := app.IncidentRepository.GetIncident(ctx, channelID)
 	if err != nil {
-		app.Logger.Error(
+		loggerWritter.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("GetIncident"),
-			log.NewValue("channelID", channelID),
-			log.NewValue("userID", userID),
 			log.NewValue("error", err),
 		)
 
@@ -56,12 +59,10 @@ func OpenCancelIncidentDialog(
 
 		_, err = app.Client.PostEphemeralContext(ctx, channelID, userID, slack.MsgOptionAttachments(attch))
 		if err != nil {
-			app.Logger.Error(
+			loggerWritter.Error(
 				ctx,
 				log.Trace(),
 				log.Reason("PostEphemeralContext"),
-				log.NewValue("channelID", channelID),
-				log.NewValue("userID", userID),
 				log.NewValue("error", err),
 			)
 
@@ -102,7 +103,14 @@ func CancelIncidentByDialog(
 	app *app.App,
 	incidentDetails bot.DialogSubmission,
 ) error {
-	app.Logger.Info(
+	logWriter := app.Logger.With(
+		log.NewValue("userID", incidentDetails.User.ID),
+		log.NewValue("channelID", incidentDetails.Channel.ID),
+		log.NewValue("description", incidentDetails.Submission.IncidentDescription),
+		log.NewValue("productChannelID", config.Env.ProductChannelID),
+	)
+
+	logWriter.Debug(
 		ctx,
 		log.Trace(),
 		log.Action("running"),
@@ -124,13 +132,10 @@ func CancelIncidentByDialog(
 
 	err := app.IncidentRepository.CancelIncident(ctx, &requestCancel)
 	if err != nil {
-		app.Logger.Error(
+		logWriter.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("CancelIncident"),
-			log.NewValue("channelID", channelID),
-			log.NewValue("userID", userID),
-			log.NewValue("description", description),
 			log.NewValue("error", err),
 		)
 
@@ -140,11 +145,10 @@ func CancelIncidentByDialog(
 
 	inc, err := app.IncidentRepository.GetIncident(ctx, channelID)
 	if err != nil {
-		app.Logger.Error(
+		logWriter.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("GetIncident"),
-			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
 		return err
@@ -160,12 +164,10 @@ func CancelIncidentByDialog(
 		attachment,
 	)
 	if err != nil {
-		app.Logger.Error(
+		logWriter.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("postAndPinMessage"),
-			log.NewValue("channelID", channelID),
-			log.NewValue("userID", userID),
 			log.NewValue("attachment", attachment),
 			log.NewValue("error", err),
 		)
@@ -180,13 +182,10 @@ func CancelIncidentByDialog(
 			attachment,
 		)
 		if err != nil {
-			app.Logger.Error(
+			logWriter.Error(
 				ctx,
 				log.Trace(),
 				log.Reason("postAndPinMessage"),
-				log.NewValue("channelID", channelID),
-				log.NewValue("productChannelID", productChannelID),
-				log.NewValue("userID", userID),
 				log.NewValue("attachment", attachment),
 				log.NewValue("error", err),
 			)
@@ -196,11 +195,10 @@ func CancelIncidentByDialog(
 
 	err = app.Client.ArchiveConversationContext(ctx, channelID)
 	if err != nil {
-		app.Logger.Error(
+		logWriter.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("ArchiveConversationContext"),
-			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
 

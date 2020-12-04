@@ -28,7 +28,7 @@ func (s *storage) copyFile(ctx context.Context, d *drive.Service, fileID string,
 	if err != nil {
 		s.logger.Error(
 			ctx,
-			"googleDrive/google_drive.copyFile Copy error",
+			"googleDrive/google_drive.copyFile Copy ERROR",
 			log.NewValue("fileID", fileID),
 			log.NewValue("title", title),
 			log.NewValue("error", err),
@@ -40,20 +40,23 @@ func (s *storage) copyFile(ctx context.Context, d *drive.Service, fileID string,
 
 // CreatePostMortemDocument creates a document on Google Drive from the PostMortem template.
 func (s *storage) CreatePostMortemDocument(ctx context.Context, postMortemName string) (string, error) {
-	s.logger.Info(
+
+	logWriter := s.logger.With(
+		log.NewValue("postMortemName", postMortemName),
+	)
+
+	logWriter.Debug(
 		ctx,
 		"googleDrive/google_drive.CreatePostMortemDocument",
-		log.NewValue("postMortemName", postMortemName),
 	)
 
 	driveTokenBytes := []byte(config.Env.GoogleDriveToken)
 
 	gClient, err := googleauth.Struct.GetGClient(ctx, s.logger, driveTokenBytes, drive.DriveScope)
 	if err != nil {
-		s.logger.Error(
+		logWriter.Error(
 			ctx,
-			"googleDrive/google_drive.CreatePostMortemDocument GetGClient error",
-			log.NewValue("postMortemName", postMortemName),
+			"googleDrive/google_drive.CreatePostMortemDocument GetGClient ERROR",
 			log.NewValue("error", err),
 		)
 
@@ -62,10 +65,9 @@ func (s *storage) CreatePostMortemDocument(ctx context.Context, postMortemName s
 
 	driveService, err := drive.New(gClient)
 	if err != nil {
-		s.logger.Error(
+		logWriter.Error(
 			ctx,
-			"googleDrive/google_drive.CreatePostMortemDocument driveService error",
-			log.NewValue("postMortemName", postMortemName),
+			"googleDrive/google_drive.CreatePostMortemDocument driveService ERROR",
 			log.NewValue("error", err),
 		)
 
@@ -74,10 +76,9 @@ func (s *storage) CreatePostMortemDocument(ctx context.Context, postMortemName s
 
 	file, err := s.copyFile(ctx, driveService, config.Env.GoogleDriveFileID, postMortemName)
 	if err != nil {
-		s.logger.Error(
+		logWriter.Error(
 			ctx,
-			"googleDrive/google_drive.CreatePostMortemDocument copyFile error",
-			log.NewValue("postMortemName", postMortemName),
+			"googleDrive/google_drive.CreatePostMortemDocument copyFile ERROR",
 			log.NewValue("error", err),
 		)
 
@@ -85,10 +86,9 @@ func (s *storage) CreatePostMortemDocument(ctx context.Context, postMortemName s
 	}
 
 	if file != nil {
-		s.logger.Info(
+		logWriter.Debug(
 			ctx,
 			"googleDrive/google_drive.CreatePostMortemDocument file",
-			log.NewValue("postMortemName", postMortemName),
 			log.NewValue("file", "https://docs.google.com/document/d/"+file.Id+"/edit"),
 		)
 	}

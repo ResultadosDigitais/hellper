@@ -51,13 +51,18 @@ func createDateFields(inc model.Incident) (fields []slack.AttachmentField) {
 }
 
 func createDatesAttachment(ctx context.Context, app *app.App, channelID string) (slack.Attachment, error) {
+	logWriter := app.Logger.With(
+		log.NewValue("channelID", channelID),
+	)
+
+	logWriter.Debug(ctx, log.Trace())
+
 	inc, err := app.IncidentRepository.GetIncident(ctx, channelID)
 	if err != nil {
-		app.Logger.Error(
+		logWriter.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("GetIncident"),
-			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
 
@@ -83,13 +88,23 @@ func createStatusAttachment(ctx context.Context, app *app.App, channelID string)
 		attachText string
 	)
 
+	logWriter := app.Logger.With(
+		log.NewValue("channelID", channelID),
+	)
+
+	logWriter.Debug(
+		ctx,
+		log.Trace(),
+		log.Action("createStatusAttachment"),
+		log.Reason("AttachmentField"),
+	)
+
 	items, _, err := app.Client.ListPins(channelID)
 	if err != nil {
-		app.Logger.Error(
+		logWriter.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("ListPins"),
-			log.NewValue("channelID", channelID),
 			log.NewValue("error", err),
 		)
 
@@ -109,11 +124,10 @@ func createStatusAttachment(ctx context.Context, app *app.App, channelID string)
 
 			timeMessage, err := convertTimestamp(item.Message.Timestamp)
 			if err != nil {
-				app.Logger.Error(
+				logWriter.Error(
 					ctx,
 					log.Trace(),
 					log.Reason("convertTimestamp"),
-					log.NewValue("channelID", channelID),
 					log.NewValue("error", err),
 				)
 
@@ -123,11 +137,10 @@ func createStatusAttachment(ctx context.Context, app *app.App, channelID string)
 			if item.Message.User != "" {
 				user, err := app.Client.GetUserInfoContext(ctx, item.Message.User)
 				if err != nil {
-					app.Logger.Error(
+					logWriter.Error(
 						ctx,
 						log.Trace(),
 						log.Reason("GetUserInfoContext"),
-						log.NewValue("channelID", channelID),
 						log.NewValue("error", err),
 					)
 
@@ -174,12 +187,6 @@ func createStatusAttachment(ctx context.Context, app *app.App, channelID string)
 			Color:    "#999999",
 			Fields:   fields,
 		}
-		app.Logger.Info(
-			ctx,
-			log.Trace(),
-			log.Reason("AttachmentField"),
-			log.NewValue("channelID", channelID),
-		)
 	}
 	return attach, nil
 }
@@ -243,10 +250,14 @@ func ShowStatus(
 		attachStatus slack.Attachment
 	)
 
-	app.Logger.Info(
+	logWriter := app.Logger.With(
+		log.NewValue("channelID", channelID),
+	)
+
+	logWriter.Debug(
 		ctx,
 		log.Trace(),
-		log.NewValue("channelID", channelID),
+		log.Action("running"),
 	)
 
 	attachDates, err := createDatesAttachment(ctx, app, channelID)

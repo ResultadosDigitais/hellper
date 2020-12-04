@@ -29,6 +29,9 @@ type App struct {
 func NewApp() App {
 	ctx := context.Background()
 	logger := NewLogger()
+
+	defer logger.Info(ctx, "Application configured")
+
 	return App{
 		Logger:             logger,
 		Client:             NewClient(ctx, logger),

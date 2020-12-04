@@ -18,7 +18,7 @@ func TestMockLogger(t *testing.T) {
 	logger.On("Error", mock.Anything, mock.Anything, mock.Anything).Once()
 
 	logger.Debug(context.Background(), "debug", NewValue("key", "value"))
-	logger.Info(context.Background(), "info", NewValue("key", "value"))
+	logger.Debug(context.Background(), "info", NewValue("key", "value"))
 	logger.Error(context.Background(), "error",
 		NewValue("key", "value"), NewValue("error", errors.New("err_mock")),
 	)

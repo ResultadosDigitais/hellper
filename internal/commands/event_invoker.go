@@ -42,17 +42,21 @@ func newEventInvoker(app *app.App) *eventInvoker {
 }
 
 func (e *eventInvoker) eventInvoker(ctx context.Context, cmdLine string, event TriggerEvent) error {
+	logWriter := e.app.Logger.With(
+		log.NewValue("channelID", event.Channel),
+		log.NewValue("event", event),
+	)
+
 	cmd, args, err := parseCommandLine(cmdLine)
 	if err != nil {
 		return err
 	}
 
-	e.app.Logger.Info(
+	logWriter.Debug(
 		ctx,
 		"command/event_invoker.eventInvoker",
 		log.NewValue("command", cmd),
 		log.NewValue("args", args),
-		log.NewValue("event", event),
 	)
 
 	switch cmd {

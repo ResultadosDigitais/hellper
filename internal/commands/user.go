@@ -42,10 +42,14 @@ func getUsersIDsInConversation(
 	app *app.App,
 	channelID string,
 ) (*[]string, error) {
-	app.Logger.Info(
+
+	logWriter := app.Logger.With(
+		log.NewValue("channelID", channelID),
+	)
+
+	logWriter.Debug(
 		ctx,
-		"command/user.getUsersInConversation",
-		log.NewValue("params", channelID),
+		"command/user.getUsersIDsInConversation",
 	)
 
 	params := slack.GetUsersInConversationParameters{
@@ -57,10 +61,9 @@ func getUsersIDsInConversation(
 	for {
 		list, cursor, err := app.Client.GetUsersInConversationContext(ctx, &params)
 		if err != nil {
-			app.Logger.Error(
+			logWriter.Error(
 				ctx,
-				"command/user.getUsersIDsInConversation",
-				log.NewValue("channelID", channelID),
+				"command/user.getUsersIDsInConversation GetUsersInConversationContext",
 				log.NewValue("error", err),
 			)
 			return nil, err
@@ -83,12 +86,21 @@ func getUsersInConversation(
 ) (*[]model.User, error) {
 	var users []model.User
 
+	logWriter := app.Logger.With(
+		log.NewValue("channelID", channelID),
+	)
+
+	logWriter.Debug(
+		ctx,
+		"command/user.getUsersInConversation",
+	)
+
 	usersIDs, err := getUsersIDsInConversation(ctx, app, channelID)
 	if err != nil {
-		app.Logger.Error(
+		logWriter.Error(
 			ctx,
 			"command/user.getUsersInConversation",
-			log.NewValue("channel_id", channelID),
+			log.Action("getUsersDIsInConversation"),
 			log.NewValue("error", err),
 		)
 		return nil, err
@@ -97,9 +109,10 @@ func getUsersInConversation(
 	for _, id := range *usersIDs {
 		user, err := getSlackUserInfo(ctx, app, id)
 		if err != nil {
-			app.Logger.Error(
+			logWriter.Error(
 				ctx,
 				"command/user.getUsersInConversation",
+				log.Action("getSlackUserInfo"),
 				log.NewValue("user_id", id),
 				log.NewValue("error", err),
 			)
@@ -118,12 +131,21 @@ func getUsersEmailsInConversation(
 ) (*[]string, error) {
 	var emails []string
 
+	logWriter := app.Logger.With(
+		log.NewValue("channelID", channelID),
+	)
+
+	logWriter.Debug(
+		ctx,
+		"command/user.getUsersEmailsInConversation",
+	)
+
 	users, err := getUsersInConversation(ctx, app, channelID)
 	if err != nil {
-		app.Logger.Error(
+		logWriter.Error(
 			ctx,
 			"command/user.getUsersEmailsInConversation",
-			log.NewValue("channel_id", channelID),
+			log.Action("getUsersInConversation"),
 			log.NewValue("error", err),
 		)
 		return nil, err

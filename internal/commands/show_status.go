@@ -244,7 +244,26 @@ func ShowStatus(
 	channelID string,
 	userID string,
 ) error {
+	err := postLoadingMessage(ctx, app, channelID, userID)
 
+	go func(ctx context.Context) {
+		postStatus(ctx, app, channelID, userID)
+	}(context.Background())
+
+	return err
+}
+
+func postLoadingMessage(ctx context.Context, app *app.App, channelID string, userID string) error {
+	return postMessageVisibleOnlyForUser(
+		ctx,
+		app,
+		channelID,
+		userID,
+		"I will fetch the status for you, this might take some seconds.",
+	)
+}
+
+func postStatus(ctx context.Context, app *app.App, channelID string, userID string) error {
 	var (
 		attachDates  slack.Attachment
 		attachStatus slack.Attachment
@@ -272,5 +291,15 @@ func ShowStatus(
 		return err
 	}
 
-	return postMessageVisibleOnlyForUser(ctx, app, channelID, userID, "", attachDates, attachStatus)
+	err = postMessageVisibleOnlyForUser(ctx, app, channelID, userID, "", attachDates, attachStatus)
+
+	if err != nil {
+		logWriter.Error(
+			ctx,
+			log.Trace(),
+			log.Action("postStatus"),
+			log.NewValue("error", err),
+		)
+	}
+	return err
 }

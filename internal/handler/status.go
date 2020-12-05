@@ -13,5 +13,9 @@ func newHandlerStatus(app *app.App) *endpoint.Endpoint {
 }
 
 func showIncidentStatus(ctx context.Context, app *app.App, slackParams endpoint.SlackParams, endpointContext *endpoint.Context) error {
-	return commands.ShowStatus(ctx, app, slackParams.ChannelID, slackParams.UserID)
+	go func(ctx context.Context) {
+		commands.ShowStatus(ctx, app, slackParams.ChannelID, slackParams.UserID)
+	}(context.Background())
+
+	return nil
 }

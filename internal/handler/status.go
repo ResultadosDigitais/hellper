@@ -1,65 +1,17 @@
 package handler
 
 import (
-	"bytes"
-	"net/http"
+	"context"
 
 	"hellper/internal/app"
 	"hellper/internal/commands"
-	"hellper/internal/log"
+	"hellper/internal/handler/endpoint"
 )
 
-type handlerStatus struct {
-	app *app.App
+func newHandlerStatus(app *app.App) *endpoint.Endpoint {
+	return endpoint.NewSlackEndpoint(app, "status", showIncidentStatus, endpoint.NewDefaultSlackErrorHandler())
 }
 
-func newHandlerStatus(app *app.App) *handlerStatus {
-	return &handlerStatus{
-		app: app,
-	}
-}
-
-func (h *handlerStatus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	var (
-		ctx = r.Context()
-
-		buf        bytes.Buffer
-		formValues []log.Value
-	)
-
-	r.ParseForm()
-	buf.ReadFrom(r.Body)
-	body := buf.String()
-	h.app.Logger.Debug(
-		ctx,
-		"handler/status.ServeHTTP",
-		log.NewValue("requestbody", body),
-	)
-
-	for key, value := range r.Form {
-		formValues = append(formValues, log.NewValue(key, value))
-	}
-	h.app.Logger.Debug(
-		ctx,
-		"handler/status.ServeHTTP Form",
-		formValues...,
-	)
-
-	channelID := r.FormValue("channel_id")
-	userID := r.FormValue("user_id")
-
-	err := commands.ShowStatus(ctx, h.app, channelID, userID)
-	if err != nil {
-		h.app.Logger.Error(
-			ctx,
-			"handler/status.ServeHTTP ShowStatus error",
-			log.NewValue("channelID", channelID),
-			log.NewValue("error", err),
-		)
-
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
+func showIncidentStatus(ctx context.Context, app *app.App, slackParams endpoint.SlackParams, endpointContext *endpoint.Context) error {
+	return commands.ShowStatus(ctx, app, slackParams.ChannelID, slackParams.UserID)
 }

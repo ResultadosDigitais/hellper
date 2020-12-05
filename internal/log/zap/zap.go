@@ -2,6 +2,7 @@ package zap
 
 import (
 	"context"
+	"hellper/internal/config"
 
 	"hellper/internal/log"
 
@@ -38,29 +39,36 @@ func NewZapLogger(level log.Level, output log.Out) (*zap.Logger, error) {
 		zapLevel  zapcore.Level
 		errLevel  = zapLevel.Set(level.String())
 		zapOutput = output.String()
+		cfg       zap.Config
 	)
 	if errLevel != nil {
 		return nil, errLevel
 	}
-	cfg := zap.Config{
-		Level:         zap.NewAtomicLevelAt(zapLevel),
-		DisableCaller: true,
-		Development:   false,
-		Encoding:      "json",
-		EncoderConfig: zapcore.EncoderConfig{
-			TimeKey:        "time",
-			LevelKey:       "level",
-			NameKey:        "logger",
-			MessageKey:     "message",
-			StacktraceKey:  "stack",
-			LineEnding:     zapcore.DefaultLineEnding,
-			EncodeLevel:    zapcore.LowercaseLevelEncoder,
-			EncodeTime:     zapcore.ISO8601TimeEncoder,
-			EncodeDuration: zapcore.StringDurationEncoder,
-		},
-		OutputPaths:      []string{zapOutput},
-		ErrorOutputPaths: []string{zapOutput},
+
+	if config.Env.Environment == "development" {
+		cfg = zap.NewDevelopmentConfig()
+	} else {
+		cfg = zap.Config{
+			Level:         zap.NewAtomicLevelAt(zapLevel),
+			DisableCaller: true,
+			Development:   false,
+			Encoding:      "json",
+			EncoderConfig: zapcore.EncoderConfig{
+				TimeKey:        "time",
+				LevelKey:       "level",
+				NameKey:        "logger",
+				MessageKey:     "message",
+				StacktraceKey:  "stack",
+				LineEnding:     zapcore.DefaultLineEnding,
+				EncodeLevel:    zapcore.LowercaseLevelEncoder,
+				EncodeTime:     zapcore.ISO8601TimeEncoder,
+				EncodeDuration: zapcore.StringDurationEncoder,
+			},
+			OutputPaths:      []string{zapOutput},
+			ErrorOutputPaths: []string{zapOutput},
+		}
 	}
+
 	return cfg.Build()
 }
 

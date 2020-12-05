@@ -262,31 +262,25 @@ func createTextBlock(text string, opts ...interface{}) *slack.TextBlockObject {
 }
 
 func createOpenCard(incident model.Incident, incidentID int64, commander *model.User) []slack.Block {
-	headerBlock := slack.NewHeaderBlock(
-		slack.NewTextBlockObject(
-			"plain_text",
-			fmt.Sprintf(":warning: Incident #%d has been opened by %s", incidentID, commander.Name),
-			true,
-			false),
-	)
+	headerText := slack.NewTextBlockObject("mrkdwn", fmt.Sprintf(":warning: *Incident #%d - %s*", incidentID, incident.Title), false, false)
+	headerBlock := slack.NewSectionBlock(headerText, nil, nil)
 
 	bodySlice := []string{}
-	bodySlice = append(bodySlice, fmt.Sprintf("*Title:* %s", incident.Title))
+
+	bodySlice = append(bodySlice, fmt.Sprintf("*Product / Service:*\t%s", incident.Product))
+	bodySlice = append(bodySlice, fmt.Sprintf("*Channel:*\t\t\t\t\t#%s", incident.ChannelName))
+	bodySlice = append(bodySlice, fmt.Sprintf("*Commander:*\t\t\t@%s", commander.DisplayName))
 
 	if incident.SeverityLevel > 0 {
-		bodySlice = append(bodySlice, fmt.Sprintf("*Severity:* %s", getSeverityLevelText(incident.SeverityLevel)))
+		bodySlice = append(bodySlice, fmt.Sprintf("*Severity:*\t\t\t\t\t%s", getSeverityLevelText(incident.SeverityLevel)))
 	}
 
-	bodySlice = append(bodySlice, fmt.Sprintf("*Product / Service:* %s", incident.Product))
-	bodySlice = append(bodySlice, fmt.Sprintf("*Channel:* #%s", incident.ChannelName))
-	bodySlice = append(bodySlice, fmt.Sprintf("*Commander:* @%s", commander.DisplayName))
-
 	if incident.MeetingURL != "" {
-		bodySlice = append(bodySlice, fmt.Sprintf("*Meeting:* <%s|access meeting room>", incident.MeetingURL))
+		bodySlice = append(bodySlice, fmt.Sprintf("*Meeting:*\t\t\t\t\t<%s|access meeting room>", incident.MeetingURL))
 	}
 
 	if incident.DescriptionStarted != "" {
-		bodySlice = append(bodySlice, fmt.Sprintf("*Description:* `%s`", incident.DescriptionStarted))
+		bodySlice = append(bodySlice, fmt.Sprintf("\n*Description:*\n%s", incident.DescriptionStarted))
 	}
 
 	dividerBlock := slack.NewDividerBlock()

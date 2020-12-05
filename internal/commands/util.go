@@ -19,7 +19,7 @@ func ping(ctx context.Context, app *app.App, channelID string) {
 		log.NewValue("channelID", channelID),
 	)
 
-	err := postMessage(app, channelID, "pong")
+	_, err := postMessage(app, channelID, "pong")
 	if err != nil {
 		logWriter.Error(
 			ctx,
@@ -35,7 +35,7 @@ func help(ctx context.Context, app *app.App, channelID string) {
 		log.NewValue("channelID", channelID),
 	)
 
-	err := postMessage(app, channelID, `
+	_, err := postMessage(app, channelID, `
 	hellper
 	A bot to help the incident treatment
 	Available commands:
@@ -117,11 +117,6 @@ func PostInfoAttachment(ctx context.Context, app *app.App, channelID string, use
 	}))
 }
 
-func postMessage(app *app.App, channel string, text string, attachments ...slack.Attachment) error {
-	_, _, err := app.Client.PostMessage(channel, slack.MsgOptionText(text, false), slack.MsgOptionAttachments(attachments...))
-	return err
-}
-
 func postMessageVisibleOnlyForUser(
 	ctx context.Context, app *app.App, channel string, userID string, text string, attachments ...slack.Attachment,
 ) error {
@@ -137,16 +132,37 @@ func postMessageVisibleOnlyForUser(
 }
 
 func postAndPinMessage(app *app.App, channel string, text string, attachment ...slack.Attachment) error {
-	channelID, timestamp, postErr := app.Client.PostMessage(channel, slack.MsgOptionText(text, false), slack.MsgOptionAttachments(attachment...))
+	msgRef, err := postMessage(app, channel, text, attachment...)
+	if err != nil {
+		return err
+	}
 
-	// Grab a reference to the message.
+	return pinMessage(app, channel, *msgRef)
+}
+
+func postMessage(app *app.App, channelID string, text string, attachments ...slack.Attachment) (*slack.ItemRef, error) {
+	return postGenericMessage(
+		app,
+		channelID,
+		text,
+		slack.MsgOptionText(text, false),
+		slack.MsgOptionAttachments(attachments...),
+	)
+}
+
+func postGenericMessage(app *app.App, channel string, text string, msgOptions ...slack.MsgOption) (*slack.ItemRef, error) {
+	channelID, timestamp, err := app.Client.PostMessage(channel, msgOptions...)
+	if err != nil {
+		return nil, err
+	}
+
 	msgRef := slack.NewRefToMessage(channelID, timestamp)
 
-	// Add message pin to channel
-	if postErr = app.Client.AddPin(channelID, msgRef); postErr != nil {
-		return postErr
-	}
-	return nil
+	return &msgRef, nil
+}
+
+func pinMessage(app *app.App, channelID string, msgRef slack.ItemRef) error {
+	return app.Client.AddPin(channelID, msgRef)
 }
 
 func convertTimestamp(timestamp string) (time.Time, error) {

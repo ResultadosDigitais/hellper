@@ -14,6 +14,7 @@ var (
 	eventsHandler      http.Handler
 	interactiveHandler http.Handler
 	statusHandler      http.Handler
+	addStatusHandler   http.Handler
 	closeHandler       http.Handler
 	cancelHandler      http.Handler
 	resolveHandler     http.Handler
@@ -27,6 +28,7 @@ func init() {
 	eventsHandler = newHandlerEvents(&dependencies)
 	interactiveHandler = newHandlerInteractive(&dependencies)
 	statusHandler = newHandlerStatus(&dependencies)
+	addStatusHandler = newHandlerAddStatus(&dependencies)
 	datesHandler = newHandlerDates(&dependencies)
 	closeHandler = newHandlerClose(&dependencies)
 	cancelHandler = newHandlerCancel(&dependencies)
@@ -54,6 +56,8 @@ func NewHandlerRoute() func(http.ResponseWriter, *http.Request) {
 			bot.VerifyRequests(r, w, interactiveHandler)
 		case "status":
 			bot.VerifyRequests(r, w, statusHandler)
+		case "add-status":
+			bot.VerifyRequests(r, w, addStatusHandler)
 		case "dates":
 			bot.VerifyRequests(r, w, datesHandler)
 		case "close":

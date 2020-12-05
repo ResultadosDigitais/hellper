@@ -181,7 +181,7 @@ func ResolveIncidentByDialog(
 	})
 	if notifyOnResolve {
 		concurrence.WithWaitGroup(&waitgroup, func() {
-			postAndPinMessage(
+			postMessage(
 				app,
 				productChannelID,
 				message,

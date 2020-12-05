@@ -215,7 +215,7 @@ func sendNotification(ctx context.Context, app *app.App, incident model.Incident
 		log.Action("postMessage"),
 	)
 
-	_, err := postMessage(app, incident.ChannelID, statusNotify(incident))
+	_, _, err := postMessage(app, incident.ChannelID, statusNotify(incident))
 
 	if err != nil {
 		logWriter.Error(

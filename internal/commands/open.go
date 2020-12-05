@@ -227,7 +227,7 @@ func StartIncidentByDialog(
 		postAndPinMessage(app, channel.ID, message, attachment)
 	})
 	concurrence.WithWaitGroup(&waitgroup, func() {
-		postAndPinMessage(app, productChannelID, message, attachment)
+		postMessage(app, productChannelID, message, attachment)
 	})
 
 	shouldWritePostMortem := app.FileStorage != nil

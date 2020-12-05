@@ -212,7 +212,7 @@ func CloseIncidentByDialog(ctx context.Context, app *app.App, incidentDetails bo
 
 	if notifyOnClose {
 		concurrence.WithWaitGroup(&waitgroup, func() {
-			postAndPinMessage(
+			postMessage(
 				app,
 				productChannelID,
 				message,

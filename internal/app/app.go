@@ -10,6 +10,7 @@ import (
 	"hellper/internal/config"
 	filestorage "hellper/internal/file_storage"
 	googledrive "hellper/internal/file_storage/google_drive"
+	"hellper/internal/invitation"
 	"hellper/internal/log"
 	"hellper/internal/log/zap"
 	"hellper/internal/model"
@@ -22,8 +23,11 @@ type App struct {
 	Client             bot.Client
 	IncidentRepository model.IncidentRepository
 	ServiceRepository  model.ServiceRepository
+	TeamRepository     model.TeamRepository
+	PersonRepository   model.PersonRepository
 	FileStorage        filestorage.Driver
 	Calendar           calendar.Calendar
+	Inviter            invitation.Inviter
 }
 
 func NewApp() App {
@@ -31,11 +35,19 @@ func NewApp() App {
 	logger := NewLogger()
 	defer logger.Info(ctx, "Application configured")
 
+	db := NewDatabase(ctx, logger)
+	teamRepository := NewTeamRepository(ctx, logger, db)
+	personRepository := NewPersonRepository(ctx, logger, db)
+	client := NewClient(ctx, logger)
+
 	return App{
 		Logger:             logger,
-		Client:             NewClient(ctx, logger),
-		IncidentRepository: NewIncidentRepository(ctx, logger),
-		ServiceRepository:  NewServiceRepository(ctx, logger),
+		Client:             client,
+		IncidentRepository: NewIncidentRepository(ctx, logger, db),
+		ServiceRepository:  NewServiceRepository(ctx, logger, db),
+		TeamRepository:     teamRepository,
+		PersonRepository:   personRepository,
+		Inviter:            NewInviter(ctx, logger, client, teamRepository, personRepository),
 		FileStorage:        NewFileStorage(ctx, logger),
 		Calendar:           NewCalendar(ctx, logger),
 	}
@@ -71,40 +83,52 @@ func NewClient(ctx context.Context, logger log.Logger) bot.Client {
 	}
 }
 
-// NewIncidentRepository creates a new connection with the database for incidents
-func NewIncidentRepository(ctx context.Context, logger log.Logger) model.IncidentRepository {
+// NewDatabase creates a mew database connection
+func NewDatabase(ctx context.Context, logger log.Logger) sql.DB {
 	configuredDatabase := config.Env.Database
-	logger.Debug(ctx, fmt.Sprintf(
-		"internal.NewIncidentRepository initializing incident database connection: %s", configuredDatabase,
+	logger.Info(ctx, fmt.Sprintf(
+		"internal.NewDatabase initializing database connection: %s", configuredDatabase,
 	))
 	switch configuredDatabase {
 	case DatabasePostgres:
-		db := sql.NewDBWithDSN(config.Env.Database, config.Env.DSN)
-		return postgres.NewIncidentRepository(logger, db)
+		return sql.NewDBWithDSN(config.Env.Database, config.Env.DSN)
 	default:
 		panic(fmt.Sprintf(
-			"internal.NewIncidentRepository invalid database option: option=%s valid_options=[%s]\n",
+			"internal.NewDatabase invalid database option: option=%s valid_options=[%s]\n",
 			configuredDatabase, DatabasePostgres,
 		))
 	}
 }
 
+// NewIncidentRepository creates a new connection with the database for incidents
+func NewIncidentRepository(ctx context.Context, logger log.Logger, db sql.DB) model.IncidentRepository {
+	return postgres.NewIncidentRepository(logger, db)
+}
+
 // NewServiceRepository creates a new connection with the database for services
-func NewServiceRepository(ctx context.Context, logger log.Logger) model.ServiceRepository {
-	configuredDatabase := config.Env.Database
-	logger.Debug(ctx, fmt.Sprintf(
-		"internal.NewServiceRepository initializing service database connection: %s", configuredDatabase,
-	))
-	switch configuredDatabase {
-	case DatabasePostgres:
-		db := sql.NewDBWithDSN(config.Env.Database, config.Env.DSN)
-		return postgres.NewServiceRepository(logger, db)
-	default:
-		panic(fmt.Sprintf(
-			"internal.NewServiceRepository invalid database option: option=%s valid_options=[%s]\n",
-			configuredDatabase, DatabasePostgres,
-		))
-	}
+func NewServiceRepository(ctx context.Context, logger log.Logger, db sql.DB) model.ServiceRepository {
+	return postgres.NewServiceRepository(logger, db)
+}
+
+// NewPersonRepository creates a new connection with the database for persons
+func NewPersonRepository(ctx context.Context, logger log.Logger, db sql.DB) model.PersonRepository {
+	return postgres.NewPersonRepository(logger, db)
+}
+
+// NewTeamRepository creates a new connection with the database for teams
+func NewTeamRepository(ctx context.Context, logger log.Logger, db sql.DB) model.TeamRepository {
+	return postgres.NewTeamRepository(logger, db)
+}
+
+func NewInviter(
+	ctx context.Context,
+	logger log.Logger,
+	client bot.Client,
+	teamRepository model.TeamRepository,
+	personRepository model.PersonRepository,
+) invitation.Inviter {
+	logger.Info(ctx, "internal.NewInviter initializing inviter")
+	return invitation.NewInviter(logger, client, teamRepository, personRepository)
 }
 
 // NewFileStorage creates a new connection with the file storage for postmortem document

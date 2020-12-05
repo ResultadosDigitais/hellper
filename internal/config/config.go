@@ -48,8 +48,8 @@ type environment struct {
 	NotifyOnResolve               bool
 	NotifyOnClose                 bool
 	NotifyOnCancel                bool
-	ProductList                   string
 	Timezone                      string
+	InvitationStrategy            string
 }
 
 func newEnvironment() environment {
@@ -100,6 +100,7 @@ func newEnvironment() environment {
 	vars.BoolVar(&env.NotifyOnClose, "hellper_notify_on_close", true, "Notify the Product channel when close the incident")
 	vars.BoolVar(&env.NotifyOnCancel, "hellper_notify_on_cancel", true, "Notify the Product channel when cancel the incident")
 	vars.StringVar(&env.Timezone, "hellper_timezone", "America/Sao_Paulo", "The local time of a region or a country used to create a event.")
+	vars.StringVar(&env.InvitationStrategy, "hellper_invitation_strategy", "invite_all", "Strategy to be used when inviting stakeholders to slack channel")
 
 	vars.Parse()
 

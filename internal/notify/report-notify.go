@@ -27,7 +27,7 @@ func reportNotify(ctx context.Context) {
 		return
 	}
 
-	repository := internal.NewRepository(logger)
+	repository := internal.NewIncidentRepository(logger)
 
 	incidents, err := repository.ListActiveIncidents(ctx)
 	if err != nil {

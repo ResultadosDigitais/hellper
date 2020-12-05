@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS public.team (
 
 CREATE TABLE IF NOT EXISTS public.person (
     email text NOT NULL primary key,
-    slack_member_id text NOT NULL,
+    slack_member_id text,
     created_at timestamp not null DEFAULT now()
 );
 

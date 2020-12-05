@@ -32,6 +32,7 @@ func init() {
 	cancelHandler = newHandlerCancel(&dependencies)
 	resolveHandler = newHandlerResolve(&dependencies)
 	pauseNotifyHandler = newHandlerPauseNotify(&dependencies)
+
 	// commands.StartAllReminderJobs(dependencies.Logger, dependencies.Client, dependencies.IncidentRepository)
 }
 

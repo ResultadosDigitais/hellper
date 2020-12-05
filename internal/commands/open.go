@@ -277,20 +277,18 @@ func StartIncidentByDialog(
 		return err
 	}
 
-	_, err = app.Client.InviteUsersToConversationContext(ctx, channel.ID, commander)
+	strategy, err := app.Inviter.CreateStrategy(config.Env.InvitationStrategy)
 	if err != nil {
 		app.Logger.Error(
 			ctx,
-			log.Trace(),
-			log.Reason("InviteUsersToConversationContext"),
-			log.NewValue("channel.ID", channel.ID),
-			log.NewValue("commander", commander),
-			log.NewValue("error", err),
+			"Could not find strategy",
+			log.NewValue("StrategyName", config.Env.InvitationStrategy),
+			log.NewValue("Error", err),
 		)
 		return err
 	}
 
-	return nil
+	return app.Inviter.InviteStakeholders(ctx, incident, strategy)
 }
 
 func fillTopic(

@@ -24,9 +24,10 @@ type openCommandFixture struct {
 	mockClient             bot.Client
 	mockIncidentRepository model.IncidentRepository
 	mockServiceRepository  model.ServiceRepository
-	mockFilestorage        filestorage.Driver
-	triggerID              string
-	mockDialogSubmission   bot.DialogSubmission
+
+	mockFilestorage      filestorage.Driver
+	triggerID            string
+	mockDialogSubmission bot.DialogSubmission
 }
 
 func (f *openCommandFixture) setup(t *testing.T) {

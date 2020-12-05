@@ -163,6 +163,7 @@ After [Configuring Slack](/docs/CONFIGURING-SLACK.md) you can use the commands c
 | Command  | Short Description |
 | - | - |
 |`/incident`|_Start incident_|
+|`/incident_add_status`|_Add status message to incident_|
 |`/incident_status`|_Show all pinned messages_|
 |`/incident_edit`|_Edit incident information_|
 |`/incident_resolve`|_Resolve Incident_|

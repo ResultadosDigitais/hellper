@@ -18,8 +18,6 @@ import (
 	"github.com/slack-go/slack"
 )
 
-var patternStringDate = "2013-04-01 22:43"
-
 // ResolveIncidentDialog opens a dialog on Slack, so the user can resolve an incident
 func ResolveIncidentDialog(app *app.App, triggerID string) error {
 	description := &slack.TextInputElement{
@@ -35,7 +33,7 @@ func ResolveIncidentDialog(app *app.App, triggerID string) error {
 
 	postMortemMeeting := &slack.DialogInputSelect{
 		DialogInput: slack.DialogInput{
-			Label:       "Should I schedule a Post Mortem meeting?",
+			Label:       "Should I Schedule a Post Mortem Meeting?",
 			Name:        "post_mortem_meeting",
 			Type:        "select",
 			Placeholder: "Post Mortem Meeting",
@@ -92,8 +90,8 @@ func ResolveIncidentByDialog(
 		userID            = incidentDetails.User.ID
 		userName          = incidentDetails.User.Name
 		submissions       = incidentDetails.Submission
-		description       = submissions.IncidentDescription
-		postMortemMeeting = submissions.PostMortemMeeting
+		description       = submissions["incident_description"]
+		postMortemMeeting = submissions["post_mortem_meeting"]
 		notifyOnResolve   = config.Env.NotifyOnResolve
 		productChannelID  = config.Env.ProductChannelID
 
@@ -101,7 +99,7 @@ func ResolveIncidentByDialog(
 	)
 
 	incident := model.Incident{
-		ChannelId:           channelID,
+		ChannelID:           channelID,
 		EndTimestamp:        &now,
 		DescriptionResolved: description,
 	}
@@ -168,7 +166,7 @@ func ResolveIncidentByDialog(
 
 	channelAttachment := createResolveChannelAttachment(inc, userName, calendarEvent)
 	privateAttachment := createResolvePrivateAttachment(incident, calendarEvent)
-	message := "The Incident <#" + incident.ChannelId + "> has been resolved by <@" + userName + ">"
+	message := "The Incident <#" + incident.ChannelID + "> has been resolved by <@" + userName + ">"
 
 	var waitgroup sync.WaitGroup
 	defer waitgroup.Wait()
@@ -183,7 +181,7 @@ func ResolveIncidentByDialog(
 	})
 	if notifyOnResolve {
 		concurrence.WithWaitGroup(&waitgroup, func() {
-			postAndPinMessage(
+			postMessage(
 				app,
 				productChannelID,
 				message,
@@ -293,7 +291,7 @@ func createResolveChannelAttachment(inc model.Incident, userName string, event *
 		messageText       strings.Builder
 	)
 
-	messageText.WriteString("The Incident <#" + inc.ChannelId + "> has been resolved by <@" + userName + ">\n\n")
+	messageText.WriteString("The Incident <#" + inc.ChannelID + "> has been resolved by <@" + userName + ">\n\n")
 	messageText.WriteString("*End date:* <#" + endDateText + ">\n")
 	messageText.WriteString("*Description:* `" + inc.DescriptionResolved + "`\n")
 	if event == nil {
@@ -312,11 +310,11 @@ func createResolveChannelAttachment(inc model.Incident, userName string, event *
 		Fields: []slack.AttachmentField{
 			{
 				Title: "Incident ID",
-				Value: strconv.FormatInt(inc.Id, 10),
+				Value: strconv.FormatInt(inc.ID, 10),
 			},
 			{
 				Title: "Incident Channel",
-				Value: "<#" + inc.ChannelId + ">",
+				Value: "<#" + inc.ChannelID + ">",
 			},
 			{
 				Title: "Incident Title",
@@ -344,7 +342,7 @@ func createResolvePrivateAttachment(inc model.Incident, event *model.Event) slac
 		privateText       strings.Builder
 	)
 
-	privateText.WriteString("The Incident <#" + inc.ChannelId + "> has been resolved by you\n\n")
+	privateText.WriteString("The Incident <#" + inc.ChannelID + "> has been resolved by you\n\n")
 	if event == nil {
 		privateText.WriteString("*Post Mortem:* A Post Mortem Meeting was not scheduled, but be sure to fill up the Post Mortem document.\n")
 		postMortemMessage = "A Post Mortem Meeting was not scheduled, but be sure to fill up the Post Mortem document."
@@ -354,7 +352,7 @@ func createResolvePrivateAttachment(inc model.Incident, event *model.Event) slac
 	}
 
 	return slack.Attachment{
-		Pretext:  "The Incident <#" + inc.ChannelId + "> has been resolved by you",
+		Pretext:  "The Incident <#" + inc.ChannelID + "> has been resolved by you",
 		Fallback: privateText.String(),
 		Text:     "",
 		Color:    "#1164A3",

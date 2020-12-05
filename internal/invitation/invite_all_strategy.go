@@ -22,7 +22,7 @@ func (s *inviteAllStrategy) GetStakeholders(
 ) ([]*stakeholder, error) {
 	allStakeholders := make([]*stakeholder, 0)
 
-	commander := stakeholder{slackID: incident.CommanderId, email: incident.CommanderEmail}
+	commander := stakeholder{slackID: incident.CommanderID, email: incident.CommanderEmail}
 	allStakeholders = append(allStakeholders, &commander)
 
 	ownerTeamMembers, err := s.getOwnerTeamMembers(ctx, serviceInstance, teamRepository)

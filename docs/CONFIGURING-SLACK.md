@@ -40,6 +40,7 @@
 | Command  | Request URL | Short Description |
 | - | - | - |
 |`/incident`|<https://yourhost.publicaddress.com/open>|_Start incident_|
+|`/incident_add_status`|<https://yourhost.publicaddress.com/add-status>|_Add status message to incident_|
 |`/incident_status`|<https://yourhost.publicaddress.com/status>|_Show all pinned messages_|
 |`/incident_edit`|<https://yourhost.publicaddress.com/edit>|_Edit incident information_|
 |`/incident_resolve`|<https://yourhost.publicaddress.com/resolve>|_Resolves incident_|

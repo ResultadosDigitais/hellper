@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS public.incident (
 	description_resolved text NULL,
 	description_cancelled text NULL,
 	root_cause text NULL,
+	meeting_url text NULL,
 	post_mortem_url text NULL,
 	severity_level int4 NULL,
 	start_ts timestamptz NULL,

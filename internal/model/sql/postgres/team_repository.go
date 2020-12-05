@@ -109,8 +109,8 @@ func (r *teamRepository) getServiceInstanceIDFromName(ctx context.Context, name 
 		)
 		return -1, err
 	}
-	serviceName := names[0]
-	serviceInstanceName := names[1]
+	serviceName := strings.TrimSpace(names[0])
+	serviceInstanceName := strings.TrimSpace(names[1])
 
 	query := `
 		SELECT

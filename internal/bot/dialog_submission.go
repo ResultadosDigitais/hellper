@@ -33,7 +33,6 @@ type Submission struct {
 	ChannelName         string `json:"channel_name"`
 	IncidentRoomURL     string `json:"incident_room_url"`
 	SeverityLevel       string `json:"severity_level"`
-	Responsibility      string `json:"responsibility"`
 	Product             string `json:"product"`
 	IncidentCommander   string `json:"incident_commander"`
 	IncidentDescription string `json:"incident_description"`
@@ -47,6 +46,4 @@ type Submission struct {
 	Impact              string `json:"impact"`
 	StatusIO            string `json:"status_io"`
 	PostMortemMeeting   string `json:"post_mortem_meeting"`
-	PauseNotifyTime     string `json:"pause_notify_time"`
-	PauseNotifyReason   string `json:"pause_notify_reason"`
 }

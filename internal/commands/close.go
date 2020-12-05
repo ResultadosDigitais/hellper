@@ -17,6 +17,8 @@ import (
 	"github.com/slack-go/slack"
 )
 
+const dateLayout = "02/01/2006 15:04:05"
+
 // CloseIncidentDialog opens a dialog on Slack, so the user can close an incident
 func CloseIncidentDialog(ctx context.Context, app *app.App, channelID, userID, triggerID string) error {
 	inc, err := app.IncidentRepository.GetIncident(ctx, channelID)

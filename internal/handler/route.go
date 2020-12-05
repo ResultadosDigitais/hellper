@@ -18,8 +18,6 @@ var (
 	closeHandler       http.Handler
 	cancelHandler      http.Handler
 	resolveHandler     http.Handler
-	datesHandler       http.Handler
-	pauseNotifyHandler http.Handler
 )
 
 func init() {
@@ -29,11 +27,9 @@ func init() {
 	interactiveHandler = newHandlerInteractive(&dependencies)
 	statusHandler = newHandlerStatus(&dependencies)
 	addStatusHandler = newHandlerAddStatus(&dependencies)
-	datesHandler = newHandlerDates(&dependencies)
 	closeHandler = newHandlerClose(&dependencies)
 	cancelHandler = newHandlerCancel(&dependencies)
 	resolveHandler = newHandlerResolve(&dependencies)
-	pauseNotifyHandler = newHandlerPauseNotify(&dependencies)
 
 	// commands.StartAllReminderJobs(dependencies.Logger, dependencies.Client, dependencies.IncidentRepository)
 }
@@ -58,16 +54,12 @@ func NewHandlerRoute() func(http.ResponseWriter, *http.Request) {
 			bot.VerifyRequests(r, w, statusHandler)
 		case "add-status":
 			bot.VerifyRequests(r, w, addStatusHandler)
-		case "dates":
-			bot.VerifyRequests(r, w, datesHandler)
 		case "close":
 			bot.VerifyRequests(r, w, closeHandler)
 		case "cancel":
 			bot.VerifyRequests(r, w, cancelHandler)
 		case "resolve":
 			bot.VerifyRequests(r, w, resolveHandler)
-		case "pause-notify":
-			bot.VerifyRequests(r, w, pauseNotifyHandler)
 		default:
 			fmt.Fprintf(w, "invalid path, %s!", lastPath)
 			w.WriteHeader(http.StatusBadRequest)

@@ -100,10 +100,10 @@ func (r *teamRepository) GetUsersOfServiceInstance(ctx context.Context, serviceI
 func (r *teamRepository) getServiceInstanceIDFromName(ctx context.Context, name string) (int64, error) {
 	names := strings.Split(name, "/")
 	if len(names) < 2 {
-		err := errors.New("Unable to parse instance name #" + name)
+		err := errors.New("Unable to parse instance name " + name)
 		r.logger.Error(
 			ctx,
-			"postgres/incident-repository.GetServiceInstanceOwnerTeamName ERROR",
+			"postgres/incident-repository.getServiceInstanceIDFromName ERROR",
 			log.NewValue("instanceName", name),
 			log.NewValue("error", err),
 		)
@@ -122,7 +122,7 @@ func (r *teamRepository) getServiceInstanceIDFromName(ctx context.Context, name 
 
 	rows, err := r.db.Query(query, serviceName, serviceInstanceName)
 	if err != nil {
-		r.logger.Error(ctx, "Error while executing query GetOwnersByServiceInstance", log.NewValue("error", err))
+		r.logger.Error(ctx, "Error while executing query getServiceInstanceIDFromName", log.NewValue("error", err))
 		return -1, err
 	}
 

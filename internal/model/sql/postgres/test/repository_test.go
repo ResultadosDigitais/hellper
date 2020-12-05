@@ -16,14 +16,13 @@ func TestCloseIncidentTest(t *testing.T) {
 
 	// now := time.Now()
 	// channelID := "channelID test"
-	// responsibility := "responsibility test"
 	// team := "team test"
 	// rootCause := "rootCause test"
 	// feature := "feature test"
 	// startDate := time.Now()
 	// impact := int64(2)
 	// severly := int64(3)
-	// err = rep.CloseIncident(channelID, responsibility, rootCause, feature, team, impact, severly, startDate)
+	// err = rep.CloseIncident(channelID, rootCause, feature, team, impact, severly, startDate)
 	// if err != nil {
 	// 	t.Fatal(err)
 	// }
@@ -34,8 +33,7 @@ func TestCloseIncidentTest(t *testing.T) {
 	// 	t.Fatal(err)
 	// }
 
-	// if incDb.CustomerImpact != impact ||
-	// 	incDb.SeverityLevel != severly ||
+	// if incDb.SeverityLevel != severly ||
 	// 	incDb.StartTimestamp.Equal(now) {
 	// 	t.Fatal("Not updated states in database")
 	// }

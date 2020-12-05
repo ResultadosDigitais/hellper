@@ -64,10 +64,6 @@ func processEvent(
 		return commands.StartIncidentByDialog(ctx, app, dialogSubmission)
 	case "inc-resolve":
 		return commands.ResolveIncidentByDialog(ctx, app, dialogSubmission)
-	case "inc-dates":
-		return commands.UpdateDatesByDialog(ctx, app, dialogSubmission)
-	case "inc-pausenotify":
-		return commands.PauseNotifyIncidentByDialog(ctx, app, dialogSubmission)
 	default:
 		commands.PostErrorAttachment(
 			ctx,

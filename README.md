@@ -162,13 +162,12 @@ After [Configuring Slack](/docs/CONFIGURING-SLACK.md) you can use the commands c
 
 | Command  | Short Description |
 | - | - |
-|`/hellper_incident`|_Starts Incident_|
-|`/hellper_status`|_Show all pinned messages_|
-|`/hellper_close`|_Closes Incident_|
-|`/hellper_resolve`|_Resolves Incident_|
-|`/hellper_cancel`|_Cancels Incident_|
-|`/hellper_pause_notify`|_Pauses incident notification_|
-|`/hellper_update_dates`|_Updates the dates for an incident_|
+|`/incident`|_Start incident_|
+|`/incident_status`|_Show all pinned messages_|
+|`/incident_edit`|_Edit incident information_|
+|`/incident_resolve`|_Resolve Incident_|
+|`/incident_close`|_Close Incident_|
+|`/incident_cancel`|_Cancel Incident_|
 
 The first command `/hellper_incident` can be use at any channel and/or conversation on Slack. It will open a pop-up for the user to set and start an Incident, creating the channel, meeting room link and post-mortem doc.
 

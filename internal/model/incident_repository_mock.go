@@ -59,13 +59,3 @@ func (mock *IncidentRepositoryMock) ResolveIncident(ctx context.Context, inc *In
 	args := mock.Called(ctx, inc)
 	return args.Error(0)
 }
-
-func (mock *IncidentRepositoryMock) UpdateIncidentDates(ctx context.Context, inc *Incident) error {
-	args := mock.Called(ctx, inc)
-	return args.Error(0)
-}
-
-func (mock *IncidentRepositoryMock) PauseNotifyIncident(ctx context.Context, inc *Incident) error {
-	args := mock.Called(ctx, inc)
-	return args.Error(0)
-}

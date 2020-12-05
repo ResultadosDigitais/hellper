@@ -13,10 +13,11 @@ import (
 	"github.com/slack-go/slack"
 )
 
+const dateLayout = "02/01/2006 15:04:05"
+
 // UpdateDatesDialog opens a dialog on Slack, so the user can update the dates of an incident
 func UpdateDatesDialog(ctx context.Context, app *app.App, channelID string, userID string, triggerID string) error {
 	var (
-		dateLayout          = "02/01/2006 15:04:05"
 		initValue           = ""
 		identificationValue = ""
 		endValue            = ""

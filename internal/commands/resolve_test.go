@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"hellper/internal/app"
 	"hellper/internal/bot"
 	calendar "hellper/internal/calendar"
 	"hellper/internal/commands"
@@ -22,11 +23,11 @@ type resolveCommandFixture struct {
 	expectError  bool
 	errorMessage string
 
-	ctx            context.Context
-	mockLogger     log.Logger
-	mockClient     bot.Client
-	mockRepository model.IncidentRepository
-	mockCalendar   calendar.Calendar
+	ctx                    context.Context
+	mockLogger             log.Logger
+	mockClient             bot.Client
+	mockIncidentRepository model.IncidentRepository
+	mockCalendar           calendar.Calendar
 
 	triggerID       string
 	channelID       string
@@ -112,7 +113,7 @@ func (f *resolveCommandFixture) setup(t *testing.T) {
 
 	f.mockLogger = loggerMock
 	f.mockClient = clientMock
-	f.mockRepository = repositoryMock
+	f.mockIncidentRepository = repositoryMock
 	f.mockCalendar = calendarMock
 }
 
@@ -128,7 +129,7 @@ func TestResolveIncidentDialog(t *testing.T) {
 		t.Run(fmt.Sprintf("%v-%v", index, f.testName), func(t *testing.T) {
 			f.setup(t)
 
-			err := commands.ResolveIncidentDialog(f.mockClient, f.triggerID)
+			err := commands.ResolveIncidentDialog(&app.App{Client: f.mockClient}, f.triggerID)
 
 			if f.expectError {
 				if err == nil {
@@ -181,7 +182,16 @@ func TestResolveIncidentByDialog(t *testing.T) {
 		t.Run(fmt.Sprintf("%v-%v", index, f.testName), func(t *testing.T) {
 			f.setup(t)
 
-			err := commands.ResolveIncidentByDialog(f.ctx, f.mockClient, f.mockLogger, f.mockRepository, f.mockCalendar, f.incidentDetails)
+			err := commands.ResolveIncidentByDialog(
+				f.ctx,
+				&app.App{
+					Logger:             f.mockLogger,
+					Client:             f.mockClient,
+					IncidentRepository: f.mockIncidentRepository,
+					Calendar:           f.mockCalendar,
+				},
+				f.incidentDetails,
+			)
 
 			if f.expectError {
 				if err == nil {

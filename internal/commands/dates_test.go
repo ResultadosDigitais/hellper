@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"hellper/internal/app"
 	"hellper/internal/bot"
 	"hellper/internal/log"
 	"hellper/internal/model"
@@ -21,10 +22,10 @@ type datesCommandFixture struct {
 	expectError  bool
 	errorMessage string
 
-	ctx            context.Context
-	mockLogger     log.Logger
-	mockClient     bot.Client
-	mockrepository model.IncidentRepository
+	ctx                    context.Context
+	mockLogger             log.Logger
+	mockClient             bot.Client
+	mockIncidentRepository model.IncidentRepository
 
 	mockIncident             model.Incident
 	getIncidentError         error
@@ -57,7 +58,7 @@ func (f *datesCommandFixture) setup(t *testing.T) {
 
 	f.mockLogger = loggerMock
 	f.mockClient = clientMock
-	f.mockrepository = repositoryMock
+	f.mockIncidentRepository = repositoryMock
 }
 
 func TestUpdateDatesDialog(t *testing.T) {
@@ -84,7 +85,15 @@ func TestUpdateDatesDialog(t *testing.T) {
 		t.Run(fmt.Sprintf("%v-%v", index, f.testName), func(t *testing.T) {
 			f.setup(t)
 
-			err := UpdateDatesDialog(f.ctx, f.mockLogger, f.mockClient, f.mockrepository, f.channelID, f.userID, f.triggerID)
+			err := UpdateDatesDialog(
+				f.ctx,
+				&app.App{
+					Logger:             f.mockLogger,
+					Client:             f.mockClient,
+					IncidentRepository: f.mockIncidentRepository,
+				},
+				f.channelID, f.userID, f.triggerID,
+			)
 
 			if f.expectError {
 				if err == nil {
@@ -164,7 +173,15 @@ func TestUpdateDatesByDialog(t *testing.T) {
 		t.Run(fmt.Sprintf("%v-%v", index, f.testName), func(t *testing.T) {
 			f.setup(t)
 
-			err := UpdateDatesByDialog(f.ctx, f.mockClient, f.mockLogger, f.mockrepository, f.incidentDetails)
+			err := UpdateDatesByDialog(
+				f.ctx,
+				&app.App{
+					Logger:             f.mockLogger,
+					Client:             f.mockClient,
+					IncidentRepository: f.mockIncidentRepository,
+				},
+				f.incidentDetails,
+			)
 
 			if f.expectError {
 				if err == nil {

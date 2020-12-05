@@ -34,7 +34,7 @@ func OpenStartIncidentDialog(ctx context.Context, app *app.App, triggerID string
 	// the open command will fail and will give no feedback whatsoever for the user.
 	for len(services) < minimumNumberServices {
 		services = append(services, &model.ServiceInstance{
-			ID:   0,
+			ID:   "-",
 			Name: "-",
 		})
 	}
@@ -42,7 +42,7 @@ func OpenStartIncidentDialog(ctx context.Context, app *app.App, triggerID string
 	for _, service := range services {
 		serviceList = append(serviceList, slack.DialogSelectOption{
 			Label: service.Name,
-			Value: fmt.Sprintf("%d", service.ID),
+			Value: service.Name,
 		})
 	}
 

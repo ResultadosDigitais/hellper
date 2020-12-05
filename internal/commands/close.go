@@ -2,12 +2,12 @@ package commands
 
 import (
 	"context"
-	"database/sql"
 	"hellper/internal/app"
 	"hellper/internal/concurrence"
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"hellper/internal/bot"
 	"hellper/internal/config"
@@ -33,34 +33,26 @@ func CloseIncidentDialog(ctx context.Context, app *app.App, channelID, userID, t
 		return err
 	}
 
-	if inc.StartTimestamp == nil {
-		var (
-			messageText strings.Builder
-		)
-
-		messageText.WriteString("The dates of Incident <#" + inc.ChannelId + "> have not been updated yet.\n" +
-			"Please, call the command `/hellper_update_dates` to receive the current dates and update each one.")
-
-		attch := slack.Attachment{
-			Pretext:  "",
-			Fallback: messageText.String(),
-			Text: "The dates of Incident <#" + inc.ChannelId + "> have not been updated yet.\n" +
-				"Please, call the command `/hellper_update_dates` to receive the current dates and update each one.",
-			Color:  "#ff8c00",
-			Fields: []slack.AttachmentField{},
-		}
-
-		return postMessage(app, channelID, "", attch)
-	}
-
-	feature := &slack.TextInputElement{
+	rootCause := &slack.TextInputElement{
 		DialogInput: slack.DialogInput{
-			Label:       "Feature",
-			Name:        "feature",
-			Type:        "text",
-			Placeholder: "Feature",
+			Label:       "Root Cause",
+			Name:        "root_cause",
+			Type:        "textarea",
+			Placeholder: "Incident root cause description.",
 			Optional:    false,
 		},
+		MaxLength: 500,
+	}
+	startDate := &slack.TextInputElement{
+		DialogInput: slack.DialogInput{
+			Label:       "Incident start date (UTC)",
+			Name:        "init_date",
+			Type:        "text",
+			Placeholder: dateLayout,
+			Hint:        "The time is in format " + dateLayout + " and UTC timezone",
+			Optional:    false,
+		},
+		Value: "",
 	}
 	severityLevel := &slack.DialogInputSelect{
 		DialogInput: slack.DialogInput{
@@ -68,7 +60,7 @@ func CloseIncidentDialog(ctx context.Context, app *app.App, channelID, userID, t
 			Name:        "severity_level",
 			Type:        "select",
 			Placeholder: "Set the severity level",
-			Optional:    false,
+			Optional:    true,
 		},
 		Options: []slack.DialogSelectOption{
 			{
@@ -90,70 +82,21 @@ func CloseIncidentDialog(ctx context.Context, app *app.App, channelID, userID, t
 		},
 		OptionGroups: []slack.DialogOptionGroup{},
 	}
-	responsibility := &slack.DialogInputSelect{
-		DialogInput: slack.DialogInput{
-			Label:       "Responsibility",
-			Name:        "responsibility",
-			Type:        "select",
-			Placeholder: "Set the responsible",
-			Optional:    false,
-		},
-		Value: "0",
-		Options: []slack.DialogSelectOption{
-			{
-				Label: "Product",
-				Value: "0",
-			},
-			{
-				Label: "Third-Party",
-				Value: "1",
-			},
-		},
-		OptionGroups: []slack.DialogOptionGroup{},
+
+	dialogElements := []slack.DialogElement{
+		rootCause,
 	}
-	team := &slack.TextInputElement{
-		DialogInput: slack.DialogInput{
-			Label:       "Owner team",
-			Name:        "owner_team",
-			Type:        "text",
-			Placeholder: "Team (i.e. Mushin, Hydra, POPE)",
-			Optional:    false,
-		},
+	if inc.StartTimestamp == nil {
+		dialogElements = append(dialogElements, startDate)
 	}
-	rootCause := &slack.TextInputElement{
-		DialogInput: slack.DialogInput{
-			Label:       "Root Cause",
-			Name:        "root_cause",
-			Type:        "textarea",
-			Placeholder: "Incident root cause description.",
-			Optional:    false,
-		},
-		MaxLength: 500,
-	}
-	impact := &slack.TextInputElement{
-		DialogInput: slack.DialogInput{
-			Label:       "Impact of incident",
-			Name:        "impact",
-			Type:        "text",
-			Placeholder: "Number of impacted accounts.",
-			Optional:    false,
-		},
-		Subtype: slack.InputSubtypeNumber,
-	}
+	dialogElements = append(dialogElements, severityLevel)
 
 	dialog := slack.Dialog{
 		CallbackID:     "inc-close",
 		Title:          "Close an Incident",
 		SubmitLabel:    "Close",
 		NotifyOnCancel: false,
-		Elements: []slack.DialogElement{
-			impact,
-			team,
-			feature,
-			severityLevel,
-			responsibility,
-			rootCause,
-		},
+		Elements:       dialogElements,
 	}
 
 	return app.Client.OpenDialog(triggerID, dialog)
@@ -168,19 +111,17 @@ func CloseIncidentByDialog(ctx context.Context, app *app.App, incidentDetails bo
 	)
 
 	var (
-		customerImpact   sql.NullInt64
 		channelID        = incidentDetails.Channel.ID
 		userID           = incidentDetails.User.ID
 		userName         = incidentDetails.User.Name
 		submissions      = incidentDetails.Submission
-		impact           = submissions.Impact
-		team             = submissions.Team
-		feature          = submissions.Feature
-		severityLevel    = submissions.SeverityLevel
-		responsibility   = getResponsabilityText(submissions.Responsibility)
 		rootCause        = submissions.RootCause
+		startDateText    = submissions.InitDate
+		severityLevel    = submissions.SeverityLevel
 		notifyOnClose    = config.Env.NotifyOnClose
 		productChannelID = config.Env.ProductChannelID
+
+		startDate time.Time
 	)
 
 	logWriter := app.Logger.With(
@@ -188,24 +129,64 @@ func CloseIncidentByDialog(ctx context.Context, app *app.App, incidentDetails bo
 		log.NewValue("userID", userID),
 	)
 
-	severityLevelInt64, err := getStringInt64(severityLevel)
+	var err error
+	if startDateText != "" {
+		startDate, err = time.ParseInLocation(dateLayout, startDateText, time.UTC)
+		if err != nil {
+			logWriter.Error(
+				ctx,
+				"command/close.CloseIncidentByDialog ParseInLocation start date ERROR",
+				log.NewValue("timeZoneString", "UTC"),
+				log.NewValue("startDateText", startDateText),
+				log.NewValue("error", err),
+			)
+			PostErrorAttachment(ctx, app, channelID, userID, err.Error())
+			return err
+		}
+	}
+
+	severityLevelInt64 := int64(-1)
+	if severityLevel != "" {
+		severityLevelInt64, err = getStringInt64(severityLevel)
+		if err != nil {
+			return err
+		}
+	}
+
+	inc, err := app.IncidentRepository.GetIncident(ctx, channelID)
 	if err != nil {
+		app.Logger.Error(
+			ctx,
+			log.Trace(),
+			log.Reason("GetIncident"),
+			log.NewValue("channelID", channelID),
+			log.NewValue("error", err),
+		)
+		PostErrorAttachment(ctx, app, channelID, userID, err.Error())
 		return err
 	}
 
-	customerImpact.Int64, err = getStringInt64(impact)
+	ownerTeamName, err := app.ServiceRepository.GetServiceInstanceOwnerTeamName(ctx, inc.Product)
 	if err != nil {
+		app.Logger.Error(
+			ctx,
+			log.Trace(),
+			log.Reason("GetServiceInstanceOwnerTeamName"),
+			log.NewValue("channelID", channelID),
+			log.NewValue("error", err),
+		)
 		return err
 	}
 
 	incident := model.Incident{
 		RootCause:      rootCause,
-		Functionality:  feature,
-		Team:           team,
-		CustomerImpact: customerImpact,
+		StartTimestamp: &startDate,
+		Team:           ownerTeamName,
 		SeverityLevel:  severityLevelInt64,
-		Responsibility: responsibility,
 		ChannelId:      channelID,
+	}
+	if startDateText != "" {
+		incident.StartTimestamp = &startDate
 	}
 
 	err = app.IncidentRepository.CloseIncident(ctx, &incident)
@@ -220,7 +201,7 @@ func CloseIncidentByDialog(ctx context.Context, app *app.App, incidentDetails bo
 		return err
 	}
 
-	inc, err := app.IncidentRepository.GetIncident(ctx, channelID)
+	inc, err = app.IncidentRepository.GetIncident(ctx, channelID)
 	if err != nil {
 		logWriter.Error(
 			ctx,
@@ -231,7 +212,7 @@ func CloseIncidentByDialog(ctx context.Context, app *app.App, incidentDetails bo
 		return err
 	}
 
-	channelAttachment := createCloseChannelAttachment(inc, userName, impact)
+	channelAttachment := createCloseChannelAttachment(inc, userName)
 	privateAttachment := createClosePrivateAttachment(inc)
 	message := "The Incident <#" + inc.ChannelId + "> has been closed by <@" + userName + ">"
 
@@ -273,24 +254,11 @@ func CloseIncidentByDialog(ctx context.Context, app *app.App, incidentDetails bo
 	return nil
 }
 
-func getResponsabilityText(r string) string {
-	switch r {
-	case "0":
-		return "Product"
-	case "1":
-		return "Third-Party"
-	}
-	return ""
-}
-
-func createCloseChannelAttachment(inc model.Incident, userName, impact string) slack.Attachment {
+func createCloseChannelAttachment(inc model.Incident, userName string) slack.Attachment {
 	var messageText strings.Builder
 	messageText.WriteString("The Incident <#" + inc.ChannelId + "> has been closed by <@" + userName + ">\n\n")
 	messageText.WriteString("*Team:* <#" + inc.Team + ">\n")
-	messageText.WriteString("*Feature:* `" + inc.Functionality + "`\n")
-	messageText.WriteString("*Impact:* `" + impact + "`\n")
 	messageText.WriteString("*Severity:* `" + getSeverityLevelText(inc.SeverityLevel) + "`\n")
-	messageText.WriteString("*Responsibility:* `" + inc.Responsibility + "`\n")
 	messageText.WriteString("*Root cause:* `" + inc.RootCause + "`\n\n")
 
 	return slack.Attachment{
@@ -316,20 +284,8 @@ func createCloseChannelAttachment(inc model.Incident, userName, impact string) s
 				Value: inc.Team,
 			},
 			{
-				Title: "Feature",
-				Value: inc.Functionality,
-			},
-			{
-				Title: "Impact",
-				Value: impact,
-			},
-			{
 				Title: "Severity",
 				Value: getSeverityLevelText(inc.SeverityLevel),
-			},
-			{
-				Title: "Responsibility",
-				Value: inc.Responsibility,
 			},
 			{
 				Title: "RootCause",
@@ -341,19 +297,12 @@ func createCloseChannelAttachment(inc model.Incident, userName, impact string) s
 
 func createClosePrivateAttachment(inc model.Incident) slack.Attachment {
 	var privateText strings.Builder
-	privateText.WriteString("The Incident <#" + inc.ChannelId + "> has been resolved by you\n\n")
-	privateText.WriteString("*Status.io:* Be sure to close the incident on https://status.io\n\n")
+	privateText.WriteString("The Incident <#" + inc.ChannelId + "> has been closed by you\n\n")
 
 	return slack.Attachment{
 		Pretext:  "The Incident <#" + inc.ChannelId + "> has been closed by you",
 		Fallback: privateText.String(),
 		Text:     "",
 		Color:    "#FE4D4D",
-		Fields: []slack.AttachmentField{
-			{
-				Title: "Status.io",
-				Value: "Be sure to close the incident on status.io",
-			},
-		},
 	}
 }

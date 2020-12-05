@@ -163,10 +163,12 @@ func CancelIncidentByDialog(
 		message,
 		attachment,
 	)
+
 	if err != nil {
 		logWriter.Error(
 			ctx,
 			log.Trace(),
+			log.Action("postCancelMessage"),
 			log.Reason("postAndPinMessage"),
 			log.NewValue("attachment", attachment),
 			log.NewValue("error", err),
@@ -175,7 +177,9 @@ func CancelIncidentByDialog(
 	}
 
 	if notifyOnCancel {
-		err := postAndPinMessage(
+		logWriter.Debug(ctx, "Notifying incidents channel about the incident cancelation")
+
+		_, _, err := postMessage(
 			app,
 			productChannelID,
 			message,
@@ -185,6 +189,7 @@ func CancelIncidentByDialog(
 			logWriter.Error(
 				ctx,
 				log.Trace(),
+				log.Action("notifyOnCancel"),
 				log.Reason("postAndPinMessage"),
 				log.NewValue("attachment", attachment),
 				log.NewValue("error", err),

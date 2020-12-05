@@ -34,13 +34,8 @@ func incidentLogValues(inc *model.Incident) []log.Value {
 		log.NewValue("startTime", inc.StartTimestamp),
 		log.NewValue("identificationTime", inc.IdentificationTimestamp),
 		log.NewValue("endTime", inc.EndTimestamp),
-		log.NewValue("snoozedTime", inc.SnoozedUntil),
-		log.NewValue("responsibility", inc.Responsibility),
-		log.NewValue("functionality", inc.Functionality),
 		log.NewValue("rootCause", inc.RootCause),
-		log.NewValue("customerImpact", inc.CustomerImpact),
 		log.NewValue("meetingURL", inc.MeetingURL),
-		log.NewValue("statusPageURL", inc.StatusPageURL),
 		log.NewValue("postMortemURL", inc.PostMortemURL),
 		log.NewValue("team", inc.Team),
 		log.NewValue("product", inc.Product),
@@ -68,12 +63,8 @@ func (r *incidentRepository) InsertIncident(ctx context.Context, inc *model.Inci
 		, start_ts
 		, end_ts
 		, identification_ts
-		, responsibility
-		, functionality
 		, root_cause
-		, customer_impact
 		, meeting_url
-		, status_page_url
 		, post_mortem_url
 		, status
 		, product
@@ -82,7 +73,7 @@ func (r *incidentRepository) InsertIncident(ctx context.Context, inc *model.Inci
 		, channel_id
 		, commander_id
 		, commander_email)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
 	RETURNING id`
 
 	id := int64(0)
@@ -96,12 +87,8 @@ func (r *incidentRepository) InsertIncident(ctx context.Context, inc *model.Inci
 		inc.StartTimestamp,
 		inc.EndTimestamp,
 		inc.IdentificationTimestamp,
-		inc.Responsibility,
-		inc.Functionality,
 		inc.RootCause,
-		inc.CustomerImpact,
 		inc.MeetingURL,
-		inc.StatusPageURL,
 		inc.PostMortemURL,
 		inc.Status,
 		inc.Product,
@@ -271,13 +258,8 @@ func (r *incidentRepository) GetIncident(ctx context.Context, channelID string) 
 		&inc.StartTimestamp,
 		&inc.EndTimestamp,
 		&inc.IdentificationTimestamp,
-		&inc.SnoozedUntil,
-		&inc.Responsibility,
-		&inc.Functionality,
 		&inc.RootCause,
-		&inc.CustomerImpact,
 		&inc.MeetingURL,
-		&inc.StatusPageURL,
 		&inc.PostMortemURL,
 		&inc.Status,
 		&inc.Product,
@@ -306,13 +288,8 @@ func GetIncidentByChannelID() string {
 		, start_ts
 		, end_ts
 		, identification_ts
-    , snoozed_until
-    , responsibility
-		, functionality
 		, root_cause
-		, customer_impact
 		, meeting_url
-		, status_page_url
 		, post_mortem_url
 		, status
 		, product
@@ -324,71 +301,6 @@ func GetIncidentByChannelID() string {
 	FROM incident
 	WHERE channel_id = $1
 	LIMIT 1`
-}
-
-func (r *incidentRepository) UpdateIncidentDates(ctx context.Context, inc *model.Incident) error {
-	r.logger.Debug(
-		ctx,
-		"postgres/incident-repository.UpdateIncidentDates INFO",
-		incidentLogValues(inc)...,
-	)
-
-	result, err := r.db.Exec(
-		`UPDATE incident SET
-			start_ts = $1,
-			identification_ts = $2,
-			end_ts = $3
-		WHERE channel_id = $4`,
-		inc.StartTimestamp,
-		inc.IdentificationTimestamp,
-		inc.EndTimestamp,
-		inc.ChannelID,
-	)
-	if err != nil {
-		r.logger.Error(
-			ctx,
-			"postgres/incident-repository.UpdateIncidentDates Exec ERROR",
-			append(
-				incidentLogValues(inc),
-				log.NewValue("error", err),
-			)...,
-		)
-		return err
-	}
-
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		r.logger.Error(
-			ctx,
-			"postgres/incident-repository.UpdateIncidentDates RowsAffected ERROR",
-			append(
-				incidentLogValues(inc),
-				log.NewValue("error", err),
-			)...,
-		)
-		return err
-	}
-
-	if rowsAffected == 0 {
-		err = errors.New("rows not affected")
-		r.logger.Error(
-			ctx,
-			"postgres/incident-repository.UpdateIncidentDates ERROR",
-			append(
-				incidentLogValues(inc),
-				log.NewValue("error", err),
-			)...,
-		)
-		return err
-	}
-
-	r.logger.Debug(
-		ctx,
-		"postgres/incident-repository.UpdateIncidentDates SUCCESS",
-		incidentLogValues(inc)...,
-	)
-
-	return nil
 }
 
 func (r *incidentRepository) CancelIncident(ctx context.Context, inc *model.Incident) error {
@@ -459,20 +371,14 @@ func (r *incidentRepository) CloseIncident(ctx context.Context, inc *model.Incid
 	result, err := r.db.Exec(
 		`UPDATE incident SET
 			root_cause = $1,
-			functionality = $2,
-			team = $3,
-			customer_impact = $4,
-			severity_level = $5,
-			status = $6,
-			responsibility = $7
-		WHERE channel_id = $8`,
+			team = $2,
+			severity_level = $3,
+			status = $4
+		WHERE channel_id = $5`,
 		inc.RootCause,
-		inc.Functionality,
 		inc.Team,
-		inc.CustomerImpact.Int64,
 		inc.SeverityLevel,
 		model.StatusClosed,
-		inc.Responsibility,
 		inc.ChannelID,
 	)
 
@@ -533,13 +439,11 @@ func (r *incidentRepository) ResolveIncident(ctx context.Context, inc *model.Inc
 
 	result, err := r.db.Exec(
 		`UPDATE incident SET
-			status_page_url = $1,
-			description_resolved = $2,
-			start_ts = $3,
-			end_ts = $4,
-			status = $5
-		WHERE channel_id = $6`,
-		inc.StatusPageURL,
+			description_resolved = $1,
+			start_ts = $2,
+			end_ts = $3,
+			status = $4
+		WHERE channel_id = $5`,
 		inc.DescriptionResolved,
 		inc.StartTimestamp,
 		inc.EndTimestamp,
@@ -634,12 +538,8 @@ func (r *incidentRepository) ListActiveIncidents(ctx context.Context) ([]model.I
 			&inc.StartTimestamp,
 			&inc.EndTimestamp,
 			&inc.IdentificationTimestamp,
-			&inc.SnoozedUntil,
-			&inc.Responsibility,
-			&inc.Functionality,
 			&inc.RootCause,
-			&inc.CustomerImpact,
-			&inc.StatusPageURL,
+			&inc.MeetingURL,
 			&inc.PostMortemURL,
 			&inc.Status,
 			&inc.Product,
@@ -682,12 +582,8 @@ func GetIncidentStatusFilterQuery() string {
 		, start_ts
 		, end_ts
 		, identification_ts
-    , snoozed_until
-		, responsibility
-		, functionality
 		, root_cause
-		, customer_impact
-		, status_page_url
+		, meeting_url
 		, post_mortem_url
 		, status
 		, product
@@ -699,65 +595,4 @@ func GetIncidentStatusFilterQuery() string {
 	FROM incident
 	WHERE status IN ($1, $2)
 	LIMIT 100`
-}
-
-func (r *incidentRepository) PauseNotifyIncident(ctx context.Context, inc *model.Incident) error {
-	r.logger.Info(
-		ctx,
-		"postgres/incident-repository.PauseNotifyIncident INFO",
-		incidentLogValues(inc)...,
-	)
-
-	result, err := r.db.Exec(
-		`UPDATE incident SET
-			snoozed_until = $1
-		WHERE channel_id = $2`,
-		inc.SnoozedUntil.Time,
-		inc.ChannelID,
-	)
-	if err != nil {
-		r.logger.Error(
-			ctx,
-			"postgres/incident-repository.PauseNotifyIncident Exec ERROR",
-			append(
-				incidentLogValues(inc),
-				log.NewValue("error", err),
-			)...,
-		)
-		return err
-	}
-
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		r.logger.Error(
-			ctx,
-			"postgres/incident-repository.PauseNotifyIncident RowsAffected ERROR",
-			append(
-				incidentLogValues(inc),
-				log.NewValue("error", err),
-			)...,
-		)
-		return err
-	}
-
-	if rowsAffected == 0 {
-		err = errors.New("rows not affected")
-		r.logger.Error(
-			ctx,
-			"postgres/incident-repository.PauseNotifyIncident ERROR",
-			append(
-				incidentLogValues(inc),
-				log.NewValue("error", err),
-			)...,
-		)
-		return err
-	}
-
-	r.logger.Info(
-		ctx,
-		"postgres/incident-repository.PauseNotifyIncident SUCCESS",
-		incidentLogValues(inc)...,
-	)
-
-	return nil
 }

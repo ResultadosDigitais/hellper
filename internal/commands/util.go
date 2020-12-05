@@ -24,7 +24,7 @@ func ping(ctx context.Context, app *app.App, channelID string) {
 		log.NewValue("channelID", channelID),
 	)
 
-	_, err := postMessage(app, channelID, "pong")
+	_, _, err := postMessage(app, channelID, "pong")
 	if err != nil {
 		logWriter.Error(
 			ctx,
@@ -40,7 +40,7 @@ func help(ctx context.Context, app *app.App, channelID string) {
 		log.NewValue("channelID", channelID),
 	)
 
-	_, err := postMessage(app, channelID, `
+	_, _, err := postMessage(app, channelID, `
 	hellper
 	A bot to help the incident treatment
 	Available commands:
@@ -137,15 +137,15 @@ func postMessageVisibleOnlyForUser(
 }
 
 func postAndPinMessage(app *app.App, channel string, text string, attachment ...slack.Attachment) error {
-	msgRef, err := postMessage(app, channel, text, attachment...)
+	channelID, msgRef, err := postMessage(app, channel, text, attachment...)
 	if err != nil {
 		return err
 	}
 
-	return pinMessage(app, channel, *msgRef)
+	return pinMessage(app, channelID, msgRef)
 }
 
-func postMessage(app *app.App, channelID string, text string, attachments ...slack.Attachment) (*slack.ItemRef, error) {
+func postMessage(app *app.App, channelID string, text string, attachments ...slack.Attachment) (string, slack.ItemRef, error) {
 	return postGenericMessage(
 		app,
 		channelID,
@@ -155,15 +155,15 @@ func postMessage(app *app.App, channelID string, text string, attachments ...sla
 	)
 }
 
-func postGenericMessage(app *app.App, channel string, text string, msgOptions ...slack.MsgOption) (*slack.ItemRef, error) {
+func postGenericMessage(app *app.App, channel string, text string, msgOptions ...slack.MsgOption) (string, slack.ItemRef, error) {
 	channelID, timestamp, err := app.Client.PostMessage(channel, msgOptions...)
 	if err != nil {
-		return nil, err
+		return "", slack.ItemRef{}, err
 	}
 
 	msgRef := slack.NewRefToMessage(channelID, timestamp)
 
-	return &msgRef, nil
+	return channelID, msgRef, nil
 }
 
 func pinMessage(app *app.App, channelID string, msgRef slack.ItemRef) error {

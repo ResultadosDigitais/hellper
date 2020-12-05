@@ -22,11 +22,5 @@ func AddStatus(ctx context.Context, app *app.App, channelID string, userID strin
 
 	formattedMessage := "<@" + userName + ">: " + message
 
-	msgRef, err := postMessage(app, channelID, formattedMessage)
-	if err != nil {
-		return err
-	}
-
-	pinMessage(app, channelID, *msgRef)
-	return nil
+	return postAndPinMessage(app, channelID, formattedMessage)
 }

@@ -64,7 +64,7 @@ func OpenEditIncidentDialog(ctx context.Context, app *app.App, channelID string,
 
 	commander := &slack.DialogInputSelect{
 		DialogInput: slack.DialogInput{
-			Label:       "Incident commander",
+			Label:       "Incident Commander",
 			Name:        "incident_commander",
 			Type:        "select",
 			Placeholder: "Set the Incident commander",
@@ -77,7 +77,7 @@ func OpenEditIncidentDialog(ctx context.Context, app *app.App, channelID string,
 
 	severityLevel := &slack.DialogInputSelect{
 		DialogInput: slack.DialogInput{
-			Label:       "Severity level",
+			Label:       "Severity Level",
 			Name:        "severity_level",
 			Type:        "select",
 			Placeholder: "Set the severity level",
@@ -112,7 +112,7 @@ func OpenEditIncidentDialog(ctx context.Context, app *app.App, channelID string,
 
 	startDate := &slack.TextInputElement{
 		DialogInput: slack.DialogInput{
-			Label:       "Start date",
+			Label:       "Start Date",
 			Name:        "init_date",
 			Type:        "text",
 			Placeholder: dateLayout,
@@ -136,13 +136,14 @@ func OpenEditIncidentDialog(ctx context.Context, app *app.App, channelID string,
 
 	description := &slack.TextInputElement{
 		DialogInput: slack.DialogInput{
-			Label:       "Incident description",
+			Label:       "Incident Description",
 			Name:        "incident_description",
 			Type:        "textarea",
 			Placeholder: "Brief description on what is happening in this incident. eg. We're having issues with the Product X or Service Y",
 			Optional:    true,
 		},
 		MaxLength: 500,
+		Value:     inc.DescriptionStarted,
 	}
 
 	// Slack force us to have a maximum of 10 fields in the dialog
@@ -220,12 +221,11 @@ func EditIncidentByDialog(
 		if err != nil {
 			app.Logger.Error(
 				ctx,
-				"command.EditIncidentByDialog Parse ERROR",
+				"command.EditIncidentByDialog Parse Start Timestamp ERROR",
 				log.NewValue("channelID", channelID),
 				log.NewValue("startTimestampText", startTimestampText),
 				log.NewValue("error", err),
 			)
-
 			PostErrorAttachment(ctx, app, channelID, userID, err.Error())
 			return err
 		}

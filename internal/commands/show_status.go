@@ -259,7 +259,7 @@ func postLoadingMessage(ctx context.Context, app *app.App, channelID string, use
 		app,
 		channelID,
 		userID,
-		"I will fetch the status for you, this might take some seconds.",
+		"I will fetch the status for you, this might take a few seconds.",
 	)
 }
 

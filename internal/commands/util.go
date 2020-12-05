@@ -119,10 +119,21 @@ func PostInfoAttachment(ctx context.Context, app *app.App, channelID string, use
 
 func postMessage(app *app.App, channel string, text string, attachments ...slack.Attachment) error {
 	_, _, err := app.Client.PostMessage(channel, slack.MsgOptionText(text, false), slack.MsgOptionAttachments(attachments...))
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
+}
+
+func postMessageVisibleOnlyForUser(
+	ctx context.Context, app *app.App, channel string, userID string, text string, attachments ...slack.Attachment,
+) error {
+	_, err := app.Client.PostEphemeralContext(
+		ctx,
+		channel,
+		userID,
+		slack.MsgOptionText(text, false),
+		slack.MsgOptionAttachments(attachments...),
+	)
+
+	return err
 }
 
 func postAndPinMessage(app *app.App, channel string, text string, attachment ...slack.Attachment) error {

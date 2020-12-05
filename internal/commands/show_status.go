@@ -272,6 +272,5 @@ func ShowStatus(
 		return err
 	}
 
-	postMessage(app, channelID, "", attachDates, attachStatus)
-	return nil
+	return postMessageVisibleOnlyForUser(ctx, app, channelID, userID, "", attachDates, attachStatus)
 }

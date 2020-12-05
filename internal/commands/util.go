@@ -3,6 +3,9 @@ package commands
 import (
 	"context"
 	"errors"
+	"fmt"
+	"hellper/internal/model"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -12,6 +15,8 @@ import (
 
 	"github.com/slack-go/slack"
 )
+
+const dateLayout = "2006-01-02T15:04:05-0700"
 
 func ping(ctx context.Context, app *app.App, channelID string) {
 
@@ -184,4 +189,105 @@ func convertTimestamp(timestamp string) (time.Time, error) {
 	fullTime := time.Unix(timeMinutes, timeSec)
 
 	return fullTime, nil
+}
+
+func fillDialogOptionsIfNeeded(options []slack.DialogSelectOption) []slack.DialogSelectOption {
+	const minimumNumberOfOptions = 4
+
+	for len(options) < minimumNumberOfOptions {
+		options = append(options, slack.DialogSelectOption{
+			Label: "----------------",
+			Value: "0",
+		})
+	}
+
+	return options
+}
+
+func getDialogOptionsWithServiceInstances(services []*model.ServiceInstance) []slack.DialogSelectOption {
+	serviceList := []slack.DialogSelectOption{}
+
+	for _, service := range services {
+		serviceList = append(serviceList, slack.DialogSelectOption{
+			Label: service.Name,
+			Value: service.Name,
+		})
+	}
+
+	// Slack asks for at least 4 entries in the option panel. So I populate dumby options here, otherwise
+	// the open command will fail and will give no feedback whatsoever for the user.
+	return fillDialogOptionsIfNeeded(serviceList)
+}
+
+func getDialogOptionsWithSeverityLevels() []slack.DialogSelectOption {
+	return []slack.DialogSelectOption{
+		{
+			Label: getSeverityLevelText(0),
+			Value: "0",
+		},
+		{
+			Label: getSeverityLevelText(1),
+			Value: "1",
+		},
+		{
+			Label: getSeverityLevelText(2),
+			Value: "2",
+		},
+		{
+			Label: getSeverityLevelText(3),
+			Value: "3",
+		},
+	}
+}
+
+func getChannelNameFromIncidentTitle(incidentTitle string) (string, error) {
+	const titleMaxSize = 64
+
+	// first allow only alphanumeric characters on title, based on https://golangcode.com/how-to-remove-all-non-alphanumerical-characters-from-a-string/
+	reg, err := regexp.Compile("[^a-zA-Z0-9]+")
+
+	if err != nil {
+		return "", err
+	}
+
+	processedIncidentTitle := strings.ToLower(reg.ReplaceAllString(incidentTitle, ""))
+
+	// then truncate if needed, because Slack supports channel names with an maximum of 80 characters
+	if len(processedIncidentTitle) > titleMaxSize { // timeMaxSize is the maximum value (80) excluding the prefix (4, "inc-") and suffix (9, "-yyyyMMdd") to be added
+		processedIncidentTitle = processedIncidentTitle[:titleMaxSize]
+	}
+
+	// finally, concatenate "inc-" as prefix and a date string as suffix
+	currentDate := time.Now()
+	currentDateAsString := fmt.Sprintf("%04d%02d%02d", currentDate.Year(), currentDate.Month(), currentDate.Day())
+	processedIncidentTitle = fmt.Sprintf("inc-%s-%s", processedIncidentTitle, currentDateAsString)
+
+	return processedIncidentTitle, nil
+}
+
+func fillTopic(
+	ctx context.Context, app *app.App, incident model.Incident,
+	channelID string, meetingURL string, postMortemURL string,
+) {
+	var topic strings.Builder
+	if meetingURL != "" {
+		topic.WriteString("*Meeting:* " + meetingURL + "\n\n")
+	}
+	if postMortemURL != "" {
+		topic.WriteString("*PostMortemURL:* " + postMortemURL + "\n\n")
+	}
+	topic.WriteString("*Commander:* <@" + incident.CommanderID + ">\n\n")
+	topicString := topic.String()
+
+	_, err := app.Client.SetTopicOfConversation(channelID, topicString)
+	if err != nil {
+		app.Logger.Error(
+			ctx,
+			log.Trace(),
+			log.Reason("SetTopicOfConversation"),
+			log.NewValue("channel.ID", channelID),
+			log.NewValue("topic.String", topicString),
+			log.NewValue("error", err),
+		)
+	}
 }

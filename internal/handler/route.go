@@ -11,6 +11,7 @@ import (
 
 var (
 	openHandler        http.Handler
+	editHandler        http.Handler
 	eventsHandler      http.Handler
 	interactiveHandler http.Handler
 	statusHandler      http.Handler
@@ -25,6 +26,7 @@ var (
 func init() {
 	dependencies := app.NewApp()
 	openHandler = newHandlerOpen(&dependencies)
+	editHandler = newHandlerEdit(&dependencies)
 	eventsHandler = newHandlerEvents(&dependencies)
 	interactiveHandler = newHandlerInteractive(&dependencies)
 	statusHandler = newHandlerStatus(&dependencies)
@@ -52,6 +54,8 @@ func NewHandlerRoute() func(http.ResponseWriter, *http.Request) {
 			bot.VerifyRequests(r, w, eventsHandler)
 		case "open":
 			bot.VerifyRequests(r, w, openHandler)
+		case "edit":
+			bot.VerifyRequests(r, w, editHandler)
 		case "interactive":
 			bot.VerifyRequests(r, w, interactiveHandler)
 		case "status":

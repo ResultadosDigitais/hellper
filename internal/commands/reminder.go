@@ -22,7 +22,7 @@ func canStopReminder(incident model.Incident) bool {
 
 func requestStatus(ctx context.Context, app *app.App, jobIncident model.Incident) func(j job.Job) {
 	return func(j job.Job) {
-		incident, err := app.IncidentRepository.GetIncident(ctx, jobIncident.ChannelId)
+		incident, err := app.IncidentRepository.GetIncident(ctx, jobIncident.ChannelID)
 		if err != nil {
 			app.Logger.Error(
 				ctx,
@@ -34,7 +34,7 @@ func requestStatus(ctx context.Context, app *app.App, jobIncident model.Incident
 		}
 
 		logWriter := app.Logger.With(
-			log.NewValue("channelID", incident.ChannelId),
+			log.NewValue("channelID", incident.ChannelID),
 			log.NewValue("channelName", incident.ChannelName),
 		)
 
@@ -82,7 +82,7 @@ func requestStatus(ctx context.Context, app *app.App, jobIncident model.Incident
 			return
 		}
 
-		pin, err := bot.LastPin(app.Client, incident.ChannelId)
+		pin, err := bot.LastPin(app.Client, incident.ChannelID)
 		if err != nil {
 			logWriter.Error(
 				ctx,
@@ -144,7 +144,7 @@ func requestStatus(ctx context.Context, app *app.App, jobIncident model.Incident
 
 func startReminderStatusJob(ctx context.Context, app *app.App, incident model.Incident) {
 	logWriter := app.Logger.With(
-		log.NewValue("channelID", incident.ChannelId),
+		log.NewValue("channelID", incident.ChannelID),
 		log.NewValue("channelName", incident.ChannelName),
 		log.NewValue("status", incident.Status),
 	)
@@ -204,7 +204,7 @@ func setRecurrence(incident model.Incident) time.Duration {
 
 func sendNotification(ctx context.Context, app *app.App, incident model.Incident) {
 	logWriter := app.Logger.With(
-		log.NewValue("channelID", incident.ChannelId),
+		log.NewValue("channelID", incident.ChannelID),
 		log.NewValue("channelName", incident.ChannelName),
 		log.NewValue("incidentStatus", incident.Status),
 	)
@@ -215,7 +215,7 @@ func sendNotification(ctx context.Context, app *app.App, incident model.Incident
 		log.Action("postMessage"),
 	)
 
-	_, err := postMessage(app, incident.ChannelId, statusNotify(incident))
+	_, err := postMessage(app, incident.ChannelID, statusNotify(incident))
 
 	if err != nil {
 		logWriter.Error(

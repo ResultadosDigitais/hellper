@@ -13,8 +13,6 @@ import (
 	"github.com/slack-go/slack"
 )
 
-const dateLayout = "02/01/2006 15:04:05"
-
 // UpdateDatesDialog opens a dialog on Slack, so the user can update the dates of an incident
 func UpdateDatesDialog(ctx context.Context, app *app.App, channelID string, userID string, triggerID string) error {
 	var (
@@ -86,20 +84,22 @@ func UpdateDatesDialog(ctx context.Context, app *app.App, channelID string, user
 	}
 	startDate := &slack.TextInputElement{
 		DialogInput: slack.DialogInput{
-			Label:       "Start date (" + dateLayout + ")",
+			Label:       "Start date",
 			Name:        "init_date",
 			Type:        "text",
 			Placeholder: dateLayout,
+			Hint:        "The time is in format " + dateLayout,
 			Optional:    false,
 		},
 		Value: initValue,
 	}
 	identificationDate := &slack.TextInputElement{
 		DialogInput: slack.DialogInput{
-			Label:       "Identification date (" + dateLayout + ")",
+			Label:       "Identification date",
 			Name:        "identification_date",
 			Type:        "text",
 			Placeholder: dateLayout,
+			Hint:        "The time is in format " + dateLayout,
 			Optional:    false,
 		},
 		Value: identificationValue,
@@ -140,10 +140,10 @@ func UpdateDatesByDialog(ctx context.Context, app *app.App, incidentDetails bot.
 		userID                 = incidentDetails.User.ID
 		userName               = incidentDetails.User.Name
 		submissions            = incidentDetails.Submission
-		timeZoneString         = submissions.TimeZone
-		initDateText           = submissions.InitDate
-		identificationDateText = submissions.IdentificationDate
-		endDateText            = submissions.EndDate
+		timeZoneString         = submissions["time_zone"]
+		initDateText           = submissions["init_date"]
+		identificationDateText = submissions["identification_date"]
+		endDateText            = submissions["end_date"]
 
 		initDate           time.Time
 		identificationDate time.Time
@@ -213,7 +213,7 @@ func UpdateDatesByDialog(ctx context.Context, app *app.App, incidentDetails bot.
 	}
 
 	incident := model.Incident{
-		ChannelId:               channelID,
+		ChannelID:               channelID,
 		StartTimestamp:          &initDate,
 		IdentificationTimestamp: &identificationDate,
 		EndTimestamp:            &endDate,
@@ -233,7 +233,7 @@ func UpdateDatesByDialog(ctx context.Context, app *app.App, incidentDetails bot.
 	}
 
 	successAttach := createDatesSuccessAttachment(incident, userName)
-	postMessage(app, incident.ChannelId, "", successAttach)
+	postMessage(app, incident.ChannelID, "", successAttach)
 
 	return nil
 }
@@ -258,10 +258,10 @@ func createDatesSuccessAttachment(inc model.Incident, userName string) slack.Att
 		messageText strings.Builder
 	)
 
-	messageText.WriteString("The dates of Incident <#" + inc.ChannelId + "> have been updated by <@" + userName + ">\n\n")
+	messageText.WriteString("The dates of Incident <#" + inc.ChannelID + "> have been updated by <@" + userName + ">\n\n")
 
 	return slack.Attachment{
-		Pretext:  "The dates of Incident <#" + inc.ChannelId + "> have been updated by <@" + userName + ">",
+		Pretext:  "The dates of Incident <#" + inc.ChannelID + "> have been updated by <@" + userName + ">",
 		Fallback: messageText.String(),
 		Text:     "",
 		Color:    "#6fff47",

@@ -62,6 +62,8 @@ func processEvent(
 		return commands.CancelIncidentByDialog(ctx, app, dialogSubmission)
 	case "inc-open":
 		return commands.StartIncidentByDialog(ctx, app, dialogSubmission)
+	case "inc-edit":
+		return commands.EditIncidentByDialog(ctx, app, dialogSubmission)
 	case "inc-resolve":
 		return commands.ResolveIncidentByDialog(ctx, app, dialogSubmission)
 	case "inc-dates":

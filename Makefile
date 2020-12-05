@@ -1,6 +1,6 @@
 .PHONY: all build lint test vet
 CHECK_FILES?=$$(go list ./... | grep -v /vendor/)
-APP_NAME=notify-api
+APP_NAME=hellper
 
 GO ?= go
 GORUN ?= $(GO) run
@@ -14,7 +14,8 @@ help: ## Show this help.
 all: lint vet test build ## Run the tests and build the binary.
 
 build: ## Build the binary.
-	go build -o bin/$(APP_NAME) *.go
+	[ -d bin ] || mkdir bin
+	go build -o ./bin/$(APP_NAME) ./cmd/http
 
 lint: ## Lint the code.
 	golint $(CHECK_FILES)
@@ -34,8 +35,14 @@ run: ## Run application
 run-local: ## Run application locally (without docker)
 	go run ./cmd/http -v
 
+run-db: ## Start the database on docker
+	docker-compose up -d hellper_db
+
 migrate: ## Migrate the database
 	docker-compose exec hellper sh -c "go run ./cmd/migrations -v"
+
+migrate-local: ## Migrate the database using local binaries
+	go run ./cmd/migrations -v
 
 clean: ## Remove all resources
 	docker-compose rm -sf

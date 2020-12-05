@@ -114,7 +114,7 @@ func (i *Inviter) inviteStakeholdersToChannel(
 		}
 	}
 
-	_, err := i.client.InviteUsersToConversationContext(ctx, incident.ChannelId, stakeholdersSlackIds...)
+	_, err := i.client.InviteUsersToConversationContext(ctx, incident.ChannelID, stakeholdersSlackIds...)
 
 	if err != nil {
 		i.logger.Error(

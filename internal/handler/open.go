@@ -12,5 +12,5 @@ func newHandlerOpen(app *app.App) *endpoint.Endpoint {
 }
 
 func openIncident(ctx context.Context, app *app.App, slackParams endpoint.SlackParams, endpointContext *endpoint.Context) error {
-	return commands.OpenStartIncidentDialog(ctx, app, slackParams.TriggerID)
+	return commands.OpenStartIncidentDialog(ctx, app, slackParams.UserID, slackParams.TriggerID)
 }

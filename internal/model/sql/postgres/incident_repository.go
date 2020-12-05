@@ -17,6 +17,7 @@ type incidentRepository struct {
 	db     sql.DB
 }
 
+// NewIncidentRepository creates a new repository to handle the Incident entity
 func NewIncidentRepository(logger log.Logger, db sql.DB) model.IncidentRepository {
 	return &incidentRepository{
 		logger: logger,
@@ -38,19 +39,20 @@ func incidentLogValues(inc *model.Incident) []log.Value {
 		log.NewValue("functionality", inc.Functionality),
 		log.NewValue("rootCause", inc.RootCause),
 		log.NewValue("customerImpact", inc.CustomerImpact),
-		log.NewValue("statusPageURL", inc.StatusPageUrl),
-		log.NewValue("postMortemURL", inc.PostMortemUrl),
+		log.NewValue("meetingURL", inc.MeetingURL),
+		log.NewValue("statusPageURL", inc.StatusPageURL),
+		log.NewValue("postMortemURL", inc.PostMortemURL),
 		log.NewValue("team", inc.Team),
 		log.NewValue("product", inc.Product),
 		log.NewValue("severityLevel", inc.SeverityLevel),
-		log.NewValue("severityLevel", inc.SeverityLevel),
 		log.NewValue("channelName", inc.ChannelName),
-		log.NewValue("channelID", inc.ChannelId),
-		log.NewValue("commanderID", inc.CommanderId),
+		log.NewValue("channelID", inc.ChannelID),
+		log.NewValue("commanderID", inc.CommanderID),
 		log.NewValue("commanderEmail", inc.CommanderEmail),
 	}
 }
 
+// InsertIncident inserts a new incident on a database
 func (r *incidentRepository) InsertIncident(ctx context.Context, inc *model.Incident) (int64, error) {
 	r.logger.Debug(
 		ctx,
@@ -70,6 +72,7 @@ func (r *incidentRepository) InsertIncident(ctx context.Context, inc *model.Inci
 		, functionality
 		, root_cause
 		, customer_impact
+		, meeting_url
 		, status_page_url
 		, post_mortem_url
 		, status
@@ -79,7 +82,7 @@ func (r *incidentRepository) InsertIncident(ctx context.Context, inc *model.Inci
 		, channel_id
 		, commander_id
 		, commander_email)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
 	RETURNING id`
 
 	id := int64(0)
@@ -97,14 +100,15 @@ func (r *incidentRepository) InsertIncident(ctx context.Context, inc *model.Inci
 		inc.Functionality,
 		inc.RootCause,
 		inc.CustomerImpact,
-		inc.StatusPageUrl,
-		inc.PostMortemUrl,
+		inc.MeetingURL,
+		inc.StatusPageURL,
+		inc.PostMortemURL,
 		inc.Status,
 		inc.Product,
 		inc.SeverityLevel,
 		inc.ChannelName,
-		inc.ChannelId,
-		inc.CommanderId,
+		inc.ChannelID,
+		inc.CommanderID,
 		inc.CommanderEmail)
 
 	switch err := idResult.Scan(&id); err {
@@ -128,10 +132,70 @@ func (r *incidentRepository) InsertIncident(ctx context.Context, inc *model.Inci
 	}
 }
 
-func (r *incidentRepository) AddPostMortemUrl(ctx context.Context, channelName string, postMortemUrl string) error {
+// UpdateIncident updates the incident on a database
+func (r *incidentRepository) UpdateIncident(ctx context.Context, inc *model.Incident) error {
+	r.logger.Info(
+		ctx,
+		"postgres/incident-repository.UpdateIncident INFO",
+		incidentLogValues(inc)...,
+	)
+
+	updateCommand := `UPDATE incident SET
+		title               = $1,
+		description_started = $2,
+		start_ts            = $3,
+		root_cause          = $4,
+		meeting_url         = $5,
+		post_mortem_url     = $6,
+		product             = $7,
+		severity_level      = $8,
+		commander_id        = $9,
+		commander_email     = $10
+	WHERE id = $11
+	RETURNING id`
+
+	_, err := r.db.Exec(
+		updateCommand,
+		inc.Title,
+		inc.DescriptionStarted,
+		inc.StartTimestamp,
+		inc.RootCause,
+		inc.MeetingURL,
+		inc.PostMortemURL,
+		inc.Product,
+		inc.SeverityLevel,
+		inc.CommanderID,
+		inc.CommanderEmail,
+		inc.ID,
+	)
+
+	if err != nil {
+		r.logger.Error(
+			ctx,
+			"postgres/incident-repository.UpdateIncident ERROR",
+			append(
+				incidentLogValues(inc),
+				log.NewValue("error", err),
+			)...,
+		)
+
+		return err
+	}
+
+	r.logger.Info(
+		ctx,
+		"postgres/incident-repository.UpdateIncident SUCCESS",
+		incidentLogValues(inc)...,
+	)
+
+	return nil
+}
+
+// AddPostMortemUrl adds a PostMortemUrl into an incident registerd on the repository
+func (r *incidentRepository) AddPostMortemURL(ctx context.Context, channelName string, postMortemURL string) error {
 	logWriter := r.logger.With(
 		log.NewValue("channelName", channelName),
-		log.NewValue("postMortemURL", postMortemUrl),
+		log.NewValue("postMortemURL", postMortemURL),
 	)
 	logWriter.Debug(
 		ctx,
@@ -142,7 +206,7 @@ func (r *incidentRepository) AddPostMortemUrl(ctx context.Context, channelName s
 
 	_, err := r.db.Exec(
 		updateCommand,
-		postMortemUrl,
+		postMortemURL,
 		channelName)
 
 	if err != nil {
@@ -151,16 +215,17 @@ func (r *incidentRepository) AddPostMortemUrl(ctx context.Context, channelName s
 			"postgres/incident-repository.AddPostMortemUrl ERROR",
 			log.NewValue("error", err),
 		)
-	} else {
-		logWriter.Debug(
-			ctx,
-			"postgres/incident-repository.AddPostMortemUrl SUCCESS",
-		)
 	}
+
+	logWriter.Debug(
+		ctx,
+		"postgres/incident-repository.AddPostMortemUrl SUCCESS",
+	)
 
 	return err
 }
 
+// GetIncident retrieves an incident entity from the repository given a channelID
 func (r *incidentRepository) GetIncident(ctx context.Context, channelID string) (inc model.Incident, err error) {
 	logWriter := r.logger.With(
 		log.NewValue("channelID", channelID),
@@ -198,7 +263,7 @@ func (r *incidentRepository) GetIncident(ctx context.Context, channelID string) 
 	}
 
 	rows.Scan(
-		&inc.Id,
+		&inc.ID,
 		&inc.Title,
 		&inc.DescriptionStarted,
 		&inc.DescriptionCancelled,
@@ -211,14 +276,15 @@ func (r *incidentRepository) GetIncident(ctx context.Context, channelID string) 
 		&inc.Functionality,
 		&inc.RootCause,
 		&inc.CustomerImpact,
-		&inc.StatusPageUrl,
-		&inc.PostMortemUrl,
+		&inc.MeetingURL,
+		&inc.StatusPageURL,
+		&inc.PostMortemURL,
 		&inc.Status,
 		&inc.Product,
 		&inc.SeverityLevel,
 		&inc.ChannelName,
-		&inc.ChannelId,
-		&inc.CommanderId,
+		&inc.ChannelID,
+		&inc.CommanderID,
 		&inc.CommanderEmail,
 	)
 
@@ -229,6 +295,7 @@ func (r *incidentRepository) GetIncident(ctx context.Context, channelID string) 
 	return inc, nil
 }
 
+// GetIncidentByChannelID retrieves an Incident given a channelID
 func GetIncidentByChannelID() string {
 	return `SELECT
 		id
@@ -244,6 +311,7 @@ func GetIncidentByChannelID() string {
 		, functionality
 		, root_cause
 		, customer_impact
+		, meeting_url
 		, status_page_url
 		, post_mortem_url
 		, status
@@ -274,7 +342,7 @@ func (r *incidentRepository) UpdateIncidentDates(ctx context.Context, inc *model
 		inc.StartTimestamp,
 		inc.IdentificationTimestamp,
 		inc.EndTimestamp,
-		inc.ChannelId,
+		inc.ChannelID,
 	)
 	if err != nil {
 		r.logger.Error(
@@ -325,7 +393,7 @@ func (r *incidentRepository) UpdateIncidentDates(ctx context.Context, inc *model
 
 func (r *incidentRepository) CancelIncident(ctx context.Context, inc *model.Incident) error {
 	logWriter := r.logger.With(
-		log.NewValue("channelID", inc.ChannelId),
+		log.NewValue("channelID", inc.ChannelID),
 		log.NewValue("descriptionCancel", inc.DescriptionCancelled),
 	)
 
@@ -338,7 +406,7 @@ func (r *incidentRepository) CancelIncident(ctx context.Context, inc *model.Inci
 		`UPDATE incident SET status = $1, description_cancelled = $2 WHERE channel_id = $3`,
 		model.StatusCancel,
 		inc.DescriptionCancelled,
-		inc.ChannelId,
+		inc.ChannelID,
 	)
 
 	if err != nil {
@@ -405,7 +473,7 @@ func (r *incidentRepository) CloseIncident(ctx context.Context, inc *model.Incid
 		inc.SeverityLevel,
 		model.StatusClosed,
 		inc.Responsibility,
-		inc.ChannelId,
+		inc.ChannelID,
 	)
 
 	if err != nil {
@@ -471,12 +539,12 @@ func (r *incidentRepository) ResolveIncident(ctx context.Context, inc *model.Inc
 			end_ts = $4,
 			status = $5
 		WHERE channel_id = $6`,
-		inc.StatusPageUrl,
+		inc.StatusPageURL,
 		inc.DescriptionResolved,
 		inc.StartTimestamp,
 		inc.EndTimestamp,
 		model.StatusResolved,
-		inc.ChannelId,
+		inc.ChannelID,
 	)
 
 	if err != nil {
@@ -558,7 +626,7 @@ func (r *incidentRepository) ListActiveIncidents(ctx context.Context) ([]model.I
 		i++
 		var inc model.Incident
 		err := rows.Scan(
-			&inc.Id,
+			&inc.ID,
 			&inc.Title,
 			&inc.DescriptionStarted,
 			&inc.DescriptionCancelled,
@@ -571,14 +639,14 @@ func (r *incidentRepository) ListActiveIncidents(ctx context.Context) ([]model.I
 			&inc.Functionality,
 			&inc.RootCause,
 			&inc.CustomerImpact,
-			&inc.StatusPageUrl,
-			&inc.PostMortemUrl,
+			&inc.StatusPageURL,
+			&inc.PostMortemURL,
 			&inc.Status,
 			&inc.Product,
 			&inc.SeverityLevel,
 			&inc.ChannelName,
-			&inc.ChannelId,
-			&inc.CommanderId,
+			&inc.ChannelID,
+			&inc.CommanderID,
 			&inc.CommanderEmail,
 		)
 		if err != nil {
@@ -603,6 +671,7 @@ func (r *incidentRepository) ListActiveIncidents(ctx context.Context) ([]model.I
 	return incidents, nil
 }
 
+// GetIncidentStatusFilterQuery returns a query to filter incident by status
 func GetIncidentStatusFilterQuery() string {
 	return `SELECT
 		  id
@@ -644,7 +713,7 @@ func (r *incidentRepository) PauseNotifyIncident(ctx context.Context, inc *model
 			snoozed_until = $1
 		WHERE channel_id = $2`,
 		inc.SnoozedUntil.Time,
-		inc.ChannelId,
+		inc.ChannelID,
 	)
 	if err != nil {
 		r.logger.Error(

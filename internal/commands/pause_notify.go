@@ -81,8 +81,8 @@ func PauseNotifyIncidentByDialog(
 		userID                = incidentDetails.User.ID
 		userName              = incidentDetails.User.Name
 		submissions           = incidentDetails.Submission
-		pauseNotifyTimeText   = submissions.PauseNotifyTime
-		pauseNotifyReasonText = submissions.PauseNotifyReason
+		pauseNotifyTimeText   = submissions["pause_notify_time"]
+		pauseNotifyReasonText = submissions["pause_notify_reason"]
 
 		pauseNotifyTime sql.NullTime
 	)
@@ -114,7 +114,7 @@ func PauseNotifyIncidentByDialog(
 	)
 
 	incident := model.Incident{
-		ChannelId:    channelID,
+		ChannelID:    channelID,
 		SnoozedUntil: pauseNotifyTime,
 	}
 

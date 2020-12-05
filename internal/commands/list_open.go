@@ -49,12 +49,12 @@ func createListOpenAttachment(incidents []model.Incident) slack.Attachment {
 	var fields []slack.AttachmentField
 
 	for _, inc := range incidents {
-		messageText.WriteString("- <#" + inc.ChannelId + ">\n")
+		messageText.WriteString("- <#" + inc.ChannelID + ">\n")
 
 		fields = append(
 			fields,
 			slack.AttachmentField{
-				Value: "- <#" + inc.ChannelId + ">",
+				Value: "- <#" + inc.ChannelID + ">",
 			},
 		)
 	}

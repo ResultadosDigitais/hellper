@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS public.incident (
 	functionality text NULL,
 	root_cause text NULL,
 	customer_impact int4 NULL,
+	meeting_url text NULL,
 	status_page_url text NULL,
 	post_mortem_url text NULL,
 	status varchar(50) NULL,

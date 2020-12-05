@@ -2,7 +2,6 @@ package commands_test
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"hellper/internal/app"
 	"hellper/internal/bot"
@@ -198,12 +197,8 @@ func buildCancelIncidentMock(status string) model.Incident {
 		StartTimestamp:          &startDate,
 		IdentificationTimestamp: &identificationDate,
 		EndTimestamp:            &endDate,
-		Responsibility:          "Product",
 		Team:                    "shield",
-		Functionality:           "hellper",
 		RootCause:               "PR #00",
-		CustomerImpact:          sql.NullInt64{Int64: 2300},
-		StatusPageUrl:           "status.io",
 		PostMortemUrl:           "google.com",
 		Status:                  status,
 		Product:                 "RDSM",

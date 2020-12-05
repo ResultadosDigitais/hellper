@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"fmt"
 	"hellper/internal/app"
 	"hellper/internal/concurrence"
 	"strconv"
@@ -42,11 +43,12 @@ func CloseIncidentDialog(ctx context.Context, app *app.App, channelID, userID, t
 			Optional:    false,
 		},
 		MaxLength: 500,
+		Value:     inc.RootCause,
 	}
 
 	startDate := &slack.TextInputElement{
 		DialogInput: slack.DialogInput{
-			Label:       "Incident start date",
+			Label:       "Incident Start Date",
 			Name:        "init_date",
 			Type:        "text",
 			Placeholder: dateLayout,
@@ -58,7 +60,7 @@ func CloseIncidentDialog(ctx context.Context, app *app.App, channelID, userID, t
 
 	severityLevel := &slack.DialogInputSelect{
 		DialogInput: slack.DialogInput{
-			Label:       "Severity level",
+			Label:       "Severity Level",
 			Name:        "severity_level",
 			Type:        "select",
 			Placeholder: "Set the severity level",
@@ -66,6 +68,7 @@ func CloseIncidentDialog(ctx context.Context, app *app.App, channelID, userID, t
 		},
 		Options:      getDialogOptionsWithSeverityLevels(),
 		OptionGroups: []slack.DialogOptionGroup{},
+		Value:        fmt.Sprintf("%d", inc.SeverityLevel),
 	}
 
 	dialogElements := []slack.DialogElement{
@@ -119,7 +122,6 @@ func CloseIncidentByDialog(ctx context.Context, app *app.App, incidentDetails bo
 	var err error
 	if startDateText != "" {
 		startDate, err = time.Parse(dateLayout, startDateText)
-
 		if err != nil {
 			logWriter.Error(
 				ctx,

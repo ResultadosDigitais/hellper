@@ -39,13 +39,13 @@
 
 | Command  | Request URL | Short Description |
 | - | - | - |
-|`/hellper_incident`|<https://yourhost.publicaddress.com/open>|_Starts Incident_|
-|`/hellper_status`|<https://yourhost.publicaddress.com/status>|_Show all pinned messages_|
-|`/hellper_close`|<https://yourhost.publicaddress.com/close>|_Closes Incident_|
-|`/hellper_resolve`|<https://yourhost.publicaddress.com/resolve>|_Resolves Incident_|
-|`/hellper_cancel`|<https://yourhost.publicaddress.com/cancel>|_Cancels Incident_|
-|`/hellper_pause_notify`|<https://yourhost.publicaddress.com/pause-notify>|_Pauses incident notification_|
-|`/hellper_update_dates`|<https://yourhost.publicaddress.com/dates>|_Updates the dates for an incident_|
+|`/incident`|<https://yourhost.publicaddress.com/open>|_Start incident_|
+|`/incident_add_status`|<https://yourhost.publicaddress.com/add-status>|_Add status message to incident_|
+|`/incident_status`|<https://yourhost.publicaddress.com/status>|_Show all pinned messages_|
+|`/incident_edit`|<https://yourhost.publicaddress.com/edit>|_Edit incident information_|
+|`/incident_resolve`|<https://yourhost.publicaddress.com/resolve>|_Resolves incident_|
+|`/incident_close`|<https://yourhost.publicaddress.com/close>|_Closes incident_|
+|`/incident_cancel`|<https://yourhost.publicaddress.com/cancel>|_Cancel incident_|
 
 ## Interactivity & Shortcuts
 

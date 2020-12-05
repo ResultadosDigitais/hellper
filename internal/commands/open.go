@@ -52,7 +52,7 @@ func OpenStartIncidentDialog(ctx context.Context, app *app.App, userID string, t
 
 	commander := &slack.DialogInputSelect{
 		DialogInput: slack.DialogInput{
-			Label:       "Incident commander",
+			Label:       "Incident Commander",
 			Name:        "incident_commander",
 			Type:        "select",
 			Placeholder: "Set the Incident commander",
@@ -65,7 +65,7 @@ func OpenStartIncidentDialog(ctx context.Context, app *app.App, userID string, t
 
 	severityLevel := &slack.DialogInputSelect{
 		DialogInput: slack.DialogInput{
-			Label:       "Severity level",
+			Label:       "Severity Level",
 			Name:        "severity_level",
 			Type:        "select",
 			Placeholder: "Set the severity level",
@@ -77,7 +77,7 @@ func OpenStartIncidentDialog(ctx context.Context, app *app.App, userID string, t
 
 	shouldCreateMeeting := &slack.DialogInputSelect{
 		DialogInput: slack.DialogInput{
-			Label:       "Should I create an Incident Meeting?",
+			Label:       "Should I Create an Incident Meeting?",
 			Name:        "create_meeting",
 			Type:        "select",
 			Placeholder: "Select an option",
@@ -99,7 +99,7 @@ func OpenStartIncidentDialog(ctx context.Context, app *app.App, userID string, t
 
 	description := &slack.TextInputElement{
 		DialogInput: slack.DialogInput{
-			Label:       "Incident description",
+			Label:       "Incident Description",
 			Name:        "incident_description",
 			Type:        "textarea",
 			Placeholder: "Brief description on what is happening in this incident. eg. We're having issues with the Product X or Service Y",

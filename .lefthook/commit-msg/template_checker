@@ -7,7 +7,7 @@ line='======================================================================='
 
 INPUT_FILE=$1
 START_LINE=`head -n1 $INPUT_FILE`
-PATTERN='^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)!?(\([a-z ]+\))?(: )([^\n]+)(\n{1}?((\n{1}[^\n]+)+)?)?(\n{1}(\n{1}[^\n]+)+)?$'
+PATTERN='^(merge|build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)!?(\([a-z ]+\))?(: )([^\n]+)(\n{1}?((\n{1}[^\n]+)+)?)?(\n{1}(\n{1}[^\n]+)+)?$'
 if ! [[ "$START_LINE" =~ $PATTERN ]]; then
   echo $line
   echo "💥 ${warning}WARNING!${reset} ${red}Bad commit message. Please check the accepted pattern:${reset}"

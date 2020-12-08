@@ -29,11 +29,12 @@ func createPostMortem(
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/open.create_post_mortem_document ERROR",
+			log.Trace(),
+			log.Action("fileStorage.CreatePostMortemDocument"),
+			log.Reason(err.Error()),
 			log.NewValue("incident_id", incidentID),
 			log.NewValue("incident_name", incidentName),
 			log.NewValue("channel_name", channelName),
-			log.NewValue("error", err),
 		)
 		return "", err
 	}
@@ -64,7 +65,7 @@ func addPostMortemURLToDB(ctx context.Context, logger log.Logger, repository mod
 	if err != nil {
 		logger.Info(
 			ctx,
-			"Post Mortem could not be inserted to DB",
+			log.Trace(),
 			log.NewValue("channelName", channelName),
 			log.NewValue("postMortemURL", postMortemURL),
 		)

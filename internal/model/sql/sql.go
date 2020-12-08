@@ -15,13 +15,6 @@ type DB interface {
 	Exec(string, ...interface{}) (Result, error)
 	Ping() error
 	Close() error
-	//func (db *DB) Begin() (*Tx, error)
-	//func (db *DB) Driver() driver.Driver
-	//func (db *DB) Prepare(query string) (*Stmt, error)
-	//func (db *DB) SetConnMaxLifetime(d time.Duration)
-	//func (db *DB) SetMaxIdleConns(n int)
-	//func (db *DB) SetMaxOpenConns(n int)
-	//func (db *DB) Stats() DBStats
 }
 
 type Row interface {

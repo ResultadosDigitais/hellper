@@ -45,10 +45,6 @@
       "description": "Gap in days between resolve and postmortem event",
       "value": "5"
     },
-    "HELLPER_LANGUAGE": {
-      "description": "Hellper languague",
-      "value": "pt-br"
-    },
     "HELLPER_MATRIX_HOST": {
       "description": "Matrix host",
       "value": "YOUR_MATRIX_HOST"

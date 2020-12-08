@@ -38,7 +38,7 @@ func (h *handlerClose) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	body := buf.String()
 	logger.Info(
 		ctx,
-		"handler/close.ServeHTTP",
+		log.Trace(),
 		log.NewValue("requestbody", body),
 	)
 
@@ -47,7 +47,7 @@ func (h *handlerClose) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	logger.Info(
 		ctx,
-		"handler/close.ServeHTTP Form",
+		log.Trace(),
 		formValues...,
 	)
 
@@ -60,8 +60,8 @@ func (h *handlerClose) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		logger.Error(
 			ctx,
 			log.Trace(),
-			log.Reason("commands.CloseIncidentDialog"),
-			log.NewValue("error", err),
+			log.Action("commands.CloseIncidentDialog"),
+			log.Reason(err.Error()),
 		)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

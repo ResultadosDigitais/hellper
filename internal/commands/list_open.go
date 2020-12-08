@@ -3,7 +3,6 @@ package commands
 import (
 	"context"
 	"hellper/internal/bot"
-	"hellper/internal/config"
 	"hellper/internal/log"
 	"hellper/internal/model"
 	"strings"
@@ -18,9 +17,10 @@ func ListOpenIncidents(ctx context.Context, client bot.Client, logger log.Logger
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/list_open.ListOpenIncidents ListActiveIncidents error",
+			log.Trace(),
+			log.Action("repository.ListActiveIncidents"),
+			log.Reason(err.Error()),
 			log.NewValue("event", event),
-			log.NewValue("error", err),
 		)
 
 		PostErrorAttachment(ctx, client, logger, event.Channel, event.User, err.Error())
@@ -28,13 +28,14 @@ func ListOpenIncidents(ctx context.Context, client bot.Client, logger log.Logger
 
 	logger.Info(
 		ctx,
-		"command/list_open.ListOpenIncidents",
+		log.Trace(),
 		log.NewValue("event", event),
 		log.NewValue("incidents", incidents),
 	)
 
 	if len(incidents) == 0 {
-		postMessage(client, event.Channel, config.Env.Messages.NoListOpenIncidents)
+		var messageText strings.Builder
+		messageText.WriteString("No active incidents!")
 	} else {
 		attachment := createListOpenAttachment(incidents)
 		postMessage(client, event.Channel, "", attachment)

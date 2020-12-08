@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"hellper/internal/bot"
-	"hellper/internal/config"
 	"hellper/internal/log"
 
 	"github.com/slack-go/slack"
@@ -19,21 +18,31 @@ func ping(ctx context.Context, client bot.Client, logger log.Logger, channelID s
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/util.ping postMessage error",
+			log.Trace(),
+			log.Action("postMessage"),
+			log.Reason(err.Error()),
 			log.NewValue("channelID", channelID),
-			log.NewValue("error", err),
 		)
 	}
 }
 
 func help(ctx context.Context, client bot.Client, logger log.Logger, channelID string) {
-	err := postMessage(client, channelID, config.Env.Messages.BotHelp)
+	err := postMessage(client, channelID, `
+	hellper
+	A bot to help the incident treatment
+	Available commands:
+ 	help      Show this help
+ 	ping      Test bot connectivity
+ 	list      List all active incidents
+ 	state     Show incident state and timeline
+`)
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/util.help postMessage error",
+			log.Trace(),
+			log.Action("postMessage"),
+			log.Reason(err.Error()),
 			log.NewValue("channelID", channelID),
-			log.NewValue("error", err),
 		)
 	}
 }
@@ -76,11 +85,12 @@ func PostErrorAttachment(ctx context.Context, client bot.Client, logger log.Logg
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/util.PostErrorAttachment postMessage error",
+			log.Trace(),
+			log.Action("client.PostEphemeralContext"),
+			log.Reason(err.Error()),
 			log.NewValue("channelID", channelID),
 			log.NewValue("userID", userID),
 			log.NewValue("text", text),
-			log.NewValue("error", err),
 		)
 		return
 	}

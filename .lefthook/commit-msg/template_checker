@@ -1,0 +1,18 @@
+reset=`tput sgr0`
+red=`tput setaf 1; tput bold;`
+green=`tput setaf 2; tput bold;`
+grey=`tput setaf 8; tput bold;`
+warning=`tput setaf 7; tput setab 1; tput bold;`
+line='======================================================================='
+
+INPUT_FILE=$1
+START_LINE=`head -n1 $INPUT_FILE`
+PATTERN='^(merge|build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)!?(\([a-z ]+\))?(: )([^\n]+)(\n{1}?((\n{1}[^\n]+)+)?)?(\n{1}(\n{1}[^\n]+)+)?$'
+if ! [[ "$START_LINE" =~ $PATTERN ]]; then
+  echo $line
+  echo "💥 ${warning}WARNING!${reset} ${red}Bad commit message. Please check the accepted pattern:${reset}"
+  echo "${grey}(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test): message${reset}"
+  echo "Example: ${green}git commit -m \"feat: add report controller${reset}\""
+  echo $line
+  exit 1
+fi

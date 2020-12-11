@@ -92,10 +92,11 @@ func PauseNotifyIncidentByDialog(
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/pauseNotify.PauseNotifyIncidentByDialog strconv.Atoi ERROR",
+			log.Trace(),
+			log.Action("strconv.Atoi"),
+			log.Reason(err.Error()),
 			log.NewValue("channelID", channelID),
 			log.NewValue("pauseNotifyTimeText", pauseNotifyTimeText),
-			log.NewValue("error", err),
 		)
 
 		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())
@@ -106,7 +107,7 @@ func PauseNotifyIncidentByDialog(
 
 	logger.Info(
 		ctx,
-		"command/pauseNotify.PauseNotifyIncidentByDialog",
+		log.Trace(),
 		log.NewValue("pauseNotifyTimeText", pauseNotifyTimeText),
 		log.NewValue("pauseNotifyReasonText", pauseNotifyReasonText),
 		log.NewValue("pauseNotifyTime", pauseNotifyTime),
@@ -121,9 +122,10 @@ func PauseNotifyIncidentByDialog(
 	if err != nil {
 		logger.Error(
 			ctx,
-			"command/pauseNotify.PauseNotifyIncidentByDialog PauseNotifyIncident ERROR",
+			log.Trace(),
+			log.Action("repository.PauseNotifyIncident"),
+			log.Reason(err.Error()),
 			log.NewValue("incident", incident),
-			log.NewValue("error", err),
 		)
 
 		PostErrorAttachment(ctx, client, logger, channelID, userID, err.Error())

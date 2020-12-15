@@ -252,15 +252,18 @@ func treatGroupMentions(ctx context.Context, client bot.Client, logger log.Logge
 			return "", err
 		}
 
-		msg = strings.Replace(msg, id[0], "@"+group.GroupConversation.Name, -1)
-
 		logger.Info(
 			ctx,
 			log.Trace(),
 			log.Reason("treatGroupMentions"),
 			log.NewValue("message", msg),
-			log.NewValue("info", "treated group mention"),
+			log.NewValue("group", group),
+			log.NewValue("groupConversation", group.GroupConversation),
+			log.NewValue("id[0]", id[0]),
+			log.NewValue("info", "untreated group mention"),
 		)
+
+		msg = strings.Replace(msg, id[0], "@"+group.GroupConversation.Name, -1)
 	}
 
 	return msg, nil

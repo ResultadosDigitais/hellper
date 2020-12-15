@@ -191,10 +191,10 @@ func treatMessage(ctx context.Context, client bot.Client, logger log.Logger, msg
 		return "", err
 	}
 
-	// msg, err = treatGroupMentions(ctx, client, logger, msg)
-	// if err != nil {
-	// 	return "", err
-	// }
+	msg, err = treatGroupMentions(ctx, client, logger, msg)
+	if err != nil {
+		return "", err
+	}
 
 	return msg, nil
 }
@@ -235,28 +235,28 @@ func treatUsersMentions(ctx context.Context, client bot.Client, logger log.Logge
 	return msg, nil
 }
 
-// func treatGroupMentions(ctx context.Context, client bot.Client, logger log.Logger, msg string) (string, error) {
-// 	re := regexp.MustCompile(`<!subteam\^(\w+)>`)
-// 	groupIDs := re.FindAllStringSubmatch(msg, -1)
+func treatGroupMentions(ctx context.Context, client bot.Client, logger log.Logger, msg string) (string, error) {
+	re := regexp.MustCompile(`<!subteam\^(\w+)[^>]*>`)
+	groupIDs := re.FindAllStringSubmatch(msg, -1)
 
-// 	for _, id := range groupIDs {
-// 		group, err := client.GetGroupInfoContext(ctx, id[1])
-// 		if err != nil {
-// 			logger.Error(
-// 				ctx,
-// 				log.Trace(),
-// 				log.Reason("GetGroupInfoContext"),
-// 				log.NewValue("message", msg),
-// 				log.NewValue("error", err),
-// 			)
-// 			return "", err
-// 		}
+	for _, id := range groupIDs {
+		group, err := client.GetGroupInfoContext(ctx, id[1])
+		if err != nil {
+			logger.Error(
+				ctx,
+				log.Trace(),
+				log.Reason("GetGroupInfoContext"),
+				log.NewValue("message", msg),
+				log.NewValue("error", err),
+			)
+			return "", err
+		}
 
-// 		msg = strings.Replace(msg, id[0], "@"+group.GroupConversation.Name, -1)
-// 	}
+		msg = strings.Replace(msg, id[0], "@"+group.GroupConversation.Name, -1)
+	}
 
-// 	return msg, nil
-// }
+	return msg, nil
+}
 
 // ShowStatus posts an attachment on the channel, with each pinned message from it
 func ShowStatus(

@@ -236,7 +236,7 @@ func treatUsersMentions(ctx context.Context, client bot.Client, logger log.Logge
 }
 
 func treatGroupMentions(ctx context.Context, client bot.Client, logger log.Logger, msg string) (string, error) {
-	re := regexp.MustCompile(`<!subteam\^(\w+)[^>]*>`)
+	re := regexp.MustCompile(`<!subteam\^(\w+[^>]*)>`)
 	groupIDs := re.FindAllStringSubmatch(msg, -1)
 
 	logger.Info(

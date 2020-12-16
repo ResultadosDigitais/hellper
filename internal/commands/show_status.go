@@ -236,32 +236,11 @@ func treatUsersMentions(ctx context.Context, client bot.Client, logger log.Logge
 }
 
 func treatGroupMentions(ctx context.Context, client bot.Client, logger log.Logger, msg string) (string, error) {
-	re := regexp.MustCompile(`<!subteam\^\w+\|@([^>]*)>`)
+	re := regexp.MustCompile(`<!subteam\^\w+\|(@[^>]*)>`)
 	groupIDs := re.FindAllStringSubmatch(msg, -1)
 
-	logger.Info(
-		ctx,
-		log.Trace(),
-		log.Reason("treatGroupMentions"),
-		log.NewValue("message", msg),
-		log.NewValue("goupIDs", groupIDs),
-		log.NewValue("info", "untreated group mention"),
-	)
-
 	for _, id := range groupIDs {
-		group, err := client.GetGroupInfoContext(ctx, id[1])
-		if err != nil {
-			logger.Error(
-				ctx,
-				log.Trace(),
-				log.Reason("GetGroupInfoContext"),
-				log.NewValue("message", msg),
-				log.NewValue("error", err),
-			)
-			return "", err
-		}
-
-		msg = strings.Replace(msg, id[0], "@"+group.GroupConversation.Name, -1)
+		msg = strings.Replace(msg, id[0], id[1], -1)
 	}
 
 	return msg, nil

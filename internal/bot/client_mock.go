@@ -73,17 +73,6 @@ func (mock *ClientMock) GetUserInfoContext(ctx context.Context, userID string) (
 	return result.(*slack.User), args.Error(1)
 }
 
-func (mock *ClientMock) GetGroupInfoContext(ctx context.Context, groupID string) (*slack.Group, error) {
-	var (
-		args   = mock.Called(ctx, groupID)
-		result = args.Get(0)
-	)
-	if result == nil {
-		return nil, args.Error(1)
-	}
-	return result.(*slack.Group), args.Error(1)
-}
-
 func (mock *ClientMock) GetUsersInConversationContext(ctx context.Context, params *slack.GetUsersInConversationParameters) ([]string, string, error) {
 	var (
 		args   = mock.Called(ctx, params)

@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
-	github.com/google/uuid v1.1.2
+	github.com/google/uuid v1.1.3
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/lib/pq v1.9.0
 	github.com/paked/configure v0.0.0-20190218140148-28f9c3f21a44

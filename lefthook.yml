@@ -1,0 +1,9 @@
+commit-msg:
+  scripts:
+    "template_checker":
+      runner: bash
+pre-push:
+  commands:
+    test:
+      glob: "*.go"
+      run: go test -count=1 -cover ./...

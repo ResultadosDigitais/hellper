@@ -191,6 +191,11 @@ func treatMessage(ctx context.Context, client bot.Client, logger log.Logger, msg
 		return "", err
 	}
 
+	msg, err = treatGroupMentions(ctx, client, logger, msg)
+	if err != nil {
+		return "", err
+	}
+
 	return msg, nil
 }
 
@@ -225,6 +230,17 @@ func treatUsersMentions(ctx context.Context, client bot.Client, logger log.Logge
 		}
 
 		msg = strings.Replace(msg, id[0], "@"+user.Name, -1)
+	}
+
+	return msg, nil
+}
+
+func treatGroupMentions(ctx context.Context, client bot.Client, logger log.Logger, msg string) (string, error) {
+	re := regexp.MustCompile(`<!subteam\^\w+\|(@[^>]*)>`)
+	groupIDs := re.FindAllStringSubmatch(msg, -1)
+
+	for _, id := range groupIDs {
+		msg = strings.Replace(msg, id[0], id[1], -1)
 	}
 
 	return msg, nil

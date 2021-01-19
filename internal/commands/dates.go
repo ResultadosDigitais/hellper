@@ -38,21 +38,21 @@ func UpdateDatesDialog(ctx context.Context, logger log.Logger, client bot.Client
 		ctx,
 		"command/close.UpdateDatesDialog INFO",
 		log.NewValue("channelID", channelID),
-		log.NewValue("startDate", inc.StartTimestamp),
-		log.NewValue("identificationDate", inc.IdentificationTimestamp),
-		log.NewValue("endDate", inc.EndTimestamp),
+		log.NewValue("startDate", inc.StartedAt),
+		log.NewValue("identificationDate", inc.IdentifiedAt),
+		log.NewValue("endDate", inc.EndedAt),
 	)
 
-	if inc.StartTimestamp != nil {
-		initValue = inc.StartTimestamp.Format(dateLayout)
+	if inc.StartedAt != nil {
+		initValue = inc.StartedAt.Format(dateLayout)
 	}
 
-	if inc.IdentificationTimestamp != nil {
-		identificationValue = inc.IdentificationTimestamp.Format(dateLayout)
+	if inc.IdentifiedAt != nil {
+		identificationValue = inc.IdentifiedAt.Format(dateLayout)
 	}
 
-	if inc.EndTimestamp != nil {
-		endValue = inc.EndTimestamp.Format(dateLayout)
+	if inc.EndedAt != nil {
+		endValue = inc.EndedAt.Format(dateLayout)
 	}
 
 	timeZone := &slack.DialogInputSelect{
@@ -214,10 +214,10 @@ func UpdateDatesByDialog(ctx context.Context, client bot.Client, logger log.Logg
 	}
 
 	incident := model.Incident{
-		ChannelId:               channelID,
-		StartTimestamp:          &initDate,
-		IdentificationTimestamp: &identificationDate,
-		EndTimestamp:            &endDate,
+		ChannelID:    channelID,
+		StartedAt:    &initDate,
+		IdentifiedAt: &identificationDate,
+		EndedAt:      &endDate,
 	}
 
 	err = repository.UpdateIncidentDates(ctx, &incident)
@@ -235,7 +235,7 @@ func UpdateDatesByDialog(ctx context.Context, client bot.Client, logger log.Logg
 	}
 
 	successAttach := createDatesSuccessAttachment(incident, userName)
-	postMessage(client, incident.ChannelId, "", successAttach)
+	postMessage(client, incident.ChannelID, "", successAttach)
 
 	return nil
 }
@@ -260,25 +260,25 @@ func createDatesSuccessAttachment(inc model.Incident, userName string) slack.Att
 		messageText strings.Builder
 	)
 
-	messageText.WriteString("The dates of Incident <#" + inc.ChannelId + "> has been updated by <@" + userName + ">\n\n")
+	messageText.WriteString("The dates of Incident <#" + inc.ChannelID + "> has been updated by <@" + userName + ">\n\n")
 
 	return slack.Attachment{
-		Pretext:  "The dates of Incident <#" + inc.ChannelId + "> has been updated by <@" + userName + ">",
+		Pretext:  "The dates of Incident <#" + inc.ChannelID + "> has been updated by <@" + userName + ">",
 		Fallback: messageText.String(),
 		Text:     "",
 		Color:    "#6fff47",
 		Fields: []slack.AttachmentField{
 			{
 				Title: "Start Date:",
-				Value: inc.StartTimestamp.Format(dateLayout),
+				Value: inc.StartedAt.Format(dateLayout),
 			},
 			{
 				Title: "Identification Date:",
-				Value: inc.IdentificationTimestamp.Format(dateLayout),
+				Value: inc.IdentifiedAt.Format(dateLayout),
 			},
 			{
 				Title: "End Date:",
-				Value: inc.EndTimestamp.Format(dateLayout),
+				Value: inc.EndedAt.Format(dateLayout),
 			},
 		},
 	}

@@ -47,7 +47,7 @@ func channelsNotify(ctx context.Context) {
 func notifyChannels(ctx context.Context, incident model.Incident, msg string) {
 	if reminder.CanSendNotify(ctx, client, logger, repository, incident) {
 		logger.Info(ctx, log.Trace(), log.Action("notify_job"), log.NewValue("incident", incident))
-		err := send(incident.ChannelId, msg)
+		err := send(incident.ChannelID, msg)
 		if err != nil {
 			logger.Error(ctx, log.Trace(), log.NewValue("error", err))
 		}

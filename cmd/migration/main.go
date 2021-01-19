@@ -16,27 +16,27 @@ func main() {
 
 func migration() {
 	// Table renaming from `incident` to `incidents`
-	err := database.DB.Migrator().RenameTable("incident", &model.IncidentGORM{})
+	err := database.DB.Migrator().RenameTable("incident", &model.Incident{})
 	if err != nil {
 		panic(err)
 	}
 
 	// Columns renaming
-	err = database.DB.Migrator().RenameColumn(&model.IncidentGORM{}, "start_ts", "started_at")
+	err = database.DB.Migrator().RenameColumn(&model.Incident{}, "start_ts", "started_at")
 	if err != nil {
 		panic(err)
 	}
-	err = database.DB.Migrator().RenameColumn(&model.IncidentGORM{}, "end_ts", "ended_at")
+	err = database.DB.Migrator().RenameColumn(&model.Incident{}, "end_ts", "ended_at")
 	if err != nil {
 		panic(err)
 	}
-	err = database.DB.Migrator().RenameColumn(&model.IncidentGORM{}, "identification_ts", "identified_at")
+	err = database.DB.Migrator().RenameColumn(&model.Incident{}, "identification_ts", "identified_at")
 	if err != nil {
 		panic(err)
 	}
 
 	// Change table to use GORM struct
-	err = database.DB.AutoMigrate(&model.IncidentGORM{})
+	err = database.DB.AutoMigrate(&model.Incident{})
 	if err != nil {
 		panic(err)
 	}

@@ -17,7 +17,7 @@ import (
 func createDateFields(inc model.Incident) (fields []slack.AttachmentField) {
 	dateLayout := time.RFC1123
 
-	if startTime := inc.StartTimestamp; startTime != nil {
+	if startTime := inc.StartedAt; startTime != nil {
 		timeMessage := startTime.Format(dateLayout)
 
 		field := slack.AttachmentField{
@@ -27,7 +27,7 @@ func createDateFields(inc model.Incident) (fields []slack.AttachmentField) {
 		fields = append(fields, field)
 	}
 
-	if identificationTime := inc.IdentificationTimestamp; identificationTime != nil {
+	if identificationTime := inc.IdentifiedAt; identificationTime != nil {
 		timeMessage := identificationTime.Format(dateLayout)
 
 		field := slack.AttachmentField{
@@ -37,7 +37,7 @@ func createDateFields(inc model.Incident) (fields []slack.AttachmentField) {
 		fields = append(fields, field)
 	}
 
-	if endTime := inc.EndTimestamp; endTime != nil {
+	if endTime := inc.EndedAt; endTime != nil {
 		timeMessage := endTime.Format(dateLayout)
 
 		field := slack.AttachmentField{

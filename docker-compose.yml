@@ -21,16 +21,16 @@ services:
   #   volumes:
   #     - .:/db
   #   working_dir: /db
-  migration:
-    image: golang:1.13
-    command: go run ./cmd/migration -v
-    env_file:
-      - development.env
-    volumes:
-      - .:/app/migration
-    working_dir: /app/migration
-    depends_on:
-      - hellper_db
+  # migration:
+  #   image: golang:1.13
+  #   command: go run ./cmd/migration -v
+  #   env_file:
+  #     - development.env
+  #   volumes:
+  #     - .:/app/migration
+  #   working_dir: /app/migration
+  #   depends_on:
+  #     - hellper_db
   hellper:
     image: golang:1.13
     volumes:
@@ -43,7 +43,7 @@ services:
       - "8080:8080"
     depends_on:
       - hellper_db
-      - migration
+      # - migration
 networks:
   default:
     driver: bridge

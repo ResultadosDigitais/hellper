@@ -30,23 +30,23 @@ func incidentLogValues(inc *model.Incident) []log.Value {
 		log.NewValue("descriptionStarted", inc.DescriptionStarted),
 		log.NewValue("descriptionCancelled", inc.DescriptionCancelled),
 		log.NewValue("descriptionResolved", inc.DescriptionResolved),
-		log.NewValue("startTime", inc.StartTimestamp),
-		log.NewValue("identificationTime", inc.IdentificationTimestamp),
-		log.NewValue("endTime", inc.EndTimestamp),
+		log.NewValue("startedAt", inc.StartedAt),
+		log.NewValue("identifiedAt", inc.IdentifiedAt),
+		log.NewValue("endedAt", inc.EndedAt),
 		log.NewValue("snoozedTime", inc.SnoozedUntil),
 		log.NewValue("responsibility", inc.Responsibility),
 		log.NewValue("functionality", inc.Functionality),
 		log.NewValue("rootCause", inc.RootCause),
 		log.NewValue("customerImpact", inc.CustomerImpact),
-		log.NewValue("statusPageURL", inc.StatusPageUrl),
-		log.NewValue("postMortemURL", inc.PostMortemUrl),
+		log.NewValue("statusPageURL", inc.StatusPageURL),
+		log.NewValue("postMortemURL", inc.PostMortemURL),
 		log.NewValue("team", inc.Team),
 		log.NewValue("product", inc.Product),
 		log.NewValue("severityLevel", inc.SeverityLevel),
 		log.NewValue("severityLevel", inc.SeverityLevel),
 		log.NewValue("channelName", inc.ChannelName),
-		log.NewValue("channelID", inc.ChannelId),
-		log.NewValue("commanderID", inc.CommanderId),
+		log.NewValue("channelID", inc.ChannelID),
+		log.NewValue("commanderID", inc.CommanderID),
 		log.NewValue("commanderEmail", inc.CommanderEmail),
 	}
 }
@@ -58,14 +58,14 @@ func (r *repository) InsertIncident(ctx context.Context, inc *model.Incident) (i
 		incidentLogValues(inc)...,
 	)
 
-	insertCommand := `INSERT INTO incident
+	insertCommand := `INSERT INTO incidents
 		( title
 		, description_started
 		, description_cancelled
 		, description_resolved
-		, start_ts
-		, end_ts
-		, identification_ts
+		, started_at
+		, ended_at
+		, identified_at
 		, responsibility
 		, functionality
 		, root_cause
@@ -90,21 +90,21 @@ func (r *repository) InsertIncident(ctx context.Context, inc *model.Incident) (i
 		inc.DescriptionStarted,
 		inc.DescriptionCancelled,
 		inc.DescriptionResolved,
-		inc.StartTimestamp,
-		inc.EndTimestamp,
-		inc.IdentificationTimestamp,
+		inc.StartedAt,
+		inc.EndedAt,
+		inc.IdentifiedAt,
 		inc.Responsibility,
 		inc.Functionality,
 		inc.RootCause,
 		inc.CustomerImpact,
-		inc.StatusPageUrl,
-		inc.PostMortemUrl,
+		inc.StatusPageURL,
+		inc.PostMortemURL,
 		inc.Status,
 		inc.Product,
 		inc.SeverityLevel,
 		inc.ChannelName,
-		inc.ChannelId,
-		inc.CommanderId,
+		inc.ChannelID,
+		inc.CommanderID,
 		inc.CommanderEmail)
 
 	switch err := idResult.Scan(&id); err {
@@ -128,19 +128,19 @@ func (r *repository) InsertIncident(ctx context.Context, inc *model.Incident) (i
 	}
 }
 
-func (r *repository) AddPostMortemUrl(ctx context.Context, channelName string, postMortemUrl string) error {
+func (r *repository) AddPostMortemUrl(ctx context.Context, channelName string, postMortemURL string) error {
 	r.logger.Info(
 		ctx,
 		log.Trace(),
 		log.NewValue("channelName", channelName),
-		log.NewValue("postMortemURL", postMortemUrl),
+		log.NewValue("postMortemURL", postMortemURL),
 	)
 
-	updateCommand := `UPDATE incident SET post_mortem_url = $1 WHERE channel_name = $2`
+	updateCommand := `UPDATE incidents SET post_mortem_url = $1 WHERE channel_name = $2`
 
 	_, err := r.db.Exec(
 		updateCommand,
-		postMortemUrl,
+		postMortemURL,
 		channelName)
 
 	if err != nil {
@@ -150,14 +150,14 @@ func (r *repository) AddPostMortemUrl(ctx context.Context, channelName string, p
 			log.Action("r.db.Exec"),
 			log.Reason(err.Error()),
 			log.NewValue("channelName", channelName),
-			log.NewValue("postMortemURL", postMortemUrl),
+			log.NewValue("postMortemURL", postMortemURL),
 		)
 	} else {
 		r.logger.Info(
 			ctx,
 			log.Trace(),
 			log.NewValue("channelName", channelName),
-			log.NewValue("postMortemURL", postMortemUrl),
+			log.NewValue("postMortemURL", postMortemURL),
 		)
 	}
 
@@ -202,27 +202,27 @@ func (r *repository) GetIncident(ctx context.Context, channelID string) (inc mod
 	}
 
 	rows.Scan(
-		&inc.Id,
+		&inc.ID,
 		&inc.Title,
 		&inc.DescriptionStarted,
 		&inc.DescriptionCancelled,
 		&inc.DescriptionResolved,
-		&inc.StartTimestamp,
-		&inc.EndTimestamp,
-		&inc.IdentificationTimestamp,
+		&inc.StartedAt,
+		&inc.EndedAt,
+		&inc.IdentifiedAt,
 		&inc.SnoozedUntil,
 		&inc.Responsibility,
 		&inc.Functionality,
 		&inc.RootCause,
 		&inc.CustomerImpact,
-		&inc.StatusPageUrl,
-		&inc.PostMortemUrl,
+		&inc.StatusPageURL,
+		&inc.PostMortemURL,
 		&inc.Status,
 		&inc.Product,
 		&inc.SeverityLevel,
 		&inc.ChannelName,
-		&inc.ChannelId,
-		&inc.CommanderId,
+		&inc.ChannelID,
+		&inc.CommanderID,
 		&inc.CommanderEmail,
 	)
 
@@ -241,9 +241,9 @@ func GetIncidentByChannelID() string {
 		, CASE WHEN description_started IS NULL THEN '' ELSE description_started END description_started
 		, CASE WHEN description_cancelled IS NULL THEN '' ELSE description_cancelled END description_cancelled
 		, CASE WHEN description_resolved IS NULL THEN '' ELSE description_resolved END description_resolved
-		, start_ts
-		, end_ts
-		, identification_ts
+		, started_at
+		, ended_at
+		, identified_at
     , snoozed_until
     , responsibility
 		, functionality
@@ -258,7 +258,7 @@ func GetIncidentByChannelID() string {
 		, CASE WHEN channel_id IS NULL THEN '' ELSE channel_id END AS channel_id
 		, CASE WHEN commander_id IS NULL THEN '' ELSE commander_id END commander_id
 		, CASE WHEN commander_email IS NULL THEN '' ELSE commander_email END commander_email
-	FROM incident
+	FROM incidents
 	WHERE channel_id = $1
 	LIMIT 1`
 }
@@ -271,15 +271,15 @@ func (r *repository) UpdateIncidentDates(ctx context.Context, inc *model.Inciden
 	)
 
 	result, err := r.db.Exec(
-		`UPDATE incident SET
-			start_ts = $1,
-			identification_ts = $2,
-			end_ts = $3
+		`UPDATE incidents SET
+			started_at = $1,
+			identified_at = $2,
+			ended_at = $3
 		WHERE channel_id = $4`,
-		inc.StartTimestamp,
-		inc.IdentificationTimestamp,
-		inc.EndTimestamp,
-		inc.ChannelId,
+		inc.StartedAt,
+		inc.IdentifiedAt,
+		inc.EndedAt,
+		inc.ChannelID,
 	)
 	if err != nil {
 		r.logger.Error(
@@ -332,14 +332,14 @@ func (r *repository) CancelIncident(ctx context.Context, inc *model.Incident) er
 	r.logger.Info(
 		ctx,
 		log.Trace(),
-		log.NewValue("channelID", inc.ChannelId),
+		log.NewValue("channelID", inc.ChannelID),
 		log.NewValue("descriptionCancel", inc.DescriptionCancelled),
 	)
 	result, err := r.db.Exec(
-		`UPDATE incident SET status = $1, description_cancelled = $2 WHERE channel_id = $3`,
+		`UPDATE incidents SET status = $1, description_cancelled = $2 WHERE channel_id = $3`,
 		model.StatusCancel,
 		inc.DescriptionCancelled,
-		inc.ChannelId,
+		inc.ChannelID,
 	)
 
 	if err != nil {
@@ -348,7 +348,7 @@ func (r *repository) CancelIncident(ctx context.Context, inc *model.Incident) er
 			log.Trace(),
 			log.Action("r.db.Exec"),
 			log.Reason(err.Error()),
-			log.NewValue("channelID", inc.ChannelId),
+			log.NewValue("channelID", inc.ChannelID),
 			log.NewValue("description", inc.DescriptionCancelled),
 		)
 		return err
@@ -362,7 +362,7 @@ func (r *repository) CancelIncident(ctx context.Context, inc *model.Incident) er
 			log.Trace(),
 			log.Action("result.RowsAffected"),
 			log.Reason(err.Error()),
-			log.NewValue("channelID", inc.ChannelId),
+			log.NewValue("channelID", inc.ChannelID),
 			log.NewValue("error", err),
 		)
 
@@ -376,7 +376,7 @@ func (r *repository) CancelIncident(ctx context.Context, inc *model.Incident) er
 			log.Trace(),
 			log.Action("rowsAffected"),
 			log.Reason(err.Error()),
-			log.NewValue("channelID", inc.ChannelId),
+			log.NewValue("channelID", inc.ChannelID),
 			log.NewValue("description", inc.DescriptionCancelled),
 		)
 
@@ -386,7 +386,7 @@ func (r *repository) CancelIncident(ctx context.Context, inc *model.Incident) er
 	r.logger.Info(
 		ctx,
 		log.Trace(),
-		log.NewValue("channelID", inc.ChannelId),
+		log.NewValue("channelID", inc.ChannelID),
 		log.NewValue("descriptionCancel", inc.DescriptionCancelled),
 	)
 	return nil
@@ -401,7 +401,7 @@ func (r *repository) CloseIncident(ctx context.Context, inc *model.Incident) err
 	)
 
 	result, err := r.db.Exec(
-		`UPDATE incident SET
+		`UPDATE incidents SET
 			root_cause = $1,
 			functionality = $2,
 			team = $3,
@@ -417,7 +417,7 @@ func (r *repository) CloseIncident(ctx context.Context, inc *model.Incident) err
 		inc.SeverityLevel,
 		model.StatusClosed,
 		inc.Responsibility,
-		inc.ChannelId,
+		inc.ChannelID,
 	)
 
 	if err != nil {
@@ -476,19 +476,19 @@ func (r *repository) ResolveIncident(ctx context.Context, inc *model.Incident) e
 	)
 
 	result, err := r.db.Exec(
-		`UPDATE incident SET
+		`UPDATE incidents SET
 			status_page_url = $1,
 			description_resolved = $2,
-			start_ts = $3,
-			end_ts = $4,
+			started_at = $3,
+			ended_at = $4,
 			status = $5
 		WHERE channel_id = $6`,
-		inc.StatusPageUrl,
+		inc.StatusPageURL,
 		inc.DescriptionResolved,
-		inc.StartTimestamp,
-		inc.EndTimestamp,
+		inc.StartedAt,
+		inc.EndedAt,
 		model.StatusResolved,
-		inc.ChannelId,
+		inc.ChannelID,
 	)
 
 	if err != nil {
@@ -570,27 +570,27 @@ func (r *repository) ListActiveIncidents(ctx context.Context) ([]model.Incident,
 		i++
 		var inc model.Incident
 		err := rows.Scan(
-			&inc.Id,
+			&inc.ID,
 			&inc.Title,
 			&inc.DescriptionStarted,
 			&inc.DescriptionCancelled,
 			&inc.DescriptionResolved,
-			&inc.StartTimestamp,
-			&inc.EndTimestamp,
-			&inc.IdentificationTimestamp,
+			&inc.StartedAt,
+			&inc.EndedAt,
+			&inc.IdentifiedAt,
 			&inc.SnoozedUntil,
 			&inc.Responsibility,
 			&inc.Functionality,
 			&inc.RootCause,
 			&inc.CustomerImpact,
-			&inc.StatusPageUrl,
-			&inc.PostMortemUrl,
+			&inc.StatusPageURL,
+			&inc.PostMortemURL,
 			&inc.Status,
 			&inc.Product,
 			&inc.SeverityLevel,
 			&inc.ChannelName,
-			&inc.ChannelId,
-			&inc.CommanderId,
+			&inc.ChannelID,
+			&inc.CommanderID,
 			&inc.CommanderEmail,
 		)
 		if err != nil {
@@ -622,9 +622,9 @@ func GetIncidentStatusFilterQuery() string {
 		, CASE WHEN description_started IS NULL THEN '' ELSE description_started END description_started
 		, CASE WHEN description_cancelled IS NULL THEN '' ELSE description_cancelled END description_cancelled
 		, CASE WHEN description_resolved IS NULL THEN '' ELSE description_resolved END description_resolved
-		, start_ts
-		, end_ts
-		, identification_ts
+		, started_at
+		, ended_at
+		, identified_at
     , snoozed_until
 		, responsibility
 		, functionality
@@ -639,7 +639,7 @@ func GetIncidentStatusFilterQuery() string {
 		, CASE WHEN channel_id IS NULL THEN '' ELSE channel_id END AS channel_id
 		, CASE WHEN commander_id IS NULL THEN '' ELSE commander_id END commander_id
 		, CASE WHEN commander_email IS NULL THEN '' ELSE commander_email END commander_email
-	FROM incident
+	FROM incidents
 	WHERE status IN ($1, $2)
 	LIMIT 100`
 }
@@ -652,11 +652,11 @@ func (r *repository) PauseNotifyIncident(ctx context.Context, inc *model.Inciden
 	)
 
 	result, err := r.db.Exec(
-		`UPDATE incident SET
+		`UPDATE incidents SET
 			snoozed_until = $1
 		WHERE channel_id = $2`,
 		inc.SnoozedUntil.Time,
-		inc.ChannelId,
+		inc.ChannelID,
 	)
 	if err != nil {
 		r.logger.Error(

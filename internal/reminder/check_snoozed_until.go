@@ -15,7 +15,7 @@ func hasSnoozedUntil(ctx context.Context, logger log.Logger, incident model.Inci
 			log.Trace(),
 			log.Action("do_not_notify"),
 			log.Reason("isPaused"),
-			log.NewValue("channelID", incident.ChannelId),
+			log.NewValue("channelID", incident.ChannelID),
 			log.NewValue("channelName", incident.ChannelName),
 			log.NewValue("snoozedUntil", snoozedUntil.Time),
 		)

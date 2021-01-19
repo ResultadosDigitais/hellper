@@ -15,13 +15,13 @@ import (
 )
 
 func hasLastPin(ctx context.Context, client bot.Client, logger log.Logger, incident model.Incident) bool {
-	pin, err := bot.LastPin(client, incident.ChannelId)
+	pin, err := bot.LastPin(client, incident.ChannelID)
 	if err != nil {
 		logger.Error(
 			ctx,
 			log.Trace(),
 			log.Reason("LastPin"),
-			log.NewValue("channelID", incident.ChannelId),
+			log.NewValue("channelID", incident.ChannelID),
 			log.NewValue("channelName", incident.ChannelName),
 			log.NewValue("error", err),
 		)
@@ -35,7 +35,7 @@ func hasLastPin(ctx context.Context, client bot.Client, logger log.Logger, incid
 				ctx,
 				log.Trace(),
 				log.Action("convertTimestamp"),
-				log.NewValue("channelID", incident.ChannelId),
+				log.NewValue("channelID", incident.ChannelID),
 				log.NewValue("channelName", incident.ChannelName),
 				log.NewValue("error", err),
 			)
@@ -48,7 +48,7 @@ func hasLastPin(ctx context.Context, client bot.Client, logger log.Logger, incid
 				log.Trace(),
 				log.Action("do_not_notify"),
 				log.Reason("last_pin_time"),
-				log.NewValue("channelID", incident.ChannelId),
+				log.NewValue("channelID", incident.ChannelID),
 				log.NewValue("channelName", incident.ChannelName),
 			)
 			return true

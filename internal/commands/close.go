@@ -32,18 +32,18 @@ func CloseIncidentDialog(ctx context.Context, logger log.Logger, client bot.Clie
 		return err
 	}
 
-	if inc.StartTimestamp == nil {
+	if inc.StartedAt == nil {
 		var (
 			messageText strings.Builder
 		)
 
-		messageText.WriteString("The dates of Incident <#" + inc.ChannelId + "> has not been updated yet.\n" +
+		messageText.WriteString("The dates of Incident <#" + inc.ChannelID + "> has not been updated yet.\n" +
 			"Please, call the command `/hellper_update_dates` to receive the current dates and update each one.")
 
 		attch := slack.Attachment{
 			Pretext:  "",
 			Fallback: messageText.String(),
-			Text: "The dates of Incident <#" + inc.ChannelId + "> has not been updated yet.\n" +
+			Text: "The dates of Incident <#" + inc.ChannelID + "> has not been updated yet.\n" +
 				"Please, call the command `/hellper_update_dates` to receive the current dates and update each one.",
 			Color:  "#ff8c00",
 			Fields: []slack.AttachmentField{},
@@ -199,7 +199,7 @@ func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Lo
 		CustomerImpact: customerImpact,
 		SeverityLevel:  severityLevelInt64,
 		Responsibility: responsibility,
-		ChannelId:      channelID,
+		ChannelID:      channelID,
 	}
 
 	err = repository.CloseIncident(ctx, &incident)
@@ -228,7 +228,7 @@ func CloseIncidentByDialog(ctx context.Context, client bot.Client, logger log.Lo
 
 	channelAttachment := createCloseChannelAttachment(inc, userName, impact)
 	privateAttachment := createClosePrivateAttachment(inc)
-	message := "The Incident <#" + inc.ChannelId + "> has been closed by <@" + userName + ">"
+	message := "The Incident <#" + inc.ChannelID + "> has been closed by <@" + userName + ">"
 
 	var waitgroup sync.WaitGroup
 	defer waitgroup.Wait()
@@ -282,7 +282,7 @@ func getResponsabilityText(r string) string {
 
 func createCloseChannelAttachment(inc model.Incident, userName, impact string) slack.Attachment {
 	var messageText strings.Builder
-	messageText.WriteString("The Incident <#" + inc.ChannelId + "> has been closed by <@" + userName + ">\n\n")
+	messageText.WriteString("The Incident <#" + inc.ChannelID + "> has been closed by <@" + userName + ">\n\n")
 	messageText.WriteString("*Team:* <#" + inc.Team + ">\n")
 	messageText.WriteString("*Feature:* `" + inc.Functionality + "`\n")
 	messageText.WriteString("*Impact:* `" + impact + "`\n")
@@ -298,11 +298,11 @@ func createCloseChannelAttachment(inc model.Incident, userName, impact string) s
 		Fields: []slack.AttachmentField{
 			{
 				Title: "Incident ID",
-				Value: strconv.FormatInt(inc.Id, 10),
+				Value: strconv.FormatUint(uint64(inc.ID), 10),
 			},
 			{
 				Title: "Incident Channel",
-				Value: "<#" + inc.ChannelId + ">",
+				Value: "<#" + inc.ChannelID + ">",
 			},
 			{
 				Title: "Incident Title",
@@ -338,11 +338,11 @@ func createCloseChannelAttachment(inc model.Incident, userName, impact string) s
 
 func createClosePrivateAttachment(inc model.Incident) slack.Attachment {
 	var privateText strings.Builder
-	privateText.WriteString("The Incident <#" + inc.ChannelId + "> has been resolved by you\n\n")
+	privateText.WriteString("The Incident <#" + inc.ChannelID + "> has been resolved by you\n\n")
 	privateText.WriteString("*Status.io:* Be sure to close the incident on https://status.io\n\n")
 
 	return slack.Attachment{
-		Pretext:  "The Incident <#" + inc.ChannelId + "> has been closed by you",
+		Pretext:  "The Incident <#" + inc.ChannelID + "> has been closed by you",
 		Fallback: privateText.String(),
 		Text:     "",
 		Color:    "#FE4D4D",

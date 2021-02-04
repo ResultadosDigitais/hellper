@@ -41,7 +41,7 @@ func OpenCancelIncidentDialog(
 	}
 
 	if inc.Status != model.StatusOpen {
-		message := "The incident <#" + inc.ChannelId + "> is already `" + inc.Status + "`.\n" +
+		message := "The incident <#" + inc.ChannelID + "> is already `" + inc.Status + "`.\n" +
 			"Only a `open` incident can be canceled."
 
 		var messageText strings.Builder
@@ -120,7 +120,7 @@ func CancelIncidentByDialog(
 		channelID        = incidentDetails.Channel.ID
 		description      = incidentDetails.Submission.IncidentDescription
 		requestCancel    = model.Incident{
-			ChannelId:            channelID,
+			ChannelID:            channelID,
 			DescriptionCancelled: description,
 		}
 	)
@@ -218,7 +218,7 @@ func createCancelAttachment(inc model.Incident, userID string) slack.Attachment 
 	var messageText strings.Builder
 
 	messageText.WriteString("An Incident has been canceled by <@" + userID + ">\n\n")
-	messageText.WriteString("*Channel:* <#" + inc.ChannelId + ">\n")
+	messageText.WriteString("*Channel:* <#" + inc.ChannelID + ">\n")
 	messageText.WriteString("*Description:* `" + inc.DescriptionCancelled + "`\n\n")
 
 	return slack.Attachment{
@@ -229,11 +229,11 @@ func createCancelAttachment(inc model.Incident, userID string) slack.Attachment 
 		Fields: []slack.AttachmentField{
 			{
 				Title: "Incident ID",
-				Value: strconv.FormatInt(inc.Id, 10),
+				Value: strconv.FormatUint(uint64(inc.ID), 10),
 			},
 			{
 				Title: "Incident Channel",
-				Value: "<#" + inc.ChannelId + ">",
+				Value: "<#" + inc.ChannelID + ">",
 			},
 			{
 				Title: "Incident Title",

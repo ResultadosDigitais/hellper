@@ -114,7 +114,7 @@ func PauseNotifyIncidentByDialog(
 	)
 
 	incident := model.Incident{
-		ChannelId:    channelID,
+		ChannelID:    channelID,
 		SnoozedUntil: pauseNotifyTime,
 	}
 

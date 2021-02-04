@@ -40,9 +40,9 @@ func reportNotify(ctx context.Context) {
 	for _, incident := range incidents {
 		if arg.statusFlag == incident.Status || arg.statusFlag == "all" {
 			logger.Info(ctx, log.Trace(), log.Action("notify_job"), log.NewValue("incident", incident))
-			notify.WriteString("*<#" + incident.ChannelId + ">* - ")
+			notify.WriteString("*<#" + incident.ChannelID + ">* - ")
 			notify.WriteString("Status: `" + incident.Status + "` - ")
-			notify.WriteString("Commander: <@" + incident.CommanderId + ">\n")
+			notify.WriteString("Commander: <@" + incident.CommanderID + ">\n")
 		}
 	}
 

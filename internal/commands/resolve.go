@@ -111,10 +111,10 @@ func ResolveIncidentByDialog(
 	)
 
 	incident := model.Incident{
-		ChannelId:           channelID,
-		EndTimestamp:        &now,
+		ChannelID:           channelID,
+		EndedAt:             &now,
 		DescriptionResolved: description,
-		StatusPageUrl:       statusPageURL,
+		StatusPageURL:       statusPageURL,
 	}
 
 	err := repository.ResolveIncident(ctx, &incident)
@@ -153,7 +153,7 @@ func ResolveIncidentByDialog(
 	}
 
 	if hasPostMortemMeeting {
-		calendarEvent, err = getCalendarEvent(ctx, client, logger, repository, calendar, incident.EndTimestamp, channelName, channelID)
+		calendarEvent, err = getCalendarEvent(ctx, client, logger, repository, calendar, incident.EndedAt, channelName, channelID)
 		if err != nil {
 			logger.Error(
 				ctx,
@@ -167,7 +167,7 @@ func ResolveIncidentByDialog(
 
 	channelAttachment := createResolveChannelAttachment(inc, userName, calendarEvent)
 	privateAttachment := createResolvePrivateAttachment(incident, calendarEvent)
-	message := "The Incident <#" + incident.ChannelId + "> has been resolved by <@" + userName + ">"
+	message := "The Incident <#" + incident.ChannelID + "> has been resolved by <@" + userName + ">"
 
 	var waitgroup sync.WaitGroup
 	defer waitgroup.Wait()
@@ -278,14 +278,14 @@ func getCalendarEvent(
 
 func createResolveChannelAttachment(inc model.Incident, userName string, event *model.Event) slack.Attachment {
 	var (
-		endDateText       = inc.EndTimestamp.Format(time.RFC1123)
+		endDateText       = inc.EndedAt.Format(time.RFC1123)
 		postMortemMessage string
 		messageText       strings.Builder
 	)
 
-	messageText.WriteString("The Incident <#" + inc.ChannelId + "> has been resolved by <@" + userName + ">\n\n")
+	messageText.WriteString("The Incident <#" + inc.ChannelID + "> has been resolved by <@" + userName + ">\n\n")
 	messageText.WriteString("*End date:* <#" + endDateText + ">\n")
-	messageText.WriteString("*Status.io link:* `" + inc.StatusPageUrl + "`\n")
+	messageText.WriteString("*Status.io link:* `" + inc.StatusPageURL + "`\n")
 	messageText.WriteString("*Description:* `" + inc.DescriptionResolved + "`\n")
 	if event == nil {
 		messageText.WriteString("*Post Mortem:* A Post Mortem Meeting was not schedule, be sure to fill up the Post Mortem document.\n")
@@ -303,11 +303,11 @@ func createResolveChannelAttachment(inc model.Incident, userName string, event *
 		Fields: []slack.AttachmentField{
 			{
 				Title: "Incident ID",
-				Value: strconv.FormatInt(inc.Id, 10),
+				Value: strconv.FormatUint(uint64(inc.ID), 10),
 			},
 			{
 				Title: "Incident Channel",
-				Value: "<#" + inc.ChannelId + ">",
+				Value: "<#" + inc.ChannelID + ">",
 			},
 			{
 				Title: "Incident Title",
@@ -319,7 +319,7 @@ func createResolveChannelAttachment(inc model.Incident, userName string, event *
 			},
 			{
 				Title: "Status.io link",
-				Value: inc.StatusPageUrl,
+				Value: inc.StatusPageURL,
 			},
 			{
 				Title: "Description",
@@ -339,8 +339,8 @@ func createResolvePrivateAttachment(inc model.Incident, event *model.Event) slac
 		privateText       strings.Builder
 	)
 
-	privateText.WriteString("The Incident <#" + inc.ChannelId + "> has been resolved by you\n\n")
-	privateText.WriteString("*Status.io:* Be sure to update the incident status on" + inc.StatusPageUrl + "\n")
+	privateText.WriteString("The Incident <#" + inc.ChannelID + "> has been resolved by you\n\n")
+	privateText.WriteString("*Status.io:* Be sure to update the incident status on" + inc.StatusPageURL + "\n")
 	if event == nil {
 		privateText.WriteString("*Post Mortem:* A Post Mortem Meeting was not schedule, be sure to fill up the Post Mortem document.\n")
 		postMortemMessage = "A Post Mortem Meeting was not schedule, be sure to fill up the Post Mortem document."
@@ -350,14 +350,14 @@ func createResolvePrivateAttachment(inc model.Incident, event *model.Event) slac
 	}
 
 	return slack.Attachment{
-		Pretext:  "The Incident <#" + inc.ChannelId + "> has been resolved by you",
+		Pretext:  "The Incident <#" + inc.ChannelID + "> has been resolved by you",
 		Fallback: privateText.String(),
 		Text:     "",
 		Color:    "#1164A3",
 		Fields: []slack.AttachmentField{
 			{
 				Title: "Status.io",
-				Value: "Be sure to update the incident status on " + inc.StatusPageUrl,
+				Value: "Be sure to update the incident status on " + inc.StatusPageURL,
 			},
 			{
 				Title: "Post Mortem",

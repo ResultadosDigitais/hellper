@@ -57,7 +57,7 @@ func TestCanSendNotify(t *testing.T) {
 			expected: true,
 			lastPin:  lastPin(config.Env.ReminderOpenStatusSeconds, -30),
 			mockIncident: model.Incident{
-				EndTimestamp: &time.Time{},
+				EndedAt:      &time.Time{},
 				SnoozedUntil: sql.NullTime{},
 				Status:       "open",
 			},
@@ -67,7 +67,7 @@ func TestCanSendNotify(t *testing.T) {
 			expected: false,
 			lastPin:  lastPin(config.Env.ReminderOpenStatusSeconds, 30),
 			mockIncident: model.Incident{
-				EndTimestamp: &time.Time{},
+				EndedAt:      &time.Time{},
 				SnoozedUntil: sql.NullTime{},
 				Status:       "open",
 			},
@@ -76,7 +76,7 @@ func TestCanSendNotify(t *testing.T) {
 			testName: "Notify when status is resolved and SLA > 7 days",
 			expected: true,
 			mockIncident: model.Incident{
-				EndTimestamp: &[]time.Time{time.Now().AddDate(0, 0, -8)}[0],
+				EndedAt:      &[]time.Time{time.Now().AddDate(0, 0, -8)}[0],
 				SnoozedUntil: sql.NullTime{},
 				Status:       "resolved",
 			},
@@ -85,7 +85,7 @@ func TestCanSendNotify(t *testing.T) {
 			testName: "Do not notify when status is resolved and SLA <= 7 days",
 			expected: false,
 			mockIncident: model.Incident{
-				EndTimestamp: &[]time.Time{time.Now().AddDate(0, 0, -7)}[0],
+				EndedAt:      &[]time.Time{time.Now().AddDate(0, 0, -7)}[0],
 				SnoozedUntil: sql.NullTime{},
 				Status:       "resolved",
 			},
@@ -94,7 +94,7 @@ func TestCanSendNotify(t *testing.T) {
 			testName: "Do not notify when status is open and notify is paused",
 			expected: false,
 			mockIncident: model.Incident{
-				EndTimestamp: &time.Time{},
+				EndedAt:      &time.Time{},
 				SnoozedUntil: sql.NullTime{Time: time.Now().AddDate(0, 0, 1)},
 				Status:       "open",
 			},
@@ -103,7 +103,7 @@ func TestCanSendNotify(t *testing.T) {
 			testName: "Do not notify when status is resolved and SLA > 7 days and notify is paused",
 			expected: false,
 			mockIncident: model.Incident{
-				EndTimestamp: &[]time.Time{time.Now().AddDate(0, 0, -8)}[0],
+				EndedAt:      &[]time.Time{time.Now().AddDate(0, 0, -8)}[0],
 				SnoozedUntil: sql.NullTime{Time: time.Now().AddDate(0, 0, 3)},
 				Status:       "resolved",
 			},
@@ -112,7 +112,7 @@ func TestCanSendNotify(t *testing.T) {
 			testName: "Do not notify when status is closed",
 			expected: false,
 			mockIncident: model.Incident{
-				EndTimestamp: &[]time.Time{time.Now()}[0],
+				EndedAt:      &[]time.Time{time.Now()}[0],
 				SnoozedUntil: sql.NullTime{},
 				Status:       "closed",
 			},
@@ -121,7 +121,7 @@ func TestCanSendNotify(t *testing.T) {
 			testName: "Do not notify when status is canceled",
 			expected: false,
 			mockIncident: model.Incident{
-				EndTimestamp: &[]time.Time{time.Now()}[0],
+				EndedAt:      &[]time.Time{time.Now()}[0],
 				SnoozedUntil: sql.NullTime{},
 				Status:       "canceled",
 			},
@@ -130,7 +130,7 @@ func TestCanSendNotify(t *testing.T) {
 			testName: "Do not notify in any other status",
 			expected: false,
 			mockIncident: model.Incident{
-				EndTimestamp: &[]time.Time{time.Now()}[0],
+				EndedAt:      &[]time.Time{time.Now()}[0],
 				SnoozedUntil: sql.NullTime{},
 				Status:       "xyzxyzxyz",
 			},

@@ -191,17 +191,17 @@ func StartIncidentByDialog(
 	}
 
 	incident := model.Incident{
-		ChannelName:             channelName,
-		ChannelId:               channel.ID,
-		Title:                   incidentTitle,
-		Product:                 product,
-		DescriptionStarted:      description,
-		Status:                  model.StatusOpen,
-		IdentificationTimestamp: &now,
-		SeverityLevel:           severityLevelInt64,
-		IncidentAuthor:          incidentAuthor,
-		CommanderId:             user.SlackID,
-		CommanderEmail:          user.Email,
+		ChannelName:        channelName,
+		ChannelID:          channel.ID,
+		Title:              incidentTitle,
+		Product:            product,
+		DescriptionStarted: description,
+		Status:             model.StatusOpen,
+		IdentifiedAt:       &now,
+		SeverityLevel:      severityLevelInt64,
+		IncidentAuthor:     incidentAuthor,
+		CommanderID:        user.SlackID,
+		CommanderEmail:     user.Email,
 	}
 
 	incidentID, err := repository.InsertIncident(ctx, &incident)
@@ -267,7 +267,7 @@ func createPostMortemAndUpdateTopic(ctx context.Context, logger log.Logger, clie
 	var topic strings.Builder
 	topic.WriteString("*WarRoom:* " + warRoomURL + "\n\n")
 	topic.WriteString("*PostMortem:* " + postMortemURL + "\n\n")
-	topic.WriteString("*Commander:* <@" + incident.CommanderId + ">\n\n")
+	topic.WriteString("*Commander:* <@" + incident.CommanderID + ">\n\n")
 
 	_, err = client.SetTopicOfConversation(channel.ID, topic.String())
 	if err != nil {
@@ -288,8 +288,8 @@ func createOpenAttachment(incident model.Incident, incidentID int64, warRoomURL 
 	messageText.WriteString("*Title:* " + incident.Title + "\n")
 	messageText.WriteString("*Severity:* " + getSeverityLevelText(incident.SeverityLevel) + "\n\n")
 	messageText.WriteString("*Product:* " + incident.Product + "\n")
-	messageText.WriteString("*Channel:* <#" + incident.ChannelId + ">\n")
-	messageText.WriteString("*Commander:* <@" + incident.CommanderId + ">\n\n")
+	messageText.WriteString("*Channel:* <#" + incident.ChannelID + ">\n")
+	messageText.WriteString("*Commander:* <@" + incident.CommanderID + ">\n\n")
 	messageText.WriteString("*Description:* `" + incident.DescriptionStarted + "`\n\n")
 	messageText.WriteString("*War Room:* " + warRoomURL + "\n")
 	messageText.WriteString("*cc:* <@" + supportTeam + ">\n")
@@ -306,7 +306,7 @@ func createOpenAttachment(incident model.Incident, incidentID int64, warRoomURL 
 			},
 			{
 				Title: "Incident Channel",
-				Value: "<#" + incident.ChannelId + ">",
+				Value: "<#" + incident.ChannelID + ">",
 			},
 			{
 				Title: "Incident Title",
@@ -322,7 +322,7 @@ func createOpenAttachment(incident model.Incident, incidentID int64, warRoomURL 
 			},
 			{
 				Title: "Commander",
-				Value: "<@" + incident.CommanderId + ">",
+				Value: "<@" + incident.CommanderID + ">",
 			},
 			{
 				Title: "Description",

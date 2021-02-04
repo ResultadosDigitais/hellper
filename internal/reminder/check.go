@@ -20,7 +20,7 @@ func CanSendNotify(ctx context.Context, client bot.Client, logger log.Logger, re
 		ctx,
 		log.Trace(),
 		log.Action("running"),
-		log.NewValue("channelID", incident.ChannelId),
+		log.NewValue("channelID", incident.ChannelID),
 		log.NewValue("channelName", incident.ChannelName),
 	)
 

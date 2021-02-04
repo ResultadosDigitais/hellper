@@ -1,22 +1,21 @@
 package database
 
 import (
-	"os"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-// DB .
-var DB *gorm.DB
+// DB wraps the gorm DB struct
+type DB struct {
+	*gorm.DB
+}
 
-// Init .
-func Init() {
-	var err error
-	dsn := os.Getenv("HELLPER_DSN")
-
-	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+// NewConnectionWithDSN opens a new connection with the database using the GORM package
+func NewConnectionWithDSN(dsn string) (*DB, error) {
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic("failed to connect database")
+		return nil, err
 	}
+
+	return &DB{db}, nil
 }

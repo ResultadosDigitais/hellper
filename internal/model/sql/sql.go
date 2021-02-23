@@ -61,7 +61,7 @@ func newSQLDB(driver, dsn string) (*sql.DB, error) {
 
 	psqlInfo := dsn
 	if connectionSSLMode {
-		sslmode := "&sslmode=verify-ca"
+		sslmode := "?sslmode=disable&sslmode=verify-ca"
 		sslrootcert := "&sslrootcert=/var/hellper/server-ca.pem"
 		sslkey := "&sslkey=/var/hellper/client-key.pem"
 		sslcert := "&sslcert=/var/hellper/client-cert.pem"

@@ -65,7 +65,7 @@ func newSQLDB(driver, dsn string) (*sql.DB, error) {
 		sslrootcert := "&sslrootcert=/var/hellper/server-ca.pem"
 		sslkey := "&sslkey=/var/hellper/client-key.pem"
 		sslcert := "&sslcert=/var/hellper/client-cert.pem"
-		psqlInfo = sslmode + sslrootcert + sslkey + sslcert
+		psqlInfo = psqlInfo + sslmode + sslrootcert + sslkey + sslcert
 	}
 
 	return sql.Open(driver, psqlInfo)

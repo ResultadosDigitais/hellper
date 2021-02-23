@@ -19,6 +19,7 @@ type environment struct {
 	BindAddress                   string
 	Database                      string
 	DSN                           string
+	ConnectionSSLMode             bool
 	GoogleCredentials             string
 	GoogleDriveToken              string
 	GoogleDriveFileID             string
@@ -70,6 +71,7 @@ func newEnvironment() environment {
 	vars.BoolVar(&env.NotifyOnCancel, "hellper_notify_on_cancel", true, "Notify the Product channel when cancel the incident")
 	vars.StringVar(&env.Timezone, "timezone", "America/Sao_Paulo", "The local time of a region or a country used to create a event.")
 	vars.IntVar(&env.SLAHoursToClose, "hellper_sla_hours_to_close", 168, "SLA hours to close")
+	vars.BoolVar(&env.ConnectionSSLMode, "hellper_connection_ssl_mode", true, "Enable a connection SSL with the database")
 
 	vars.Parse()
 	return env

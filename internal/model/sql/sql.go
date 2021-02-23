@@ -3,6 +3,7 @@ package sql
 import (
 	"database/sql"
 	"errors"
+	"hellper/internal/config"
 )
 
 var (
@@ -53,7 +54,21 @@ func (db *db) Exec(sql string, arguments ...interface{}) (Result, error) {
 }
 
 func newSQLDB(driver, dsn string) (*sql.DB, error) {
-	return sql.Open(driver, dsn)
+
+	var (
+		connectionSSLMode = config.Env.ConnectionSSLMode
+	)
+
+	psqlInfo := dsn
+	if connectionSSLMode {
+		sslmode := "&sslmode=verify-ca"
+		sslrootcert := "&sslrootcert=/var/hellper/server-ca.pem"
+		sslkey := "&sslkey=/var/hellper/client-key.pem"
+		sslcert := "&sslcert=/var/hellper/client-cert.pem"
+		psqlInfo = sslmode + sslrootcert + sslkey + sslcert
+	}
+
+	return sql.Open(driver, psqlInfo)
 }
 
 func NewDB(sqlDB *sql.DB) (DB, error) {

@@ -8,7 +8,7 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/lib/pq v1.9.0
 	github.com/paked/configure v0.0.0-20190218140148-28f9c3f21a44
-	github.com/slack-go/slack v0.7.2
+	github.com/slack-go/slack v0.9.4
 	github.com/stretchr/objx v0.1.1 // indirect
 	github.com/stretchr/testify v1.6.1
 	go.uber.org/zap v1.16.0

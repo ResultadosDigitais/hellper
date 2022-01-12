@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/golang:1.13
+      - image: cimg/go:1.13
         environment:
           HELLPER_DSN: "postgres://hellper_test:@127.0.0.1:5432/hellper_test?sslmode=disable"
           DATABASE: "hellper_test"

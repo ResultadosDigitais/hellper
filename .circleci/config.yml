@@ -10,7 +10,6 @@ jobs:
         environment:
           POSTGRES_USER: hellper_test
           POSTGRES_DB: hellper_test
-    working_directory: /go/src/github.com/ResultadosDigitais/hellper
     steps:
       - checkout
       - run:

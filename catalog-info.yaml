@@ -1,0 +1,11 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: hellper
+  annotations:
+    github.com/project-slug: ResultadosDigitais/hellper
+    circleci.com/project-slug: github/ResultadosDigitais/hellper
+spec:
+  type: service
+  lifecycle: production
+  owner: hydra 

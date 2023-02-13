@@ -13,3 +13,4 @@ updates:
   - hydra
   labels:
   - dependabot
+  rebase-strategy: disabled
